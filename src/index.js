@@ -140,19 +140,19 @@ app.get('/pages/PRF_menu.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'PRF_menu.html'));
 });
 
-app.get('/pages/PRF_1ER_PISO.HTML', (req, res) => {
+app.get('/pages/PRF_1ER_PISO.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'PRF_1ER_PISO.html'));
 });
 
-app.get('/pages/PRF_2DO_PISO.HTML', (req, res) => {
+app.get('/pages/PRF_2DO_PISO.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'PRF_2DO_PISO.html'));
 });
 
-app.get('/pages/PRF_3ER_PISO.HTML', (req, res) => {
+app.get('/pages/PRF_3ER_PISO.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'PRF_3ER_PISO.html'));
 });
 
-app.get('/pages/PRF_Reportes.HTML', (req, res) => {
+app.get('/pages/PRF_Reportes.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'PRF_Reportes.html'));
 });
 
