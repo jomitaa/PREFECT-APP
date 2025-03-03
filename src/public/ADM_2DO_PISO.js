@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mostrar(horarios);
         } catch (error) {
             console.error('Error al obtener los horarios:', error);
-            contenedor.innerhtml = '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
+            contenedor.innerHTML = '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
         }
     }
 
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         });
 
-        contenedor.innerhtml = resultados;
+        contenedor.innerHTML = resultados;
 
         inicializarCheckboxes(); 
     }
@@ -211,7 +211,7 @@ const toPDF = function (customers_table) {
         <link rel="stylesheet" type="text/css" href="../public/css/PRF_1ER_PISO.css">
     </head>
     <body>
-        <main class="table" id="customers_table">${customers_table.innerhtml}</main>
+        <main class="table" id="customers_table">${customers_table.innerHTML}</main>
     </body>
     </html>`;
 

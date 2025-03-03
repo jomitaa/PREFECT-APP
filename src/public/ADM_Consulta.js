@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mostrar(consulta);
         } catch (error) {
             console.error('Error al obtener los datos de la consulta:', error);
-            contenedor.innerhtml = '<tr><td colspan="10">Error al cargar los datos</td></tr>';
+            contenedor.innerHTML = '<tr><td colspan="10">Error al cargar los datos</td></tr>';
         }
     }
 
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Mostrar los resultados en el contenedor
-        contenedor.innerhtml = resultados;
+        contenedor.innerHTML = resultados;
 
     }
 
@@ -141,7 +141,7 @@ const toPDF = function (customers_table) {
         <link rel="stylesheet" type="text/css" href="../public/css/PRF_1ER_PISO.css">
     </head>
     <body>
-        <main class="table" id="customers_table">${customers_table.innerhtml}</main>
+        <main class="table" id="customers_table">${customers_table.innerHTML}</main>
     </body>
     </html>`;
 

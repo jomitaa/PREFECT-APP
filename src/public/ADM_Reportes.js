@@ -23,11 +23,11 @@ function cargarReportes() {
         .then(response => response.json())
         .then(data => {
             const listaReportes = document.getElementById('lista-reportes');
-            listaReportes.innerhtml = ''; // Limpiar lista
+            listaReportes.innerHTML = ''; // Limpiar lista
 
             data.forEach(reporte => {
                 const li = document.createElement('li');
-                li.innerhtml = `<h3>Reporte ${reporte.id_reporte}</h3><p>${reporte.tipo_reporte}</p>`;
+                li.innerHTML = `<h3>Reporte ${reporte.id_reporte}</h3><p>${reporte.tipo_reporte}</p>`;
                 li.addEventListener('click', () => abrirModal(reporte));
                 listaReportes.appendChild(li);
             });
