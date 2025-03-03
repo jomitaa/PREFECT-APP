@@ -26,7 +26,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const conexion = mysql.createConnection(process.env.MYSQL_URL);
+const conexion = mysql.createPool(process.env.MYSQL_URL);
 
 conexion.connect(err => {
   if (err) {
