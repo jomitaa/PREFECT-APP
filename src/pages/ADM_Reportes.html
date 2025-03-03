@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="/css/ADM_Reportes.css">
+	<title>Prefect App 1.1</title>
+</head>
+
+<body>
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<a href="#" class="brand"><i class='bx bxs-parking icon'></i> PREFECT APP</a>
+		<ul class="side-menu">
+			<li><a href="#" class="active"><i class='bx bxs-dashboard icon'></i> ADMINISTRADOR</a></li><br>
+
+			<li><a href="#" class="active"><i class='bx bx-table icon'></i> Inicio</a></li>
+
+			<li class="divider" data-text="Editar accion"></li>
+			<li>
+				<a href="#"><i class='bx bxs-inbox icon'></i> Horarios <i
+						class='bx bx-chevron-right icon-right'></i></a>
+				<ul class="side-dropdown">
+					<li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
+					<li><a href="#">2do Piso</a></li>
+					<li><a href="#">3er Piso</a></li>
+				</ul>
+			</li>
+
+			<li class="divider" data-text="maestros"></li>
+			<li><a href="./ADM_Consulta.html"><i class='bx bx-table icon'></i> Consulta</a></li>
+
+			<li class="divider" data-text="reportes"></li>
+			<li><a href="./ADM_Reportes.html"><i class='bx bx-table icon'></i> Consulta</a></li>
+
+
+			<li class="divider" data-text="usuarios"></li>
+			<li><a href="./ADM_Editar_Usuarios.html"><i class='bx bx-table icon'></i> Editar Usuario</a></li>
+			<li><a href="./registrar.html"><i class='bx bx-table icon'></i> Registrar Usuario</a></li>
+
+		</ul>
+
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- NAVBAR -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu toggle-sidebar'></i>
+
+			<form action="#">
+				<div class="form-group">
+					<input type="text" placeholder="Search...">
+					<i class='bx bx-search icon'></i>
+				</div>
+			</form>
+
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+			
+
+			<span class="divider"></span>
+			<div class="profile">
+				<img src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png" alt="">
+				<ul class="profile-link">
+					<li><a href="./perfil.html"><i class='bx bxs-user-circle icon'></i> Profile</a></li>
+					<li><a href="#" onclick="cerrarSesion()"><i class='bx bxs-log-out-circle'></i> Cerrar Sesión</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<!-- NAVBAR -->
+
+		<!-- MAIN -->
+		<main>
+			<h1 class="title">Prefect APP</h1>
+			<ul class="breadcrumbs">
+				<li><a href="#">P.A</a></li>
+				<li>/</li>
+				<li>Inicio</li>
+
+			</ul>
+			<div class="info-data">
+
+				<ul class="box-info" id="lista-reportes">
+                    <!-- Aquí se llenarán los reportes dinámicamente con JS -->
+
+                </ul>
+	
+				<!-- Modal para ver y editar reportes -->
+<div id="modal-reporte" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Editar Reporte</h2>
+        <form id="form-editar-reporte">
+            <label>ID Reporte:</label>
+            <input type="text" id="modal-id-reporte" disabled>
+
+            <label>Tipo de Reporte:</label>
+            <select id="modal-tipo-reporte">
+                <option value="1">Reportes Académicos</option>
+                <option value="2">Reportes de Asistencia</option>
+                <option value="3">Reportes Administrativos</option>
+                <option value="4">Reportes de Actividades</option>
+                <option value="5">Reportes de Evaluación</option>
+                <option value="6">Reportes de Seguridad</option>
+                <option value="7">Reportes de Mantenimiento</option>
+            </select>
+
+            <label>Nombre del Usuario:</label>
+            <input type="text" id="modal-nom-usuario" disabled>
+
+            <label>Descripción:</label>
+            <textarea id="modal-descripcion" rows="5"></textarea>
+
+            <button type="submit">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+
+
+			</div>
+
+		</main>
+		<!-- MAIN -->
+	</section>
+	<!-- NAVBAR -->
+
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="/ADM_Reportes.js"></script>
+	<script>
+
+		            // Obtener el día y la fecha actual
+			
+		function cerrarSesion() {
+			// Envía una solicitud al servidor para cerrar la sesión
+			fetch('/logout', {
+				method: 'POST',
+				credentials: 'same-origin' // Incluye las cookies en la solicitud
+			})
+				.then(response => {
+					// Si la solicitud fue exitosa, redirige al usuario a la página de inicio
+					if (response.ok) {
+						window.location.href = '/'; // Cambia esto según la ruta de tu página de inicio
+					} else {
+						console.error('Error al cerrar sesión:', response.statusText);
+					}
+				})
+				.catch(error => {
+					console.error('Error al cerrar sesión:', error);
+				});
+		}
+
+		// SIDEBAR DROPDOWN
+		const allDropdown = document.querySelectorAll('#sidebar .side-dropdown');
+		const sidebar = document.getElementById('sidebar');
+
+		allDropdown.forEach(item => {
+			const a = item.parentElement.querySelector('a:first-child');
+			a.addEventListener('click', function (e) {
+				e.preventDefault();
+
+				if (!this.classList.contains('active')) {
+					allDropdown.forEach(i => {
+						const aLink = i.parentElement.querySelector('a:first-child');
+
+						aLink.classList.remove('active');
+						i.classList.remove('show');
+					})
+				}
+
+				this.classList.toggle('active');
+				item.classList.toggle('show');
+			})
+		})
+
+
+
+
+
+		// SIDEBAR COLLAPSE
+		const toggleSidebar = document.querySelector('nav .toggle-sidebar');
+		const allSideDivider = document.querySelectorAll('#sidebar .divider');
+
+		if (sidebar.classList.contains('hide')) {
+			allSideDivider.forEach(item => {
+				item.textContent = '-'
+			})
+			allDropdown.forEach(item => {
+				const a = item.parentElement.querySelector('a:first-child');
+				a.classList.remove('active');
+				item.classList.remove('show');
+			})
+		} else {
+			allSideDivider.forEach(item => {
+				item.textContent = item.dataset.text;
+			})
+		}
+
+		toggleSidebar.addEventListener('click', function () {
+			sidebar.classList.toggle('hide');
+
+			if (sidebar.classList.contains('hide')) {
+				allSideDivider.forEach(item => {
+					item.textContent = '-'
+				})
+
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+			} else {
+				allSideDivider.forEach(item => {
+					item.textContent = item.dataset.text;
+				})
+			}
+		})
+
+
+
+
+		sidebar.addEventListener('mouseleave', function () {
+			if (this.classList.contains('hide')) {
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+				allSideDivider.forEach(item => {
+					item.textContent = '-'
+				})
+			}
+		})
+
+
+
+		sidebar.addEventListener('mouseenter', function () {
+			if (this.classList.contains('hide')) {
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+				allSideDivider.forEach(item => {
+					item.textContent = item.dataset.text;
+				})
+			}
+		})
+
+
+
+
+		// PROFILE DROPDOWN
+		const profile = document.querySelector('nav .profile');
+		const imgProfile = profile.querySelector('img');
+		const dropdownProfile = profile.querySelector('.profile-link');
+
+		imgProfile.addEventListener('click', function () {
+			dropdownProfile.classList.toggle('show');
+		})
+
+
+
+
+		// MENU
+		const allMenu = document.querySelectorAll('main .content-data .head .menu');
+
+		allMenu.forEach(item => {
+			const icon = item.querySelector('.icon');
+			const menuLink = item.querySelector('.menu-link');
+
+			icon.addEventListener('click', function () {
+				menuLink.classList.toggle('show');
+			})
+		})
+
+
+
+		window.addEventListener('click', function (e) {
+			if (e.target !== imgProfile) {
+				if (e.target !== dropdownProfile) {
+					if (dropdownProfile.classList.contains('show')) {
+						dropdownProfile.classList.remove('show');
+					}
+				}
+			}
+
+			allMenu.forEach(item => {
+				const icon = item.querySelector('.icon');
+				const menuLink = item.querySelector('.menu-link');
+
+				if (e.target !== icon) {
+					if (e.target !== menuLink) {
+						if (menuLink.classList.contains('show')) {
+							menuLink.classList.remove('show')
+						}
+					}
+				}
+			})
+		})
+
+		const switchMode = document.getElementById('switch-mode');
+
+		switchMode.addEventListener('change', function () {
+			if (this.checked) {
+				document.body.classList.add('dark');
+			} else {
+				document.body.classList.remove('dark');
+			}
+		})
+
+
+	</script>
+</body>
+
+</html>
