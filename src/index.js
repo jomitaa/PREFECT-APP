@@ -12,6 +12,7 @@ app.use(express.json());
 
 
 // Conexión a la base de datos
+/*
 const conexion = mysql.createPool({
     host: 'localhost',
     database: 'hojaprefectos',
@@ -20,6 +21,23 @@ const conexion = mysql.createPool({
     //password: 'n0m3l0'
     
 });
+*/
+
+import mysql from 'mysql2';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const conexion = mysql.createConnection(process.env.MYSQL_URL);
+
+conexion.connect(err => {
+  if (err) {
+    console.error('Error conectando a la base de datos:', err);
+  } else {
+    console.log('Conectado a MySQL en Railway');
+  }
+});
+
 
 
 // Convertir la función de consulta a una que devuelva promesas
