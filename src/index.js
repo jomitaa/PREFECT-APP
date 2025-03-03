@@ -80,9 +80,9 @@ const protectedRoutesAdmin = [
 
 const protectedRoutesPrefecto = [
     '/pages/PRF_menu.html',
-    '/pages/PRF_1ER_PISO.HTML',
-    '/pages/PRF_2DO_PISO.HTML',
-    '/pages/PRF_3ER_PISO.HTML',
+    '/pages/PRF_1ER_PISO.html',
+    '/pages/PRF_2DO_PISO.html',
+    '/pages/PRF_3ER_PISO.html',
     '/pages/PRF_Reportes.html'
 ];
 
@@ -140,20 +140,20 @@ app.get('/pages/PRF_menu.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'PRF_menu.html'));
 });
 
-app.get('/pages/PRF_1ER_PISO.HTML', (req, res) => {
-    res.sendFile(path.join(__dirname, 'pages', 'PRF_1ER_PISO.HTML'));
+app.get('/pages/PRF_1ER_PISO.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'PRF_1ER_PISO.html'));
 });
 
-app.get('/pages/PRF_2DO_PISO.HTML', (req, res) => {
-    res.sendFile(path.join(__dirname, 'pages', 'PRF_2DO_PISO.HTML'));
+app.get('/pages/PRF_2DO_PISO.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'PRF_2DO_PISO.html'));
 });
 
-app.get('/pages/PRF_3ER_PISO.HTML', (req, res) => {
-    res.sendFile(path.join(__dirname, 'pages', 'PRF_3ER_PISO.HTML'));
+app.get('/pages/PRF_3ER_PISO.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'PRF_3ER_PISO.html'));
 });
 
-app.get('/pages/PRF_Reportes.HTML', (req, res) => {
-    res.sendFile(path.join(__dirname, 'pages', 'PRF_Reportes.HTML'));
+app.get('/pages/PRF_Reportes.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'PRF_Reportes.html'));
 });
 
 // Ruta de prueba para sesión
@@ -175,11 +175,11 @@ app.use((err, req, res, next) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'inicio.html'));
 });
-app.get('/pages/login.HTML', (req, res) => {
-    res.sendFile(path.join(__dirname, 'pages', 'login.HTML'));
+app.get('/pages/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'login.html'));
 });
-app.get('/pages/perfil.HTML', (req, res) => {
-    res.sendFile(path.join(__dirname, 'pages', 'perfil.HTML'));
+app.get('/pages/perfil.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'perfil.html'));
 });
 // --------------------------------  FIN INICIO  -------------------------
 

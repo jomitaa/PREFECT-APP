@@ -256,7 +256,7 @@ const estadoValidacionCampos = {
         } catch (error) {
             console.error('Error al actualizar la tabla:', error);
             const contenedor = document.getElementById('tod');
-            contenedor.innerHTML = '<p>Error al cargar los usuarios</p>';
+            contenedor.innerhtml = '<p>Error al cargar los usuarios</p>';
         }
     };
     
@@ -280,7 +280,7 @@ const estadoValidacionCampos = {
             mostrarUsuarios(data);
         } catch (error) {
             console.error('Error al obtener los usuarios:', error);
-            contenedor.innerHTML = '<p>Error al cargar los usuarios</p>';
+            contenedor.innerhtml = '<p>Error al cargar los usuarios</p>';
         }
     };
 
@@ -311,7 +311,7 @@ const estadoValidacionCampos = {
             `;
         });
 
-        contenedor.innerHTML = resultados;
+        contenedor.innerhtml = resultados;
 
         // ----------------------------------------------------- CODIGO OBTENER EL ID Y EDITAR  --------------------------------------------------
         document.querySelectorAll('.edit-user').forEach(button => {

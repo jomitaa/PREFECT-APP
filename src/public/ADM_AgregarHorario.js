@@ -26,7 +26,7 @@ function llenarSelect(idSelect, datos, idColumna, nombreColumna) {
     // Recorremos todos los selects encontrados
     selects.forEach(select => {
         // Limpiar las opciones previas
-        select.innerHTML = `<option disabled selected>${formatearTexto(nombreColumna)}</option>`;
+        select.innerhtml = `<option disabled selected>${formatearTexto(nombreColumna)}</option>`;
 
         // Añadir nuevas opciones
         datos.forEach(dato => {

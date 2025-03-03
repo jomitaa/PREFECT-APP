@@ -159,7 +159,7 @@ const toPDF = function (customers_table) {
         <link rel="stylesheet" type="text/css" href="../public/css/PRF_1ER_PISO.css">
     </head>
     <body>
-        <main class="table" id="customers_table">${customers_table.innerHTML}</main>
+        <main class="table" id="customers_table">${customers_table.innerhtml}</main>
     </body>
     </html>`;
 
