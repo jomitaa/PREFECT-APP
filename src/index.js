@@ -80,9 +80,9 @@ const protectedRoutesAdmin = [
 
 const protectedRoutesPrefecto = [
     '/pages/PRF_menu.html',
-    '/pages/PRF_1ER_PISO.HTML',
-    '/pages/PRF_2DO_PISO.HTML',
-    '/pages/PRF_3ER_PISO.HTML',
+    '/pages/PRF_1ER_PISO.html',
+    '/pages/PRF_2DO_PISO.html',
+    '/pages/PRF_3ER_PISO.html',
     '/pages/PRF_Reportes.html'
 ];
 
@@ -176,10 +176,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'inicio.html'));
 });
 app.get('/pages/login.HTML', (req, res) => {
-    res.sendFile(path.join(__dirname, 'pages', 'login.HTML'));
+    res.sendFile(path.join(__dirname, 'pages', 'login.html'));
 });
 app.get('/pages/perfil.HTML', (req, res) => {
-    res.sendFile(path.join(__dirname, 'pages', 'perfil.HTML'));
+    res.sendFile(path.join(__dirname, 'pages', 'perfil.html'));
 });
 // --------------------------------  FIN INICIO  -------------------------
 
