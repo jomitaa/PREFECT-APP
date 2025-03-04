@@ -26,28 +26,37 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const conexion = mysql.createConnection(process.env.MYSQL_URL);
-
-conexion.connect(err => {
-  if (err) {
-    console.error('Error conectando a la base de datos:', err);
-  } else {
-    console.log('Conectado a MySQL en Railway');
-  }
+// Crear un pool de conexiones en lugar de una única conexión
+const pool = mysql.createPool({
+  uri: process.env.MYSQL_URL,
+  waitForConnections: true,
+  connectionLimit: 10, // Puedes ajustar este valor según la carga esperada
+  queueLimit: 0
 });
 
-
-
-// Convertir la función de consulta a una que devuelva promesas
-const query = (sql, params) => {
-    return new Promise((resolve, reject) => {
-        conexion.query(sql, params, (err, rows) => {
-            if (err)
-                return reject(err);
-            resolve(rows);
-        });
-    });
+// Función de consulta utilizando el pool
+const query = async (sql, params = []) => {
+  let connection;
+  try {
+    connection = await pool.getConnection(); // Obtener una conexión del pool
+    const [rows] = await connection.execute(sql, params);
+    return rows;
+  } catch (err) {
+    console.error('Error en la consulta MySQL:', err);
+    throw err; // Relanzar el error para manejarlo en otro lugar si es necesario
+  } finally {
+    if (connection) connection.release(); // Liberar la conexión de vuelta al pool
+  }
 };
+
+// Manejar errores en la conexión
+pool.on('error', (err) => {
+  console.error('Error en la conexión a MySQL:', err);
+});
+
+// Exportar la función de consulta
+export { query, pool };
+
 
 // Middlewares
 app.set("port", 3000);
