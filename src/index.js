@@ -7,16 +7,11 @@ import { authorize } from './controllers/middleware.js';
 import nodemailer from 'nodemailer'; 
 import crypto from 'crypto'; 
 import { fileURLToPath } from 'url';
-import jwt from 'jsonwebtoken';
-import cookieParser from 'cookie-parser';
-
-
-
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
-app.use(cookieParser());
+
 
 // Conexión a la base de datos
 /*
@@ -197,7 +192,7 @@ app.get('/pages/perfil.HTML', (req, res) => {
 
 // --------------------------------  LOGIN  -------------------------
 app.post('/login', async (req, res) => {
-    const { userName, userPassword, rememberMe } = req.body;  // Recibe rememberMe
+    const { userName, userPassword, rememberMe } = req.body;
     console.log('Datos recibidos:', req.body);
 
     if (!userName || !userPassword) {
@@ -236,12 +231,6 @@ app.post('/login', async (req, res) => {
 
         await transporter.sendMail(mailOptions);
 
-        // Si el usuario eligió recordar sesión, generar un JWT
-        if (rememberMe) {
-            const token = jwt.sign({ userId: user.ID_usuario, userName: user.nom_usuario, cargo: user.cargo }, 'SECRET_KEY', { expiresIn: '7d' }); // Token de 7 días
-            res.cookie('auth_token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 }); // Guardar token en cookie
-        }
-
         res.json({ success: true, requiresOTP: true, message: "Se ha enviado un código de verificación a tu correo." });
 
     } catch (err) {
@@ -250,71 +239,30 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Middle ware de recordar sesion (debe ir en controllers)
-
-
-app.use((req, res, next) => {
-    const token = req.cookies.auth_token;  // Obtener token desde las cookies
-
-    if (token) {
-        jwt.verify(token, 'SECRET_KEY', (err, decoded) => {
-            if (err) {
-                return res.json({ success: false, message: 'Token inválido o expirado.' });
-            }
-
-            req.user = decoded;  // Guardar la información del usuario decodificada
-            next();
-        });
-    } else {
-        next();  // Si no hay token, continuar con la petición
-    }
-});
-
-// ---------------------------------------
-
 app.post('/verify-otp', async (req, res) => {
     const { otp } = req.body;
 
-    // Verificar que el usuario está autenticado con un token
-    const authToken = req.cookies.auth_token;
-    if (!authToken) {
-        return res.status(401).json({ success: false, message: 'No autenticado' });
+    if (!req.session.otp || req.session.otp != otp) {
+        return res.json({ success: false, message: "Código incorrecto." });
     }
 
-    try {
-        // Verificar el token (puedes usar JWT o el sistema de sesiones que prefieras)
-        const decoded = jwt.verify(authToken, 'SECRET_KEY');
-        console.log('Token decodificado:', decoded);
-        req.session.userName = decoded.userName;  // Asegúrate de guardar los datos relevantes en la sesión
-        req.session.cargo = decoded.cargo;
+    req.session.loggedin = true;
+    delete req.session.otp; // Eliminar OTP después de verificar
 
-        // Verificar OTP
-        if (!req.session.otp || req.session.otp !== otp) {
-            return res.json({ success: false, message: "Código incorrecto." });
-        }
+    console.log("Usuario autenticado correctamente:", req.session.userName, "Cargo:", req.session.cargo);
 
-        req.session.loggedin = true;
-        delete req.session.otp; // Eliminar OTP después de verificar
-
-        console.log("Usuario autenticado correctamente:", req.session.userName, "Cargo:", req.session.cargo);
-
-        // Validar que el cargo existe antes de redirigir
-        let redirectUrl;
-        if (req.session.cargo === 'admin') {
-            redirectUrl = '/pages/ADM_menu.html';
-        } else if (req.session.cargo === 'prefecto') {
-            redirectUrl = '/pages/PRF_menu.html';
-        } else {
-            return res.json({ success: false, message: "No tienes un cargo asignado." });
-        }
-
-        console.log("Redirigiendo a:", redirectUrl);
-        return res.json({ success: true, redirectUrl });
-
-    } catch (error) {
-        console.error('Error al verificar el token:', error);
-        return res.status(401).json({ success: false, message: 'Token inválido o expirado' });
+    // Validar que el cargo existe antes de redirigir
+    let redirectUrl;
+    if (req.session.cargo === 'admin') {
+        redirectUrl = '/pages/ADM_menu.html';
+    } else if (req.session.cargo === 'prefecto') {
+        redirectUrl = '/pages/PRF_menu.html';
+    } else {
+        return res.json({ success: false, message: "No tienes un cargo asignado." });
     }
+
+    console.log("Redirigiendo a:", redirectUrl);
+    return res.json({ success: true, redirectUrl });
 });
 
 // --------------------------------  FIN LOGIN  -------------------------
