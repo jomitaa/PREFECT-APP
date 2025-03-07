@@ -176,6 +176,10 @@ app.use((err, req, res, next) => {
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'inicio.html'));
 });
+app.get('/pages/confirmacion.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'confirmacion.html'));
+}
+);
 app.get('/pages/login.HTML', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'login.html'));
 });
@@ -278,7 +282,7 @@ app.post('/register', async (req, res) => {
         tokenStore.set(confirmationToken, { userName, userEmail, userCargo, userPassword });
 
         // 📩 Enviar correo de confirmación
-        const confirmationLink = `http://localhost:3000/confirm/${confirmationToken}`;
+        const confirmationLink = `https://prefect-app-production.up.railway.app/confirm/${confirmationToken}`;
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: userEmail,
@@ -313,9 +317,12 @@ app.get('/confirm/:token', async (req, res) => {
         await query(queryInsert, [userData.userName, userData.userEmail, userData.userCargo, userData.userPassword]);
 
         // 🔄 Eliminar el token del almacenamiento temporal
-        tokenStore.delete(token);
+          // Elimina el token después del registro
+          tokenStore.delete(token);
 
-        res.send("Registro confirmado exitosamente. Ahora puedes iniciar sesión.");
+          // Redirige a la página de confirmación
+          res.sendFile(path.join(__dirname, 'pages', 'confirmacion.html'));
+  
     } catch (err) {
         console.error("Error al confirmar usuario:", err);
         res.status(500).send("Error al procesar la confirmación.");
