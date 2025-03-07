@@ -76,7 +76,7 @@ const estadoValidacionCampos = {
         <div class="otp-container">
             <h2>Verificación en dos pasos</h2>
             <p>Ingresa el código enviado a tu correo:</p>
-            <input type="text" id="otp-input" placeholder="Código OTP" required>
+            <input type="text" id="otp-input" placeholder="Código de Verificacion" required>
             <button onclick="verificarOTP()">Verificar</button>
             <div class="alerta-error"></div>
         </div>
