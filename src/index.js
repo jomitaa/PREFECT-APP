@@ -5,11 +5,25 @@ import mysql from 'mysql2';
 import path from 'path';
 import { authorize } from './controllers/middleware.js';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+
+dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
 
+const conexion = mysql.createPool(process.env.MYSQL_URL);
+
+conexion.getConnection(err => {
+    if (err) {
+        console.error('Error conectando a la base de datos:', err);
+    } else {
+        console.log('Conectado a MySQL en Railway');
+    }
+});
 
 // Conexión a la base de datos
 /*
@@ -22,35 +36,22 @@ const conexion = mysql.createPool({
     
 });
 */
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const conexion = mysql.createPool(process.env.MYSQL_URL);
-
-conexion.getConnection(err => {
-  if (err) {
-    console.error('Error conectando a la base de datos:', err);
-  } else {
-    console.log('Conectado a MySQL en Railway');
-  }
-});
-
-
 
 // Convertir la función de consulta a una que devuelva promesas
 const query = (sql, params) => {
-    return new Promise((resolve, reject) => {
-        conexion.query(sql, params, (err, rows) => {
-            if (err)
-                return reject(err);
-            resolve(rows);
-        });
-    });
+    return conexion.promise().query(sql, params)
+        .then(([rows]) => rows)
+        .catch(err => { throw err; });
 };
 
+
 // Middlewares
-app.set("port", 3000);
+const PORT = process.env.PORT || 3000;
+app.set("port", PORT);
+app.listen(app.get("port"), () => {
+    console.log(`Servidor corriendo en http://localhost:${app.get("port")}`);
+});
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
     secret: 'secret',
@@ -240,17 +241,25 @@ app.get('/obtenerUsuario', (req, res) => {
 
 
 // --------------------------------  REGISTRAR  --------------------------------
-app.post('/register', (req, res) => {
-    console.log('Datos recibidos en el servidor:', req.body); // Añade esta línea para verificar los datos
+const tokenStore = new Map();
 
-    const { userName, userCargo, userPassword, confirmar_contrasena } = req.body;
-    
-    console.log(`Nombre de usuario: ${userName}`);
-    console.log(`Cargo: ${userCargo}`);
-    console.log(`Contraseña: ${userPassword}`);
-    console.log(`Confirmar contraseña: ${confirmar_contrasena}`);
+// 📩 Configuración de Nodemailer
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,  
+        pass: process.env.EMAIL_PASS
+    }
+});
 
-    if (!userName || !userCargo || !userPassword || !confirmar_contrasena) {
+// --------------------------------  RUTA DE REGISTRO  --------------------------------
+
+app.post('/register', async (req, res) => {
+    console.log('Datos recibidos en el servidor:', req.body);
+
+    const { userName, userEmail, userCargo, userPassword, confirmar_contrasena } = req.body;
+
+    if (!userName || !userEmail || !userCargo || !userPassword || !confirmar_contrasena) {
         return res.json({ success: false, message: 'Todos los campos son obligatorios.' });
     }
 
@@ -258,27 +267,61 @@ app.post('/register', (req, res) => {
         return res.json({ success: false, message: 'Las contraseñas no coinciden.' });
     }
 
-    const query = 'INSERT INTO usuario (nom_usuario, cargo, contraseña) VALUES (?, ?, ?)';
-    conexion.query(query, [userName, userCargo, userPassword], (err, results) => {
-        if (err) {
-            console.error('Error inserting user:', err);
-            return res.json({ success: false, message: 'Error al crear la cuenta.' });
+    try {
+        // Verificar si el usuario ya existe
+        const existingUser = await query("SELECT * FROM usuario WHERE correo = ?", [userEmail]);
+        if (existingUser.length > 0) {
+            return res.json({ success: false, message: 'El correo ya está registrado.' });
         }
-        res.json({ success: true, message: 'Registro exitoso.' });
-    });
+
+        // 🔑 Generar un token de confirmación
+        const confirmationToken = crypto.randomBytes(32).toString("hex");
+        tokenStore.set(confirmationToken, { userName, userEmail, userCargo, userPassword });
+
+        // 📩 Enviar correo de confirmación
+        const confirmationLink = `http://localhost:3000/confirm/${confirmationToken}`;
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: userEmail,
+            subject: "Confirma tu registro",
+            text: `Hola ${userName}, por favor confirma tu cuenta haciendo clic en el siguiente enlace: ${confirmationLink}`
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.json({ success: true, message: "Registro iniciado. Revisa tu email para confirmar la cuenta." });
+
+    } catch (err) {
+        console.error("Error en el registro:", err);
+        res.json({ success: false, message: "Error al crear la cuenta." });
+    }
 });
 
+// --------------------------------  RUTA DE CONFIRMACIÓN  --------------------------------
 
+app.get('/confirm/:token', async (req, res) => {
+    const { token } = req.params;
 
-// Función para manejar la consulta a la base de datos con promesas
-function queryDatabase(query, params) {
-    return new Promise((resolve, reject) => {
-        conexion.query(query, params, (err, results) => {
-            if (err) return reject(err);
-            resolve(results);
-        });
-    });
-}
+    const userData = tokenStore.get(token);
+
+    if (!userData) {
+        return res.status(400).send("Token inválido o expirado.");
+    }
+
+    try {
+        // ✅ Insertar usuario en la base de datos una vez confirmado
+        const queryInsert = "INSERT INTO usuario (nom_usuario, correo, cargo, contraseña) VALUES (?, ?, ?, ?)";
+        await query(queryInsert, [userData.userName, userData.userEmail, userData.userCargo, userData.userPassword]);
+
+        // 🔄 Eliminar el token del almacenamiento temporal
+        tokenStore.delete(token);
+
+        res.send("Registro confirmado exitosamente. Ahora puedes iniciar sesión.");
+    } catch (err) {
+        console.error("Error al confirmar usuario:", err);
+        res.status(500).send("Error al procesar la confirmación.");
+    }
+});
 
 // --------------------------------  FIN REGISTRAR  -------------------------
 
@@ -1010,7 +1053,4 @@ app.get('/perfil/:userName', (req, res) => {
 // ------------------------------- RUTA DE CADA PERFIL --------------------------------
 
 
-app.listen(app.get("port"), () => {
-    console.log(`PUERTO:`, app.get("port"));
-    console.log(`Server en http://localhost:${app.get("port")}`);
-});
+
