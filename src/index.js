@@ -207,6 +207,10 @@ app.post('/login', async (req, res) => {
             return res.json({ success: false, message: 'Las credenciales que usas no son válidas.' });
         }
 
+        if (!user.cargo) {
+            return res.json({ success: false, message: 'El usuario no tiene un cargo asignado.' });
+        }
+
         // Generar código OTP de 6 dígitos
         const otpCode = Math.floor(100000 + Math.random() * 900000);
         req.session.otp = otpCode;
@@ -215,6 +219,7 @@ app.post('/login', async (req, res) => {
         req.session.cargo = user.cargo.trim(); // Guardar cargo en sesión
 
         console.log(`OTP generado para ${userName}:`, otpCode);
+        console.log(`Cargo del usuario: ${req.session.cargo}`);
 
         // Enviar OTP por correo
         const mailOptions = {
@@ -246,16 +251,19 @@ app.post('/verify-otp', async (req, res) => {
 
     console.log("Usuario autenticado correctamente:", req.session.userName, "Cargo:", req.session.cargo);
 
-    // Redirigir según el cargo del usuario
+    // Validar que el cargo existe antes de redirigir
+    let redirectUrl;
     if (req.session.cargo === 'admin') {
-        return res.json({ success: true, redirectUrl: '/pages/ADM_menu.html' });
+        redirectUrl = '/pages/ADM_menu.html';
     } else if (req.session.cargo === 'prefecto') {
-        return res.json({ success: true, redirectUrl: '/pages/PRF_menu.html' });
+        redirectUrl = '/pages/PRF_menu.html';
     } else {
         return res.json({ success: false, message: "No tienes un cargo asignado." });
     }
-});
 
+    console.log("Redirigiendo a:", redirectUrl);
+    return res.json({ success: true, redirectUrl });
+});
 
 // --------------------------------  FIN LOGIN  -------------------------
 
