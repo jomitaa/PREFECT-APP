@@ -200,33 +200,63 @@ app.post('/login', async (req, res) => {
     }
 
     try {
-        const results = await query('SELECT * FROM usuario WHERE nom_usuario = ? AND contraseña = ?', [userName, userPassword]);
+        const results = await query('SELECT * FROM usuario WHERE nom_usuario = ?', [userName]);
         const user = results[0];
 
-        if (!user) {
+        if (!user || user.contraseña !== userPassword) {
             return res.json({ success: false, message: 'Las credenciales que usas no son válidas.' });
         }
 
-        req.session.loggedin = true;
-        req.session.id_usuario = user.ID_usuario;  // Guardar el id_usuario en la sesión
-        req.session.nombre = userName;
-        req.session.nombre = user.nom_usuario; // Guardar el cargo en la sesión
-        req.session.cargo = user.cargo; // Guardar el cargo en la sesión
+        // Generar código OTP de 6 dígitos
+        const otpCode = Math.floor(100000 + Math.random() * 900000);
+        req.session.otp = otpCode;
+        req.session.userId = user.ID_usuario;
+        req.session.userName = user.nom_usuario;
+        req.session.cargo = user.cargo.trim(); // Guardar cargo en sesión
 
-        console.log('Sesión guardada en /login:', req.session);
+        console.log(`OTP generado para ${userName}:`, otpCode);
 
-        if (user.cargo.trim() === 'admin') {
-            res.json({ success: true, redirectUrl: '/pages/ADM_menu.html' });
-        } else if (user.cargo.trim() === 'prefecto') {
-            res.json({ success: true, redirectUrl: '/pages/PRF_menu.html' });
-        } else {
-            return res.json({ success: false, message: 'No tienes un cargo asignado.' });
-        }
+        // Enviar OTP por correo
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: user.correo,
+            subject: "Código de verificación",
+            text: `Tu código de verificación es: ${otpCode}`
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.json({ success: true, requiresOTP: true, message: "Se ha enviado un código de verificación a tu correo." });
+
     } catch (err) {
-        console.error('Error fetching user:', err);
+        console.error('Error en login:', err);
         return res.json({ success: false, message: 'Error al iniciar sesión.' });
     }
 });
+
+app.post('/verify-otp', async (req, res) => {
+    const { otp } = req.body;
+
+    if (!req.session.otp || req.session.otp != otp) {
+        return res.json({ success: false, message: "Código incorrecto." });
+    }
+
+    req.session.loggedin = true;
+    delete req.session.otp; // Eliminar OTP después de verificar
+
+    console.log("Usuario autenticado correctamente:", req.session.userName, "Cargo:", req.session.cargo);
+
+    // Redirigir según el cargo del usuario
+    if (req.session.cargo === 'admin') {
+        return res.json({ success: true, redirectUrl: '/pages/ADM_menu.html' });
+    } else if (req.session.cargo === 'prefecto') {
+        return res.json({ success: true, redirectUrl: '/pages/PRF_menu.html' });
+    } else {
+        return res.json({ success: false, message: "No tienes un cargo asignado." });
+    }
+});
+
+
 // --------------------------------  FIN LOGIN  -------------------------
 
 app.get('/obtenerUsuario', (req, res) => {
