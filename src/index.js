@@ -4,26 +4,14 @@ import session from 'express-session';
 import mysql from 'mysql2';
 import path from 'path';
 import { authorize } from './controllers/middleware.js';
+import nodemailer from 'nodemailer'; 
+import crypto from 'crypto'; 
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-import crypto from 'crypto';
-import nodemailer from 'nodemailer';
-
-dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
 
-const conexion = mysql.createPool(process.env.MYSQL_URL);
-
-conexion.getConnection(err => {
-    if (err) {
-        console.error('Error conectando a la base de datos:', err);
-    } else {
-        console.log('Conectado a MySQL con Railway');
-    }
-});
 
 // Conexión a la base de datos
 /*
@@ -36,22 +24,34 @@ const conexion = mysql.createPool({
     
 });
 */
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const conexion = mysql.createPool(process.env.MYSQL_URL);
+
+conexion.getConnection(err => {
+  if (err) {
+    console.error('Error conectando a la base de datos:', err);
+  } else {
+    console.log('Conectado a MySQL en Railway');
+  }
+});
+
 
 // Convertir la función de consulta a una que devuelva promesas
 const query = (sql, params) => {
-    return conexion.promise().query(sql, params)
-        .then(([rows]) => rows)
-        .catch(err => { throw err; });
+    return new Promise((resolve, reject) => {
+        conexion.query(sql, params, (err, rows) => {
+            if (err)
+                return reject(err);
+            resolve(rows);
+        });
+    });
 };
 
-
 // Middlewares
-const PORT = process.env.PORT || 3000;
-app.set("port", PORT);
-app.listen(app.get("port"), () => {
-    console.log(`Servidor corriendo en http://localhost:${app.get("port")}`);
-});
-
+app.set("port", 3000);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
     secret: 'secret',
@@ -226,7 +226,7 @@ app.post('/login', async (req, res) => {
 // --------------------------------  FIN LOGIN  -------------------------
 
 app.get('/obtenerUsuario', (req, res) => {
-    console.log('Sesión actual en /obtenerUsuario:', req.session); // ✅ Depuración
+    console.log('Sesión actual en /obtenerUsuario:', req.session); 
 
     if (!req.session.loggedin || !req.session.id_usuario || !req.session.nombre) {
         return res.status(401).json({ success: false, message: 'No estás autenticado o faltan datos en la sesión.' });
@@ -238,7 +238,6 @@ app.get('/obtenerUsuario', (req, res) => {
         nom_usuario: req.session.nombre
     });
 });
-
 
 // --------------------------------  REGISTRAR  --------------------------------
 const tokenStore = new Map();
@@ -324,7 +323,6 @@ app.get('/confirm/:token', async (req, res) => {
 });
 
 // --------------------------------  FIN REGISTRAR  -------------------------
-
 
 // -------------------------------- CERRAR SESION  --------------------------------
 app.post('/logout', (req, res) => {
@@ -1053,4 +1051,7 @@ app.get('/perfil/:userName', (req, res) => {
 // ------------------------------- RUTA DE CADA PERFIL --------------------------------
 
 
-
+app.listen(app.get("port"), () => {
+    console.log(`PUERTO:`, app.get("port"));
+    console.log(`Server en http://localhost:${app.get("port")}`);
+});
