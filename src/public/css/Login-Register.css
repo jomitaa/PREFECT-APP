@@ -342,6 +342,76 @@ button:hover {
   display: block;
 }
 
+
+.otp-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  text-align: center;
+}
+
+.otp-container h2 {
+  color: #333;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.otp-container p {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+#otp-input {
+  width: 80%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 1rem;
+}
+
+#otp-input:focus {
+  border-color: #3377ff;
+}
+
+button {
+  background-color: #3377ff;
+  color: #fff;
+  border-radius: 20px;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 1rem;
+  width: 80%;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #286ac7;
+}
+
+.alerta-error {
+  display: none;
+  background-color: #F66060;
+  color: #fff;
+  padding: 10px;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.alerta-error.show {
+  display: block;
+}
+
 /* hacer responsivaaa*/
 
 @media screen and (max-width:750px) {
