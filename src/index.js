@@ -7,6 +7,8 @@ import { authorize } from './controllers/middleware.js';
 import nodemailer from 'nodemailer'; 
 import crypto from 'crypto'; 
 import { fileURLToPath } from 'url';
+import cors from 'cors';
+
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -58,6 +60,8 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
+
+app.use(cors({ origin: '*' }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -385,9 +389,11 @@ app.post('/logout', (req, res) => {
 
 // -------------------------------  RUTA DE HORARIOS  --------------------------------
 app.get('/api/horarios', async (req, res) => {
-    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const diaActual = diasSemana[new Date().getDay()]; // Obtener el día actual
-    console.log('Día actual:', diaActual);
+    const diaActual = new Date().toLocaleDateString('es-MX', { weekday: 'long' });
+    const diaCapitalizado = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
+    console.log('Día actual corregido:', diaCapitalizado);
+    
+    console.log('Día actual:', diaCapitalizado);
 
     const queryText = `
         SELECT DISTINCT
@@ -416,7 +422,7 @@ app.get('/api/horarios', async (req, res) => {
     `;
 
     try {
-        const results = await query(queryText, [diaActual]);
+        const results = await query(queryText, [diaCapitalizado]);
         res.json(results);
     } catch (err) {
         console.error('Error fetching horarios:', err);
@@ -439,7 +445,7 @@ app.get('/api/horarios/:id', async (req, res) => {
             CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
             g.sem_grupo,
             g.nom_grupo,
-            s.id_salon,
+            s.id_salon
             
         FROM
             horario h

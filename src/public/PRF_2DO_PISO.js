@@ -105,7 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchHorarios() {
         try {
-            const response = await fetch('/api/horarios');
+            const baseURL = window.location.origin.includes('localhost') 
+                ? 'http://localhost:3000' 
+                : 'https://prefect-app-production.up.railway.app';
+
+            const response = await fetch(`${baseURL}/api/horarios`);
             if (!response.ok) {
                 throw new Error(`Error en la solicitud: ${response.status}`);
             }
