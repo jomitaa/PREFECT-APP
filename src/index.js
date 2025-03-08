@@ -391,7 +391,9 @@ app.post('/logout', (req, res) => {
 app.get('/api/horarios', async (req, res) => {
     const diaActual = new Date().toLocaleDateString('es-MX', { weekday: 'long' });
     const diaCapitalizado = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
+    const diaPrueba = 'Lunes';
     console.log('Día actual corregido:', diaCapitalizado);
+    console.log('Día Prueba:', diaPrueba);
     
     console.log('Día actual:', diaCapitalizado);
 
@@ -422,7 +424,7 @@ app.get('/api/horarios', async (req, res) => {
     `;
 
     try {
-        const results = await query(queryText, [diaCapitalizado]);
+        const results = await query(queryText, [diaPrueba]);
         res.json(results);
     } catch (err) {
         console.error('Error fetching horarios:', err);
