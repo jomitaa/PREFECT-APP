@@ -8,11 +8,19 @@ import nodemailer from 'nodemailer';
 import crypto from 'crypto'; 
 import { fileURLToPath } from 'url';
 import cors from 'cors';
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+
+
+
 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
+
+
 
 
 // Conexión a la base de datos
@@ -39,6 +47,7 @@ conexion.getConnection(err => {
     console.log('Conectado a MySQL en Railway');
   }
 });
+
 
 
 // Convertir la función de consulta a una que devuelva promesas
@@ -197,7 +206,6 @@ app.get('/pages/perfil.HTML', (req, res) => {
 // --------------------------------  LOGIN  -------------------------
 app.post('/login', async (req, res) => {
     const { userName, userPassword, rememberMe } = req.body;
-    console.log('Datos recibidos:', req.body);
 
     if (!userName || !userPassword) {
         return res.json({ success: false, message: 'Nombre de usuario o contraseña no proporcionados.' });
@@ -215,17 +223,28 @@ app.post('/login', async (req, res) => {
             return res.json({ success: false, message: 'El usuario no tiene un cargo asignado.' });
         }
 
+        // Si se activa "Recordar sesión", generar token seguro
+        if (rememberMe) {
+            const token = jwt.sign({ id: user.ID_usuario }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+            res.cookie('rememberMeToken', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'Strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+            });
+            
+        }
+
         // Generar código OTP de 6 dígitos
         const otpCode = Math.floor(100000 + Math.random() * 900000);
         req.session.otp = otpCode;
         req.session.userId = user.ID_usuario;
         req.session.userName = user.nom_usuario;
-        req.session.cargo = user.cargo.trim(); // Guardar cargo en sesión
+        req.session.cargo = user.cargo.trim();
 
         console.log(`OTP generado para ${userName}:`, otpCode);
-        console.log(`Cargo del usuario: ${req.session.cargo}`);
 
-        // Enviar OTP por correo
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: user.correo,
@@ -240,6 +259,35 @@ app.post('/login', async (req, res) => {
     } catch (err) {
         console.error('Error en login:', err);
         return res.json({ success: false, message: 'Error al iniciar sesión.' });
+    }
+});
+
+// Nueva ruta para verificar el token
+app.get('/auto-login', async (req, res) => {
+    const token = req.cookies?.rememberMeToken;
+    if (!token) {
+        return res.status(401).json({ error: 'No se encontró el token de sesión.' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const results = await query('SELECT * FROM usuario WHERE ID_usuario = ?', [decoded.id]);
+
+        if (!results[0]) {
+            return res.json({ success: false, message: "Usuario no encontrado." });
+        }
+
+        req.session.loggedin = true;
+        req.session.userId = results[0].ID_usuario;
+        req.session.userName = results[0].nom_usuario;
+        req.session.cargo = results[0].cargo.trim();
+
+        const redirectUrl = req.session.cargo === 'admin' ? '/pages/ADM_menu.html' : '/pages/PRF_menu.html';
+        return res.json({ success: true, redirectUrl });
+
+    } catch (err) {
+        console.error('Error en auto-login:', err);
+        return res.json({ success: false, message: "Sesión no válida." });
     }
 });
 

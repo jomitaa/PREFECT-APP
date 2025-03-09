@@ -28,47 +28,63 @@ const estadoValidacionCampos = {
       e.preventDefault();
   
       if (estadoValidacionCampos.userName && estadoValidacionCampos.userPassword) {
-        const userName = inputUser.value;
-        const userPassword = inputPass.value;
+          const userName = inputUser.value;
+          const userPassword = inputPass.value;
+          const rememberMe = document.getElementById("rememberMe").checked;
   
-        console.log("Enviando credenciales:", { userName, userPassword });
+          console.log("Enviando credenciales:", { userName, userPassword, rememberMe });
   
-        try {
-          const response = await fetch("/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userName, userPassword }),
-          });
-  
-          const text = await response.text(); // Capturamos la respuesta como texto
-          console.log("Respuesta del servidor:", text);
-  
-          let data;
           try {
-            data = JSON.parse(text); // Convertimos la respuesta en JSON
+              const response = await fetch("/login", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ userName, userPassword, rememberMe }),
+              });
+  
+              const text = await response.text();
+              console.log("Respuesta del servidor:", text);
+  
+              let data;
+              try {
+                  data = JSON.parse(text);
+              } catch (error) {
+                  console.error("Error al parsear JSON:", error);
+                  mostrarMensajeGeneral(alertaErrorLogin, "Error en el servidor.");
+                  return;
+              }
+  
+              if (data.success && data.requiresOTP) {
+                  mostrarFormularioOTP();
+              } else if (data.success) {
+                  window.location.href = data.redirectUrl;
+              } else {
+                  mostrarMensajeGeneral(alertaErrorLogin, data.message);
+              }
+  
           } catch (error) {
-            console.error("Error al parsear JSON:", error);
-            mostrarMensajeGeneral(alertaErrorLogin, "Error en el servidor.");
-            return;
+              console.error("Error al enviar los datos:", error);
+              mostrarMensajeGeneral(alertaErrorLogin, "Error al procesar la solicitud.");
           }
-  
-          if (data.success && data.requiresOTP) {
-            mostrarFormularioOTP();
-          } else if (data.success) {
-            window.location.href = data.redirectUrl;
-          } else {
-            mostrarMensajeGeneral(alertaErrorLogin, data.message);
-          }
-  
-        } catch (error) {
-          console.error("Error al enviar los datos:", error);
-          mostrarMensajeGeneral(alertaErrorLogin, "Error al procesar la solicitud.");
-        }
       } else {
-        mostrarMensajeGeneral(alertaErrorLogin, "Corrige los errores en el formulario.");
+          mostrarMensajeGeneral(alertaErrorLogin, "Corrige los errores en el formulario.");
       }
-    });
   });
+  
+
+  });
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const response = await fetch("/auto-login");
+        const data = await response.json();
+
+        if (data.success) {
+            window.location.href = data.redirectUrl;
+        }
+    } catch (error) {
+        console.error("Error en auto-login:", error);
+    }
+});
   
   // Función para mostrar el formulario de OTP
   function mostrarFormularioOTP() {
