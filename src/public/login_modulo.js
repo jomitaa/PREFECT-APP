@@ -73,18 +73,6 @@ const estadoValidacionCampos = {
 
   });
 
-  window.addEventListener("DOMContentLoaded", async () => {
-    try {
-        const response = await fetch("/auto-login");
-        const data = await response.json();
-
-        if (data.success) {
-            window.location.href = data.redirectUrl;
-        }
-    } catch (error) {
-        console.error("Error en auto-login:", error);
-    }
-});
   
   // Función para mostrar el formulario de OTP
   function mostrarFormularioOTP() {
