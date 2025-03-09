@@ -280,7 +280,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-
 // Nueva ruta para verificar el token
 app.get('/auto-login', async (req, res) => {
     // Verificar si ya hay una sesión activa
