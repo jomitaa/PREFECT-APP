@@ -202,7 +202,7 @@ app.get('/pages/perfil.HTML', (req, res) => {
 // --------------------------------  FIN INICIO  -------------------------
 
 
-
+// token recordar sesion esta mal
 // --------------------------------  LOGIN  -------------------------
 app.post('/login', async (req, res) => {
     const { userName, userPassword, rememberMe } = req.body;
