@@ -88,22 +88,137 @@
 
 			</ul>
 			<div class="info-data">
-				<label for="grupo">Selecciona un grupo:</label>
-				<select id="grupo" name="grupo">
-					<option selected disabled>Seleccione un grupo</option>
-				</select>
-			
-				<label for="dia">Selecciona un día:</label>
-				<select id="dia" name="dia">
-					<option selected disabled>Seleccione un día</option>
-					<option value="Lunes">Lunes</option>
-					<option value="Martes">Martes</option>
-					<option value="Miércoles">Miércoles</option>
-					<option value="Jueves">Jueves</option>
-					<option value="Viernes">Viernes</option>
-				</select>
+
+                <div class="horario">
+					<main class="table" id="customers_table">
+                    <form action="">
+						<section class="table__header">
+							<h1>Agregar Horarios:</h1>
+							<div class="input-group">
+								<select name="grupo" placeholder="Grupo" id="">
+                                    <option disabled selected>Seleccione el Grupo:</option>
+                                    <option value="1IV6">1IV6</option>
+                                </select>
+								
+							</div>
+							<div class="input-group">
+                                <select name="dia" placeholder="Dia" id="">
+                                    <option disabled selected>Seleccione el Dia:</option>
+                                    <option value="Lunes">Lunes</option>
+                                </select>
+						</section>
+						<section class="table__body">
+                        
+							<table>
+								<thead>
+
+									<tr>
+										<th> Hora Inicio </th>
+										<th> Hora Fin </th>
+										<th> Salon </th>
+										<th> Materia </th>
+										<th> Profesor </th>
+										
+
+									</tr>
+								</thead>
+								<tbody>
+                                    <tr>
+									<th>
+                                        <select name="hora_inicio" id="" class="select-group">
+                                            
+                                        </select>
+                                    </th>
+									<th>
+                                        <select name="hora_final" id="" class="select-group">
+                                          
+                                        </select>
+                                    </th>
+									<th>
+                                        <select name="salon" id="" class="select-group">
+                                           
+                                        </select>
+                                    </th>
+									<th>
+                                        <select name="materia" id="" class="select-group">
+                                           
+                                        </select>
+                                    </th>
+									<th>
+                                        <select name="persona" id="" class="select-group">
+                                            
+                                        </select>
+                                    </th>
+									
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <select name="hora_inicio" id="" class="select-group">
+                                                
+                                            </select>
+                                        </th>
+                                        <th>
+                                            <select name="hora_final" id="" class="select-group">
+                                              
+                                            </select>
+                                        </th>
+                                        <th>
+                                            <select name="salon" id="" class="select-group">
+                                               
+                                            </select>
+                                        </th>
+                                        <th>
+                                            <select name="materia" id="" class="select-group">
+                                               
+                                            </select>
+                                        </th>
+                                        <th>
+                                            <select name="persona" id="" class="select-group">
+                                                
+                                            </select>
+                                        </th>
+                                        
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                <select name="hora_inicio" id="" class="select-group">
+                                                    
+                                                </select>
+                                            </th>
+                                            <th>
+                                                <select name="hora_final" id="" class="select-group">
+                                                  
+                                                </select>
+                                            </th>
+                                            <th>
+                                                <select name="salon" id="" class="select-group">
+                                                   
+                                                </select>
+                                            </th>
+                                            <th>
+                                                <select name="materia" id="" class="select-group">
+                                                   
+                                                </select>
+                                            </th>
+                                            <th>
+                                                <select name="persona" id="" class="select-group">
+                                                    
+                                                </select>
+                                            </th>
+                                            
+                                            </tr>
+                                            
+								</tbody>
+
+							</table>
+                    
+						</section>
+						<button type="submit" id="btnEnviar">Enviar pa</button>
+                    </form>
+					</main>
+				</div>
+
 			</div>
-			
 
 		</main>
 		<!-- MAIN -->
