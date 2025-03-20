@@ -1152,6 +1152,67 @@ app.post('/agregar-horario', async (req, res) => {
     }
 });
 
+//--------------------Ruta de editar horarios-------------------------------------------
+app.use((req, res, next) => {
+    console.log(`Solicitud recibida: ${req.method} ${req.url}`);
+    next();
+});
+
+app.get('/obtener-horarios/:dia/:idGrupo/:idContenedor', async (req, res) => {
+    const { dia, idGrupo, idContenedor } = req.params;
+
+    try {
+        const [horarios] = await conexion.promise().query(`
+            SELECT h.id_horario, h.dia_horario, h.hora_inicio, h.hora_final, 
+                   h.id_salon, m.nom_materia, 
+                   CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo
+            FROM horario h
+            JOIN materia m ON h.id_materia = m.id_materia
+            JOIN persona p ON h.id_persona = p.id_persona
+            WHERE h.id_grupo = ? AND h.dia_horario = ? AND h.id_contenedor = ?`,
+            [idGrupo, dia, idContenedor]
+        );
+
+        if (horarios.length === 0) {
+            return res.status(404).json({ error: 'No hay horarios disponibles para este día y grupo.' });
+        }
+
+        res.json(horarios);
+    } catch (error) {
+        console.error('Error al obtener horarios:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+
+app.put('/editar-horario/:id', async (req, res) => {
+    const { id } = req.params;
+    const { id_salon, id_materia, id_persona } = req.body;
+
+    try {
+        const [horarioExistente] = await conexion.promise().query(
+            'SELECT * FROM horario WHERE id_horario = ?',
+            [id]
+        );
+
+        if (horarioExistente.length === 0) {
+            return res.status(404).json({ success: false, message: 'Horario no encontrado.' });
+        }
+
+        // Solo actualizar materia, profesor y salón
+        await conexion.promise().query(
+            `UPDATE horario 
+             SET id_salon = ?, id_materia = ?, id_persona = ?
+             WHERE id_horario = ?`,
+            [id_salon, id_materia, id_persona, id]
+        );
+
+        res.json({ success: true, message: 'Horario actualizado correctamente.' });
+    } catch (error) {
+        console.error('Error al actualizar horario:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
 
 
 

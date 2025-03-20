@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/css/ADM_menu.css">
+    <title>Editar Horarios</title>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand"><i class='bx bxs-parking icon'></i> PREFECT APP</a>
+        <ul class="side-menu">
+            <li><a href="./ADM_menu.html"><i class='bx bx-table icon'></i> Inicio</a></li>
+            <li class="divider" data-text="Horarios"></li>
+            <li><a href="./ADM_AgregarHorario.html"><i class='bx bx-table icon'></i> Agregar Horarios</a></li>
+            <li><a href="#" class="active"><i class='bx bx-table icon'></i> Editar Horarios</a></li>
+        </ul>
+    </section>
+    <!-- SIDEBAR -->
+
+    <section id="content">
+        <!-- NAVBAR -->
+        <nav>
+            <i class='bx bx-menu toggle-sidebar'></i>
+            <h2>Editar Horarios</h2>
+        </nav>
+        <!-- NAVBAR -->
+
+        <!-- MAIN CONTENT -->
+        <main>
+            <h1 class="title">Editar Horarios</h1>
+            <div class="info-data">
+                <label for="grupo">Selecciona un grupo:</label>
+                <select id="grupo" name="grupo">
+                    <option selected disabled>Seleccione un grupo</option>
+                </select>
+
+                <label for="dia">Selecciona un día:</label>
+                <select id="dia" name="dia">
+                    <option selected disabled>Seleccione un día</option>
+                    <option value="Lunes">Lunes</option>
+                    <option value="Martes">Martes</option>
+                    <option value="Miércoles">Miércoles</option>
+                    <option value="Jueves">Jueves</option>
+                    <option value="Viernes">Viernes</option>
+                </select>
+            </div>
+
+            <div class="table-data">
+                <h3>Horarios Disponibles</h3>
+                <div id="contenedorHorarios"></div>
+            </div>
+
+            <div id="formularioEdicion" style="display: none;">
+                <h3>Editar Horario</h3>
+                <input type="hidden" id="idHorario">
+
+                <label for="diaEdicion">Día:</label>
+                <select id="diaEdicion" name="diaEdicion">
+                    <option disabled selected>Seleccione un día</option>
+                    <option value="Lunes">Lunes</option>
+                    <option value="Martes">Martes</option>
+                    <option value="Miércoles">Miércoles</option>
+                    <option value="Jueves">Jueves</option>
+                    <option value="Viernes">Viernes</option>
+                </select>
+
+                <label for="hora_inicio">Hora de Inicio:</label>
+                <input type="time" id="hora_inicio" name="hora_inicio">
+
+                <label for="hora_final">Hora de Fin:</label>
+                <input type="time" id="hora_final" name="hora_final">
+
+                <label for="salon">Salón:</label>
+                <select id="salon" name="salon">
+                    <option disabled selected>Seleccione un salón</option>
+                </select>
+
+                <label for="materia">Materia:</label>
+                <select id="materia" name="materia">
+                    <option disabled selected>Seleccione una materia</option>
+                </select>
+
+                <label for="persona">Profesor:</label>
+                <select id="persona" name="persona">
+                    <option disabled selected>Seleccione un profesor</option>
+                </select>
+
+                <button id="btnGuardar">Guardar Cambios</button>
+            </div>
+        </main>
+        <!-- MAIN CONTENT -->
+    </section>
+
+    <script src="/ADM_EditarHorario.js"></script>
+</body>
+</html>
