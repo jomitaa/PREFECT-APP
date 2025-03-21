@@ -159,8 +159,13 @@ document.getElementById('btnGuardar').addEventListener('click', async (e) => {
         const resultado = await respuesta.json();
 
         if (resultado.success) {
-            alert('Horario actualizado correctamente.');
-            location.reload();
+            Swal.fire({
+                icon: 'success',
+                title: '¡Horario actualizado!',
+                text: 'El horario se ha guardado correctamente.',
+            }).then(() => {
+                location.reload();
+            });
         } else {
             alert('Error al actualizar horario.');
         }

@@ -1,106 +1,349 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link href='https://unpkg.co/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-	<link rel="stylesheet" href="scr/public/css/ADM_EditarHorario.css">
-
-    <title>Editar Horarios</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="/css/ADM_EditarHorario.css">
+	<title>Prefect App 1.1</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body>
-    <!-- SIDEBAR -->
-    <section id="sidebar">
-        <a href="#" class="brand"><i class='bx bxs-parking icon'></i> PREFECT APP</a>
-        <ul class="side-menu">
-            <li><a href="./ADM_menu.html"><i class='bx bx-home'></i> Inicio</a></li>
-            <li class="divider" data-text="Horarios"></li>
-            <li><a href="./ADM_AgregarHorario.html"><i class='bx bx-plus-circle'></i> Agregar Horarios</a></li>
-            <li><a href="#" class="active"><i class='bx bx-edit'></i> Editar Horarios</a></li>
-        </ul>
+
+	<section id="sidebar">
+		<a href="#" class="brand"><i class='bx bxs-parking icon'></i> PREFECT APP</a>
+		<ul class="side-menu">
+			<li><a href="#" class="active"><i class='bx bxs-dashboard icon'></i> ADMINISTRADOR</a></li><br>
+
+			<li><a href="#" class=""><i class='bx bx-table icon'></i> Inicio</a></li>
+
+			<li class="divider" data-text="Horarios"></li>
+			<li>
+				<a href="#"><i class='bx bxs-inbox icon'></i> Editar Asistencia <i
+						class='bx bx-chevron-right icon-right'></i></a>
+				<ul class="side-dropdown">
+					<li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
+					<li><a href="#">2do Piso</a></li>
+					<li><a href="#">3er Piso</a></li>
+				</ul>
+			</li>
+			<li><a href="./ADM_AgregarHorario.html" class="active"><i class='bx bx-table icon'></i> Agregar Horarios</a></li>
+			<li><a href="./ADM_EditarHorario.html"><i class='bx bx-table icon'></i> Editar Horarios</a></li>
+
+
+			<li class="divider" data-text="maestros"></li>
+			<li><a href="./ADM_Consulta.html"><i class='bx bx-table icon'></i> Consulta</a></li>
+
+			<li class="divider" data-text="reportes"></li>
+			<li><a href="./ADM_Reportes.html"><i class='bx bx-table icon'></i> Consulta</a></li>
+
+
+			<li class="divider" data-text="usuarios"></li>
+			<li><a href="./ADM_Editar_Usuarios.html"><i class='bx bx-table icon'></i> Editar Usuario</a></li>
+			<li><a href="./registrar.html"><i class='bx bx-table icon'></i> Registrar Usuario</a></li>
+
+		</ul>
+
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- NAVBAR -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu toggle-sidebar'></i>
+
+			<form action="#">
+				<div class="form-group">
+					<input type="text" placeholder="Search...">
+					<i class='bx bx-search icon'></i>
+				</div>
+			</form>
+
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+			
+
+			<span class="divider"></span>
+			<div class="profile">
+				<img src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png" alt="">
+				<ul class="profile-link">
+					<li><a href="./perfil.html"><i class='bx bxs-user-circle icon'></i> Profile</a></li>
+					<li><a href="#" onclick="cerrarSesion()"><i class='bx bxs-log-out-circle'></i> Cerrar Sesión</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<!-- NAVBAR -->
+
+		
+
+<main>
+    <h1 class="title">Gestión de Horarios</h1>
+
+    <!-- FILTRO DE HORARIOS -->
+    <section class="info-data">
+        <h3>Buscar horarios</h3>
+
+        <label for="grupo">Grupo:</label>
+        <select id="grupo" name="grupo">
+            <option selected disabled>Seleccione un grupo</option>
+            <!-- Opciones dinámicas -->
+        </select>
+
+        <label for="dia">Día:</label>
+        <select id="dia" name="dia">
+            <option selected disabled>Seleccione un día</option>
+            <option value="Lunes">Lunes</option>
+            <option value="Martes">Martes</option>
+            <option value="Miércoles">Miércoles</option>
+            <option value="Jueves">Jueves</option>
+            <option value="Viernes">Viernes</option>
+        </select>
+
+        <button id="btnBuscar">Buscar</button>
     </section>
 
-    <!-- CONTENIDO -->
-    <section id="content">
-        <!-- NAVBAR -->
-        <nav>
-            <i class='bx bx-menu toggle-sidebar'></i>
-            <h2>Editar Horarios</h2>
-        </nav>
-
-        <!-- MAIN -->
-        <main>
-            <h1 class="title">Gestión de Horarios</h1>
-
-            <!-- FILTRO DE HORARIOS -->
-            <section class="info-data">
-                <h3>Buscar horarios</h3>
-
-                <label for="grupo">Grupo:</label>
-                <select id="grupo" name="grupo">
-                    <option selected disabled>Seleccione un grupo</option>
-                    <!-- Opciones dinámicas -->
-                </select>
-
-                <label for="dia">Día:</label>
-                <select id="dia" name="dia">
-                    <option selected disabled>Seleccione un día</option>
-                    <option value="Lunes">Lunes</option>
-                    <option value="Martes">Martes</option>
-                    <option value="Miércoles">Miércoles</option>
-                    <option value="Jueves">Jueves</option>
-                    <option value="Viernes">Viernes</option>
-                </select>
-
-                <button id="btnBuscar">Buscar</button>
-            </section>
-
-            <!-- TABLA DE HORARIOS -->
-            <section class="table-data">
-                <h3>Horarios disponibles</h3>
-                <div class="table-wrapper">
-                    <table id="tablaHorarios">
-                        <thead>
-                            <tr>
-                                <th>Hora</th>
-                                <th>Salón</th>
-                                <th>Materia</th>
-                                <th>Profesor</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="contenedorHorarios">
-                            <!-- Contenido dinámico generado con JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- FORMULARIO DE EDICIÓN -->
-            <section id="formularioEdicion" style="display: none;">
-                <h3>Editar horario seleccionado</h3>
-                <input type="hidden" id="idHorario" />
-
-                <label for="salon">Salón:</label>
-                <select id="salon" name="salon">
-                    <option disabled selected>Seleccione un salón</option>
-                </select>
-
-                <label for="materia">Materia:</label>
-                <select id="materia" name="materia">
-                    <option disabled selected>Seleccione una materia</option>
-                </select>
-
-                <label for="persona">Profesor:</label>
-                <select id="persona" name="persona">
-                    <option disabled selected>Seleccione un profesor</option>
-                </select>
-
-                <button id="btnGuardar">Guardar Cambios</button>
-            </section>
-        </main>
+    <!-- TABLA DE HORARIOS -->
+    <section class="table-data">
+        <h3>Horarios disponibles</h3>
+        <div class="table-wrapper">
+            <table id="tablaHorarios">
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>Salón</th>
+                        <th>Materia</th>
+                        <th>Profesor</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="contenedorHorarios">
+                    <!-- Contenido dinámico generado con JS -->
+                </tbody>
+            </table>
+        </div>
     </section>
 
+    <!-- FORMULARIO DE EDICIÓN -->
+    <section id="formularioEdicion" style="display: none;">
+        <h3>Editar horario seleccionado</h3>
+        <input type="hidden" id="idHorario" />
+
+        <label for="salon">Salón:</label>
+        <select id="salon" name="salon">
+            <option disabled selected>Seleccione un salón</option>
+        </select>
+
+        <label for="materia">Materia:</label>
+        <select id="materia" name="materia">
+            <option disabled selected>Seleccione una materia</option>
+        </select>
+
+        <label for="persona">Profesor:</label>
+        <select id="persona" name="persona">
+            <option disabled selected>Seleccione un profesor</option>
+        </select>
+
+        <button id="btnGuardar">Guardar Cambios</button>
+    </section>
+</main>
+	</section>
+	<!-- NAVBAR -->
+
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/ADM_EditarHorario.js"></script>
+	<script>
+
+		           
+
+		function cerrarSesion() {
+			// Envía una solicitud al servidor para cerrar la sesión
+			fetch('/logout', {
+				method: 'POST',
+				credentials: 'same-origin' // Incluye las cookies en la solicitud
+			})
+				.then(response => {
+					// Si la solicitud fue exitosa, redirige al usuario a la página de inicio
+					if (response.ok) {
+						window.location.href = '/'; // Cambia esto según la ruta de tu página de inicio
+					} else {
+						console.error('Error al cerrar sesión:', response.statusText);
+					}
+				})
+				.catch(error => {
+					console.error('Error al cerrar sesión:', error);
+				});
+		}
+
+		// SIDEBAR DROPDOWN
+		const allDropdown = document.querySelectorAll('#sidebar .side-dropdown');
+		const sidebar = document.getElementById('sidebar');
+
+		allDropdown.forEach(item => {
+			const a = item.parentElement.querySelector('a:first-child');
+			a.addEventListener('click', function (e) {
+				e.preventDefault();
+
+				if (!this.classList.contains('active')) {
+					allDropdown.forEach(i => {
+						const aLink = i.parentElement.querySelector('a:first-child');
+
+						aLink.classList.remove('active');
+						i.classList.remove('show');
+					})
+				}
+
+				this.classList.toggle('active');
+				item.classList.toggle('show');
+			})
+		})
+
+
+
+
+
+		// SIDEBAR COLLAPSE
+		const toggleSidebar = document.querySelector('nav .toggle-sidebar');
+		const allSideDivider = document.querySelectorAll('#sidebar .divider');
+
+		if (sidebar.classList.contains('hide')) {
+			allSideDivider.forEach(item => {
+				item.textContent = '-'
+			})
+			allDropdown.forEach(item => {
+				const a = item.parentElement.querySelector('a:first-child');
+				a.classList.remove('active');
+				item.classList.remove('show');
+			})
+		} else {
+			allSideDivider.forEach(item => {
+				item.textContent = item.dataset.text;
+			})
+		}
+
+		toggleSidebar.addEventListener('click', function () {
+			sidebar.classList.toggle('hide');
+
+			if (sidebar.classList.contains('hide')) {
+				allSideDivider.forEach(item => {
+					item.textContent = '-'
+				})
+
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+			} else {
+				allSideDivider.forEach(item => {
+					item.textContent = item.dataset.text;
+				})
+			}
+		})
+
+
+
+
+		sidebar.addEventListener('mouseleave', function () {
+			if (this.classList.contains('hide')) {
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+				allSideDivider.forEach(item => {
+					item.textContent = '-'
+				})
+			}
+		})
+
+
+
+		sidebar.addEventListener('mouseenter', function () {
+			if (this.classList.contains('hide')) {
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+				allSideDivider.forEach(item => {
+					item.textContent = item.dataset.text;
+				})
+			}
+		})
+
+
+
+
+		// PROFILE DROPDOWN
+		const profile = document.querySelector('nav .profile');
+		const imgProfile = profile.querySelector('img');
+		const dropdownProfile = profile.querySelector('.profile-link');
+
+		imgProfile.addEventListener('click', function () {
+			dropdownProfile.classList.toggle('show');
+		})
+
+
+
+
+		// MENU
+		const allMenu = document.querySelectorAll('main .content-data .head .menu');
+
+		allMenu.forEach(item => {
+			const icon = item.querySelector('.icon');
+			const menuLink = item.querySelector('.menu-link');
+
+			icon.addEventListener('click', function () {
+				menuLink.classList.toggle('show');
+			})
+		})
+
+
+
+		window.addEventListener('click', function (e) {
+			if (e.target !== imgProfile) {
+				if (e.target !== dropdownProfile) {
+					if (dropdownProfile.classList.contains('show')) {
+						dropdownProfile.classList.remove('show');
+					}
+				}
+			}
+
+			allMenu.forEach(item => {
+				const icon = item.querySelector('.icon');
+				const menuLink = item.querySelector('.menu-link');
+
+				if (e.target !== icon) {
+					if (e.target !== menuLink) {
+						if (menuLink.classList.contains('show')) {
+							menuLink.classList.remove('show')
+						}
+					}
+				}
+			})
+		})
+
+		const switchMode = document.getElementById('switch-mode');
+
+		switchMode.addEventListener('change', function () {
+			if (this.checked) {
+				document.body.classList.add('dark');
+			} else {
+				document.body.classList.remove('dark');
+			}
+		})
+
+
+	</script>
 </body>
+
 </html>
+
+
+

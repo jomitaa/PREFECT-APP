@@ -30,15 +30,15 @@ const estadoValidacionCampos = {
       if (estadoValidacionCampos.userName && estadoValidacionCampos.userPassword) {
           const userName = inputUser.value;
           const userPassword = inputPass.value;
-          const rememberMe = document.getElementById("rememberMe").checked;
+
   
-          console.log("Enviando credenciales:", { userName, userPassword, rememberMe });
+          console.log("Enviando credenciales:", { userName, userPassword });
   
           try {
               const response = await fetch("/login", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ userName, userPassword, rememberMe }),
+                  body: JSON.stringify({ userName, userPassword }),
               });
   
               const text = await response.text();

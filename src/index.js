@@ -206,32 +206,14 @@ app.get('/pages/perfil.HTML', (req, res) => {
 // token recordar sesion esta mal
 // --------------------------------  LOGIN  -------------------------
 app.post('/login', async (req, res) => {
-    const { userName, userPassword, rememberMe } = req.body;
+    const { userName, userPassword } = req.body;
 
     if (!userName || !userPassword) {
         return res.json({ success: false, message: 'Nombre de usuario o contraseña no proporcionados.' });
     }
 
     try {
-        // Verificar si ya hay un token de "Recordar sesión"
-        const token = req.cookies?.rememberMeToken;
-        if (token) {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const results = await query('SELECT * FROM usuario WHERE ID_usuario = ?', [decoded.id]);
-
-            if (results[0]) {
-                // Si el token es válido, iniciamos sesión automáticamente
-                req.session.loggedin = true;
-                req.session.userId = results[0].ID_usuario;
-                req.session.userName = results[0].nom_usuario;
-                req.session.cargo = results[0].cargo.trim();
-                
-                const redirectUrl = req.session.cargo === 'admin' ? '/pages/ADM_menu.html' : '/pages/PRF_menu.html';
-                return res.json({ success: true, redirectUrl });
-            }
-        }
-
-        // Si el token no es válido o no existe, proceder con el login normal
+        // Consultar usuario en la base de datos
         const results = await query('SELECT * FROM usuario WHERE nom_usuario = ?', [userName]);
         const user = results[0];
 
@@ -241,18 +223,6 @@ app.post('/login', async (req, res) => {
 
         if (!user.cargo) {
             return res.json({ success: false, message: 'El usuario no tiene un cargo asignado.' });
-        }
-
-        // Si se activa "Recordar sesión", generar token seguro
-        if (rememberMe) {
-            const token = jwt.sign({ id: user.ID_usuario }, process.env.JWT_SECRET, { expiresIn: '7d' });
-
-            res.cookie('rememberMeToken', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'Strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
-            });
         }
 
         // Generar código OTP de 6 dígitos
@@ -274,49 +244,11 @@ app.post('/login', async (req, res) => {
         await transporter.sendMail(mailOptions);
 
         res.json({ success: true, requiresOTP: true, message: "Se ha enviado un código de verificación a tu correo." });
-
     } catch (err) {
         console.error('Error en login:', err);
         return res.json({ success: false, message: 'Error al iniciar sesión.' });
     }
 });
-
-// Nueva ruta para verificar el token
-app.get('/auto-login', async (req, res) => {
-    // Verificar si ya hay una sesión activa
-    if (req.session.loggedin) {
-        const redirectUrl = req.session.cargo === 'admin' ? '/pages/ADM_menu.html' : '/pages/PRF_menu.html';
-        return res.json({ success: true, redirectUrl });
-    }
-
-    // Si no hay sesión activa, intentar validar el token de "Recordar sesión"
-    const token = req.cookies?.rememberMeToken;
-    if (!token) {
-        return res.status(401).json({ error: 'No se encontró el token de sesión.' });
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const results = await query('SELECT * FROM usuario WHERE ID_usuario = ?', [decoded.id]);
-
-        if (!results[0]) {
-            return res.json({ success: false, message: "Usuario no encontrado." });
-        }
-
-        req.session.loggedin = true;
-        req.session.userId = results[0].ID_usuario;
-        req.session.userName = results[0].nom_usuario;
-        req.session.cargo = results[0].cargo.trim();
-
-        const redirectUrl = req.session.cargo === 'admin' ? '/pages/ADM_menu.html' : '/pages/PRF_menu.html';
-        return res.json({ success: true, redirectUrl });
-
-    } catch (err) {
-        console.error('Error en auto-login:', err);
-        return res.json({ success: false, message: "Sesión no válida." });
-    }
-});
-
 
 app.post('/verify-otp', async (req, res) => {
     const { otp } = req.body;
