@@ -1,44 +1,48 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="/css/ADM_menu.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href='https://unpkg.co/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="scr/public/css/ADM_EditarHorario.css">
+
     <title>Editar Horarios</title>
 </head>
 <body>
-
     <!-- SIDEBAR -->
     <section id="sidebar">
         <a href="#" class="brand"><i class='bx bxs-parking icon'></i> PREFECT APP</a>
         <ul class="side-menu">
-            <li><a href="./ADM_menu.html"><i class='bx bx-table icon'></i> Inicio</a></li>
+            <li><a href="./ADM_menu.html"><i class='bx bx-home'></i> Inicio</a></li>
             <li class="divider" data-text="Horarios"></li>
-            <li><a href="./ADM_AgregarHorario.html"><i class='bx bx-table icon'></i> Agregar Horarios</a></li>
-            <li><a href="#" class="active"><i class='bx bx-table icon'></i> Editar Horarios</a></li>
+            <li><a href="./ADM_AgregarHorario.html"><i class='bx bx-plus-circle'></i> Agregar Horarios</a></li>
+            <li><a href="#" class="active"><i class='bx bx-edit'></i> Editar Horarios</a></li>
         </ul>
     </section>
-    <!-- SIDEBAR -->
 
+    <!-- CONTENIDO -->
     <section id="content">
         <!-- NAVBAR -->
         <nav>
             <i class='bx bx-menu toggle-sidebar'></i>
             <h2>Editar Horarios</h2>
         </nav>
-        <!-- NAVBAR -->
 
-        <!-- MAIN CONTENT -->
+        <!-- MAIN -->
         <main>
-            <h1 class="title">Editar Horarios</h1>
-            <div class="info-data">
-                <label for="grupo">Selecciona un grupo:</label>
+            <h1 class="title">Gestión de Horarios</h1>
+
+            <!-- FILTRO DE HORARIOS -->
+            <section class="info-data">
+                <h3>Buscar horarios</h3>
+
+                <label for="grupo">Grupo:</label>
                 <select id="grupo" name="grupo">
                     <option selected disabled>Seleccione un grupo</option>
+                    <!-- Opciones dinámicas -->
                 </select>
 
-                <label for="dia">Selecciona un día:</label>
+                <label for="dia">Día:</label>
                 <select id="dia" name="dia">
                     <option selected disabled>Seleccione un día</option>
                     <option value="Lunes">Lunes</option>
@@ -47,18 +51,35 @@
                     <option value="Jueves">Jueves</option>
                     <option value="Viernes">Viernes</option>
                 </select>
-                
+
                 <button id="btnBuscar">Buscar</button>
-            </div>
+            </section>
 
-            <div class="table-data">
-                <h3>Horarios Disponibles</h3>
-                <div id="contenedorHorarios"></div>
-            </div>
+            <!-- TABLA DE HORARIOS -->
+            <section class="table-data">
+                <h3>Horarios disponibles</h3>
+                <div class="table-wrapper">
+                    <table id="tablaHorarios">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Salón</th>
+                                <th>Materia</th>
+                                <th>Profesor</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contenedorHorarios">
+                            <!-- Contenido dinámico generado con JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-            <div id="formularioEdicion" style="display: none;">
-                <h3>Editar Horario</h3>
-                <input type="hidden" id="idHorario">
+            <!-- FORMULARIO DE EDICIÓN -->
+            <section id="formularioEdicion" style="display: none;">
+                <h3>Editar horario seleccionado</h3>
+                <input type="hidden" id="idHorario" />
 
                 <label for="salon">Salón:</label>
                 <select id="salon" name="salon">
@@ -76,9 +97,8 @@
                 </select>
 
                 <button id="btnGuardar">Guardar Cambios</button>
-            </div>
+            </section>
         </main>
-        <!-- MAIN CONTENT -->
     </section>
 
     <script src="/ADM_EditarHorario.js"></script>

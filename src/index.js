@@ -72,6 +72,7 @@ app.use(session({
 
 app.use(cors({ origin: '*' }));
 
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
