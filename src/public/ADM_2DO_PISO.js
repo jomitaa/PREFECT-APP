@@ -29,44 +29,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    function checkAndSubmit(event) {
-        event.preventDefault(); // Evitar el envío del formulario
     
-        const isAdmin = true; // Aquí debes determinar si el usuario es un admin
-        const url = isAdmin ? '/actualizarDatosAdmin' : '/actualizarDatos';
-    
-        const checkboxes = document.querySelectorAll('.checkbox');
-        checkboxes.forEach((checkbox) => {
-            const id_horario = checkbox.dataset.id;
-            const tipo = checkbox.dataset.tipo;
-    
-            if (checkbox.checked) {
-                // Obtener valores de asistencia, retardo y falta
-                const validacion_asistencia = document.getElementById(`validacion_asistencia_${id_horario}`).checked;
-                const validacion_retardo = document.getElementById(`validacion_retardo_${id_horario}`).checked;
-                const validacion_falta = document.getElementById(`validacion_falta_${id_horario}`).checked;
-    
-                // Enviar datos al servidor
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ validacion_asistencia, validacion_retardo, validacion_falta, id_horario })
-                })
-                .then(response => {
-                    if (response.ok) {
-                        console.log("Datos actualizados correctamente para id_horario:", id_horario);
-                    } else {
-                        console.error('Error al actualizar los datos');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al actualizar los datos:', error);
-                });
-            }
-        });
+let alerta = document.querySelector('.alerta');
+
+function createToast(type, icon, title, text) {
+    let newToast = document.createElement('div');
+    newToast.innerHTML = `
+        <div class="toast ${type}">
+            <div class="icono">
+                <i class="${icon}"></i>
+            </div>
+            <div class="content">
+                <div class="title">${title}</div>
+                <span>${text}</span>
+            </div>
+            <i style="cursor: pointer;" class="close fa-solid fa-xmark"
+               onclick="(this.parentElement).remove()"></i>
+        </div>`;
+
+    alerta.appendChild(newToast);
+    newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
+}
+
+function checkAndSubmit(event) {
+    event.preventDefault(); // Evitar el envío del formulario
+
+    const isAdmin = true; // Aquí debes determinar si el usuario es un admin
+    const url = isAdmin ? '/actualizarDatosAdmin' : '/actualizarDatos';
+
+    const checkboxes = document.querySelectorAll('.checkbox');
+    let cambiosRealizados = false; // Para verificar si al menos un checkbox fue seleccionado
+
+    checkboxes.forEach((checkbox) => {
+        const id_horario = checkbox.dataset.id;
+
+        if (checkbox.checked) {
+            cambiosRealizados = true;
+            
+            const validacion_asistencia = document.getElementById(`validacion_asistencia_${id_horario}`).checked;
+            const validacion_retardo = document.getElementById(`validacion_retardo_${id_horario}`).checked;
+            const validacion_falta = document.getElementById(`validacion_falta_${id_horario}`).checked;
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ validacion_asistencia, validacion_retardo, validacion_falta, id_horario })
+            })
+            .then(response => {
+                if (response.ok) {
+                    createToast('Correcto', 'fa-solid fa-circle-check', 'Actualización exitosa', 
+                        `Se actualizó correctamente el horario ID: ${id_horario}`);
+                } else {
+                    createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 
+                        `Hubo un problema al actualizar el horario ID: ${id_horario}`);
+                }
+            })
+            .catch(() => {
+                createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 
+                    `Error de conexión al intentar actualizar el horario ID: ${id_horario}`);
+            });
+        }
+    });
+
+    if (!cambiosRealizados) {
+        createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'No se han seleccionado cambios.');
     }
+}
     
 
     function inicializarCheckboxes() {

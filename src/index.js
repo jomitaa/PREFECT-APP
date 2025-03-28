@@ -15,6 +15,8 @@ import cookieParser from 'cookie-parser';
 
 
 
+
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
@@ -1146,6 +1148,79 @@ app.put('/editar-horario/:id', async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
+
+// intento graficas malllllll
+// -------------------------------- RUTA ASIS POR PROFESOR --------------------------------
+
+app.get('/api/profes/:id_persona', async (req, res) => {
+    const id_persona = req.params.id_persona;
+    const query = `
+    SELECT
+        p.id_persona,
+        CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS persona,
+        g.nom_grupo AS grupo,
+        m.nom_materia AS materia,
+        h.dia_horario,
+        h.hora_inicio,
+        h.hora_final,
+        a.fecha_asistencia AS fecha_asistencia,
+        a.validacion_asistencia AS asistencia,
+        r.validacion_retardo AS retardo,
+        f.validacion_falta AS falta
+    FROM
+        persona AS p
+        JOIN horario AS h ON p.id_persona = h.id_persona
+        JOIN grupo AS g ON h.id_grupo = g.id_grupo
+        JOIN materia AS m ON h.id_materia = m.id_materia
+        JOIN asistencia AS a ON h.id_horario = a.id_horario
+        LEFT JOIN retardo r ON h.id_horario = r.id_horario
+        LEFT JOIN falta f ON h.id_horario = f.id_horario
+    WHERE h.id_persona = ?
+    ORDER BY
+        persona,
+        dia_horario,
+        hora_inicio;`;
+
+    try {
+        const [results] = await conexion.promise().query(query, [id_persona]);
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'No records found for this professor' });
+        }
+        res.json(results);
+    } catch (err) {
+        console.error('Error fetching records by ID:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
+// -------------------------------- FIN RUTA ASIS POR PROFESOR --------------------------------
+
+
+
+// -------------------------------- RUTA PROFES --------------------------------
+
+app.get('/api/profesores', async (req, res) => {
+    const query = `
+    SELECT id_persona, CONCAT(nom_persona, ' ', appat_persona, ' ', apmat_persona) AS nombre
+    FROM persona
+    WHERE id_rol = '1';
+    `;
+
+    try {
+        const [results] = await conexion.promise().query(query);
+        res.json(results);
+    } catch (err) {
+        console.error('Error fetching professors:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+// -------------------------------- FIN RUTA PROFES --------------------------------
+
+
 
 
 

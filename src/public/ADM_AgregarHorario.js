@@ -66,6 +66,29 @@ async function obtenerIdContenedor() {
 }
 */
 
+
+let alerta = document.querySelector('.alerta');
+
+function createToast(type, icon, title, text) {
+    let newToast = document.createElement('div');
+    newToast.innerHTML = `
+        <div class="toast ${type}">
+            <div class="icono">
+                <i class="${icon}"></i>
+            </div>
+            <div class="content">
+                <div class="title">${title}</div>
+                <span>${text}</span>
+            </div>
+            <i style="cursor: pointer;" class="close fa-solid fa-xmark"
+               onclick="(this.parentElement).remove()"></i>
+        </div>`;
+
+    alerta.appendChild(newToast);
+    newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
+}
+
+
 // Evento para enviar el formulario
 document.getElementById('btnEnviar').addEventListener('click', async (e) => {
     e.preventDefault(); // Evita recargar la página
@@ -118,7 +141,7 @@ document.getElementById('btnEnviar').addEventListener('click', async (e) => {
         datosHorario.id_materia.length === 0 || 
         datosHorario.id_persona.length === 0) {
         
-        alert('Por favor, complete todos los campos.');
+        createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'Por favor, complete todos los campos.');
         return;
     }
 
@@ -133,12 +156,13 @@ document.getElementById('btnEnviar').addEventListener('click', async (e) => {
         const resultado = await respuesta.json();
 
         if (resultado.success) {
-            alert('Horario agregado correctamente.');
-            location.reload(); // Recargar la página para actualizar los datos
+            createToast('Correcto', 'fa-solid fa-circle-check', 'Horario agregado', 'Horario agregado correctamente.');
+            setTimeout(() => location.reload(), 1500); // Recargar después de mostrar la alerta
         } else {
-            alert('Error al agregar horario.');
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Hubo un problema al agregar el horario.');
         }
     } catch (error) {
+        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Error de conexión al intentar agregar el horario.');
         console.error('Error al enviar horario:', error);
     }
 });

@@ -132,6 +132,28 @@ async function editarHorario(idHorario, idSalon, nomMateria, nombreProfesor) {
     document.getElementById('formularioEdicion').style.display = 'block';
 }
 
+let alerta = document.querySelector('.alerta');
+
+function createToast(type, icon, title, text) {
+    let newToast = document.createElement('div');
+    newToast.innerHTML = `
+        <div class="toast ${type}">
+            <div class="icono">
+                <i class="${icon}"></i>
+            </div>
+            <div class="content">
+                <div class="title">${title}</div>
+                <span>${text}</span>
+            </div>
+            <i style="cursor: pointer;" class="close fa-solid fa-xmark"
+               onclick="(this.parentElement).remove()"></i>
+        </div>`;
+
+    alerta.appendChild(newToast);
+    newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
+}
+
+
 document.getElementById('btnGuardar').addEventListener('click', async (e) => {
     e.preventDefault();
 
@@ -141,7 +163,7 @@ document.getElementById('btnGuardar').addEventListener('click', async (e) => {
     const idPersona = document.getElementById('persona').value;
 
     if (!idHorario || !idSalon || !idMateria || !idPersona) {
-        alert('Todos los campos son obligatorios.');
+        createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'No se han seleccionado cambios.');
         return;
     }
 
@@ -154,20 +176,24 @@ document.getElementById('btnGuardar').addEventListener('click', async (e) => {
                 id_materia: idMateria,
                 id_persona: idPersona
             })
+        }).then(response => {
+            if (response.ok) {
+                createToast('Correcto', 'fa-solid fa-circle-check', 'Actualización exitosa', 
+                    `Se actualizó correctamente el horario ID: ${idHorario}`);
+            } else {
+                createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 
+                    `Hubo un problema al actualizar el horario ID: ${idHorario}`);
+            }
+        })
+        .catch(() => {
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 
+                `Error de conexión al intentar actualizar el horario ID: ${idHorario}`);
         });
 
         const resultado = await respuesta.json();
 
-        if (resultado.success) {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Horario actualizado!',
-                text: 'El horario se ha guardado correctamente.',
-            }).then(() => {
-                location.reload();
-            });
-        } else {
-            alert('Error al actualizar horario.');
+        if (resultado.error) {
+            throw new Error(resultado.error);
         }
     } catch (error) {
         console.error('Error al actualizar horario:', error);
