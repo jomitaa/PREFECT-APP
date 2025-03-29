@@ -1,31 +1,35 @@
 document.getElementById('form-reporte').addEventListener('submit', async function(event) {
-  event.preventDefault(); // Evita el envío del formulario por defecto
+  event.preventDefault(); 
 
-  // Recoger los valores del formulario
+
   const usuario = document.getElementById('usuario').value;
   const tipo_reporte = document.getElementById('tipo-reporte').value;
   const detalle_reporte = document.getElementById('detalle-reporte').value;
 
-  // Validar que los campos no estén vacíos
+
   if (!usuario || !tipo_reporte || !detalle_reporte) {
       document.querySelector('.alerta-error').style.display = 'block';
       return;
   }
 
   try {
-      // Obtener id_usuario desde la sesión del servidor
-      const response = await fetch('/obtenerUsuario');
+    
+      const response = await fetch('/obtenerUsuario', {
+        method: 'GET',
+        credentials: 'include' 
+    });
       const data = await response.json();
 
+      /* no se porque marca error esto
       if (!data.success) {
           alert('No se pudo obtener el usuario. Inicia sesión nuevamente.');
           return;
-      }
+      }*/
 
-      const id_usuario = data.id_usuario;
+      const id_usuario = data.ID_usuario;
       const nom_usuario = data.nom_usuario;
 
-      // Enviar la solicitud POST al servidor para registrar el reporte
+     
       const result = await fetch('/agregarReporte', {
           method: 'POST',
           headers: {
@@ -34,7 +38,8 @@ document.getElementById('form-reporte').addEventListener('submit', async functio
           body: JSON.stringify({
               id_tiporeporte: tipo_reporte,
               descripcion: detalle_reporte,
-              id_usuario: id_usuario,  // Se obtiene dinámicamente del backend
+              ID_usuario: id_usuario, 
+              nom_usuario: nom_usuario,
              
           })
       });
@@ -42,8 +47,8 @@ document.getElementById('form-reporte').addEventListener('submit', async functio
       const resultData = await result.json();
       
       if (resultData.success) {
-          document.querySelector('.alerta-exito').style.display = 'block'; // Muestra el mensaje de éxito
-          document.getElementById('form-reporte').reset(); // Limpiar el formulario
+          document.querySelector('.alerta-exito').style.display = 'block'; 
+          document.getElementById('form-reporte').reset(); 
       } else {
           alert('Hubo un error al agregar el reporte');
       }

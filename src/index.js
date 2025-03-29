@@ -67,9 +67,10 @@ const query = (sql, params) => {
 app.set("port", 3000);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-    secret: 'secret',
-    resave: true,
-    saveUninitialized: true
+    secret: 'jomitaaz',  // Cambia esto por un secreto seguro
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, httpOnly: true } // Usa secure: true si usas HTTPS
 }));
 
 app.use(cors({ origin: '*' }));
@@ -826,23 +827,23 @@ LEFT JOIN
 app.post('/agregarReporte', (req, res) => {
     // Obtener los datos del cuerpo de la solicitud
     const { id_tiporeporte, descripcion } = req.body;
-    const id_usuario = req.session.id_usuario;  // ✅ Obtener el id_usuario desde la sesión
-    const nom_usuario = req.session.nombre;  // ✅ Obtener el nombre del usuario desde la sesión
+    const ID_usuario = req.session.userId;  
+    const nom_usuario = req.session.userName; 
 
-    console.log('Datos recibidos en /agregarReporte:', { id_tiporeporte, descripcion, id_usuario, nom_usuario });
+    console.log('Datos recibidos en /agregarReporte:', { id_tiporeporte, descripcion, ID_usuario, nom_usuario });
 
-    if (!id_tiporeporte || !descripcion || !id_usuario || !nom_usuario) {
-        console.error(' ERROR: Datos incompletos:', { id_tiporeporte, descripcion, id_usuario, nom_usuario });
+    if (!id_tiporeporte || !descripcion || !ID_usuario || !nom_usuario) {
+        console.error(' ERROR: Datos incompletos:', { id_tiporeporte, descripcion, ID_usuario, nom_usuario });
         return res.status(400).json({ success: false, message: 'Faltan datos para registrar el reporte.' });
     }
 
-    // Insertar el reporte en la base de datos
+
     const query = `
-        INSERT INTO reportes (id_tiporeporte, descripcion, id_usuario)
+        INSERT INTO reportes (id_tiporeporte, descripcion, ID_usuario)
         VALUES (?, ?, ?)
     `;
 
-    conexion.execute(query, [id_tiporeporte, descripcion, id_usuario], (err, result) => {
+    conexion.execute(query, [id_tiporeporte, descripcion, ID_usuario], (err, result) => {
         if (err) {
             console.error(' ERROR en la consulta SQL:', err);
             return res.status(500).json({ success: false, message: 'Hubo un error al agregar el reporte.' });
@@ -852,7 +853,20 @@ app.post('/agregarReporte', (req, res) => {
     });
 });
 
-// Ruta para obtener todos los reportes
+app.get('/obtenerUsuario', (req, res) => {
+    if (!req.session.userId) {
+        return res.json({ success: false, message: "Usuario no autenticado" });
+    }
+
+    res.json({ 
+        success: true, 
+        ID_usuario: req.session.userId, 
+        nom_usuario: req.session.userName 
+    });
+});
+
+
+
 // Ruta para obtener todos los reportes con el nombre del usuario
 app.get('/obtenerReportes', (req, res) => {
     const query = `
@@ -1149,7 +1163,56 @@ app.put('/editar-horario/:id', async (req, res) => {
     }
 });
 
-// intento graficas malllllll
+// --------------------------------- FIN RUTA EDITAR HORARIO ------------------------------------
+
+
+// ----------------------------------- RUTA FILTROS ---------------------------------------------
+
+app.get('/api/filtros', async (req, res) => {
+    try {
+        const [horarios] = await conexion.promise().query(`
+            SELECT DISTINCT
+                h.id_horario,
+                h.dia_horario,
+                h.hora_inicio,
+                h.hora_final,
+                m.nom_materia,
+                CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
+                g.sem_grupo,
+                g.nom_grupo,
+                s.id_salon
+            FROM horario h
+            INNER JOIN grupo g ON h.id_grupo = g.id_grupo
+            INNER JOIN salon s ON h.id_salon = s.id_salon
+            JOIN materia m ON h.id_materia = m.id_materia
+            JOIN persona p ON h.id_persona = p.id_persona
+            LEFT JOIN asistencia a ON h.id_horario = a.id_horario
+            LEFT JOIN retardo r ON h.id_horario = r.id_horario
+            LEFT JOIN falta f ON h.id_horario = f.id_horario
+        `);
+
+        console.log("Datos obtenidos de la BD:", horarios); // Verifica que sí hay datos
+        
+        const salones = [...new Set(horarios.map(h => h.id_salon))];
+        const grupos = [...new Set(horarios.map(h => `${h.nom_grupo}`))];
+        const profesores = [...new Set(horarios.map(h => h.nombre_persona))];
+        const materias = [...new Set(horarios.map(h => h.nom_materia))];
+        const horasInicio = [...new Set(horarios.map(h => h.hora_inicio))].sort();
+        const horasFin = [...new Set(horarios.map(h => h.hora_final))].sort();
+
+        console.log("Datos formateados:", { salones, grupos, profesores, materias, horasInicio, horasFin });
+
+        res.json({ salones, grupos, profesores, materias, horasInicio, horasFin });
+
+    } catch (error) {
+        console.error('Error al obtener filtros:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+  
+
+// ----------------------------------- FIN RUTA FILTROS ---------------------------------------------
+
 // -------------------------------- RUTA ASIS POR PROFESOR --------------------------------
 
 app.get('/api/profes/:id_persona', async (req, res) => {
