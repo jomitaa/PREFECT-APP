@@ -70,7 +70,7 @@ app.use(session({
     secret: 'jomitaaz',  // Cambia esto por un secreto seguro
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: true, httpOnly: true } // Usa secure: true si usas HTTPS
+    cookie: { secure: false, httpOnly: true } // Usa secure: true si usas HTTPS
 }));
 
 app.use(cors({ origin: '*' }));
