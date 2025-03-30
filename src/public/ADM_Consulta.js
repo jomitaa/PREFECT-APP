@@ -1,7 +1,108 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+    try {
+        const response = await fetch('/api/filtros');
+        const data = await response.json();
+
+        if (!data || Object.keys(data).length === 0) {
+            createToast(
+                "error",
+                "fa-solid fa-circle-exclamation",
+                "Error",
+                `No se encontraron datos para llenar los filtros.`
+              );
+            console.error("Los datos están vacíos o no tienen la estructura esperada.");
+            return;
+        }
+
+        llenarSelect('dia', data.dias);
+        llenarSelect('grupo', data.grupos);
+        llenarSelect('profesor', data.profesores);
+        llenarSelect('materia', data.materias);
+        llenarSelect('horaInicio', data.horasInicio);
+        llenarSelect('horaFin', data.horasFin);
+
+    } catch (error) {
+        createToast(
+            "error",
+            "fa-solid fa-circle-exclamation",
+            "Error",
+            `Hubo un problema al cargar los filtros.`
+          );
+        console.error('Error al cargar los filtros:', error);
+    }
+});
+
+// ✅ Función para llenar selects
+function llenarSelect(id, datos) {
+    const select = document.getElementById(id);
+    if (!select) {
+        console.error(`No se encontró el select con ID: ${id}`);
+        return;
+    }
+
+    // Aquí cambiamos el texto que aparece en la opción por defecto
+    let label = '';
+    switch (id) {
+        case 'dia':
+            label = 'Seleccione un DIA';
+            break;
+        case 'grupo':
+            label = 'Seleccione un GRUPO';
+            break;
+        case 'profesor':
+            label = 'Seleccione un PROFESOR';
+            break;
+        case 'materia':
+            label = 'Seleccione una MATERIA';
+            break;
+        case 'horaInicio':
+            label = 'Seleccione la HORA INICIO';
+            break;
+        case 'horaFin':
+            label = 'Seleccione la HORA FIN';
+            break;
+        default:
+            label = 'Seleccione una opción';
+    }
+
+    // Agregamos la opción por defecto con el texto correcto
+    select.innerHTML = `<option value="">${label}</option>`;
+
+    // Llenamos el select con las opciones recibidas
+    datos.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        select.appendChild(option);
+    });
+}
+
+let alerta = document.querySelector(".alerta");
+
+function createToast(type, icon, title, text) {
+    let newToast = document.createElement("div");
+    newToast.innerHTML = `
+        <div class="toast ${type}">
+            <div class="icono">
+                <i class="${icon}"></i>
+            </div>
+            <div class="content">
+                <div class="title">${title}</div>
+                <span>${text}</span>
+            </div>
+            <i style="cursor: pointer;" class="close fa-solid fa-xmark"
+               onclick="(this.parentElement).remove()"></i>
+        </div>`;
+
+    alerta.appendChild(newToast);
+    newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
+}
+
+
 
     //--------------------------------------------------------------- CODIGO CONSULTA --------------------------
-    const contenedor = document.querySelector('tbody');
+    const contenedor = document.getElementById("horario");
 
     // Función para obtener los datos de la consulta
     async function fetchConsulta() {
@@ -27,43 +128,149 @@ document.addEventListener('DOMContentLoaded', () => {
         // const consultaFiltrada = consulta.filter(item => item.algunCriterio);
 
         consulta.forEach(item => {
-            const fechaAsistencia = item.fecha_asistencia ? new Date(item.fecha_asistencia).toLocaleDateString('es-ES') : '';
-
             resultados += `
-                <tr name="joma">
-                    <td>${item.persona}</td>
-                    <td>${item.grupo}</td>
-                    <td>${item.materia}</td>
-                    <td>${item.dia_horario}</td>
-                    <td>${item.hora_inicio} - ${item.hora_final}</td>
-                    <td>${fechaAsistencia}</td>
-                    
+                
+                <div class="horario-card">
+						<div class="horario-header">
+							<span><b>Grupo</b></span>
+							<span><b>Profesor</b></span>
+							<span><b>Materia</b></span>
+							<span><b>Hora</b></span>
+                            <span><b>Fecha</b></span>
+							<span><b>Fecha</b></span>
+							<span><b>Estado</b></span>
+						</div>
+						<div class="horario-content">
+							<span>${item.grupo}</span>
+							<span>${item.persona}</span>
+							<span>${item.materia}</span>
+							<span>${item.hora_inicio} - ${item.hora_final}</span>
+                            <span>${item.dia_horario}</span>
+							<span>${item.fecha_asistencia}</span>
+						
                 
             `;
 
              // Añadir la columna de asistencia solo si es 1
              if (item.asistencia === 1) {
-                resultados += `<td><p class="asis"> Asistencia ✓ </p></td>`;
+                resultados += `<span class="asis">Asistencia</span>`;
             }
 
             // Añadir la columna de falta solo si es 1
             if (item.falta === 1) {
-                resultados += `<td><p class="fal"> Falta ✓ </p></td>`;
+                resultados += `<span class="falta">Falta</span>`;
             }
 
             // Añadir la columna de retardo solo si es 1
             if (item.retardo === 1) {
-                resultados += `<td><p class="ret"> Retardo ✓ </p></td>`;
+                resultados += `<span class="ret">Retardo</span>`;
             }
 
-            resultados += `</tr>`;
+            resultados += `</div>
+					</div>`;
 
         });
 
         // Mostrar los resultados en el contenedor
         contenedor.innerHTML = resultados;
 
+
+        document.getElementById("filterBtn").replaceWith(document.getElementById("filterBtn").cloneNode(true));
+    document.getElementById("filterBtn").addEventListener("click", filtrarHorarios);
+    
+    async function filtrarHorarios() {
+        const grupo = document.getElementById("grupo").value;
+        const dia = document.getElementById("dia").value;
+        const fecha = document.getElementById("fecha").value;
+        const registro_asis = document.getElementById("asistencia").value;
+        const profesor = document.getElementById("profesor").value;
+        const materia = document.getElementById("materia").value;
+        const horaInicio = document.getElementById("horaInicio").value;
+        const horaFin = document.getElementById("horaFin").value;
+    
+        try {
+            const response = await fetch("/api/consulta");
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.status}`);
+            }
+            const consulta = await response.json();
+            
+    
+            const horariosFiltrados = consulta.filter(consulta => {
+
+                const fechaAsistencia = consulta.fecha_asistencia; 
+
+                const [year, month, day] = fecha.split("-"); // Separa la fecha en partes
+                const fechaUsuario = `${day}/${month}/${year.slice(-2)}`;
+
+
+                console.log("Fecha de asistencia:", fechaAsistencia);
+                console.log("Fecha convertida:", fechaUsuario);
+
+                const estadoAsistencia = consulta.asistencia; // 1 si tiene asistencia
+                const estadoRetardo = consulta.retardo; // 1 si tiene retardo
+                const estadoFalta = consulta.falta; // 1 si tiene falta
+
+                const filtroAsistencia = registro_asis === "asis" ? estadoAsistencia === 1 :
+                                     registro_asis === "ret" ? estadoRetardo === 1 :
+                                     registro_asis === "falt" ? estadoFalta === 1 :
+                                     true;
+
+                return (
+                    (!grupo || consulta.grupo === grupo) &&
+                    (!dia || consulta.dia_horario === dia) &&
+                    (!profesor || consulta.persona === profesor) &&
+                    (!fecha || fechaAsistencia === fechaUsuario) && // Comparación de fechas sin la hora
+                    (!materia || consulta.materia === materia) &&
+                    (!horaInicio || consulta.hora_inicio === horaInicio) &&
+                    (!horaFin || consulta.hora_final === horaFin) &&
+                    filtroAsistencia
+                );
+            });
+    
+            if (horariosFiltrados.length === 0) {
+                console.log("No se encontraron horarios que coincidan con los filtros.");
+                createToast(
+                    "advertencia",
+                    "fa-solid fa-triangle-exclamation",
+                    "Aguas",
+                    "No se encontraron horarios que coincidan con los filtros seleccionados."
+                );
+                return; 
+            }
+    
+            mostrar(horariosFiltrados);
+        } catch (error) {
+            console.error("Error al obtener los horarios:", error);
+            createToast(
+                "error",
+                "fa-solid fa-circle-exclamation",
+                "Error",
+                "Hubo un problema al cargar los horarios."
+            );
+            document.getElementById("horario").innerHTML =
+                '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
+        }
     }
+
+    document.getElementById("resetFiltersButton").addEventListener("click", function() {
+        // Restablece todos los filtros a su estado inicial
+        document.getElementById("grupo").value = "";
+        document.getElementById("dia").value = "";
+        document.getElementById("fecha").value = "";
+        document.getElementById("asistencia").value = "";
+        document.getElementById("profesor").value = "";
+        document.getElementById("materia").value = "";
+        document.getElementById("horaInicio").value = "";
+        document.getElementById("horaFin").value = "";
+    
+        filtrarHorarios();
+    });
+    
+
+    }
+    
+    
 
     fetchConsulta();
 
@@ -199,4 +406,3 @@ json_btn.onclick = () => {
 
 // --------------------------------------------------------------- FIN CODIGO DE BUSCADOR  -------------------------------
 
-});

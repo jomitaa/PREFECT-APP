@@ -76,7 +76,8 @@ app.use(session({
 app.use(cors({ origin: '*' }));
 
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use( express.static(path.join(__dirname, 'public')));
+
 
 app.use((req, res, next) => {
     console.log('Ruta solicitada:', req.path); // Verifica qué ruta se está solicitando
@@ -735,31 +736,29 @@ app.put('/api/editarsur/:id', async (req, res) => {
 app.get('/api/consulta', async (req, res) => {
     const query = `
     SELECT DISTINCT
-        p.id_persona,
-        CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS persona,
-        g.nom_grupo AS grupo,
-        m.nom_materia AS materia,
-        h.dia_horario,
-        h.hora_inicio,
-        h.hora_final,
-	a.fecha_asistencia as fecha_asistencia,
-        a.validacion_asistencia AS asistencia,
-        r.validacion_retardo AS retardo,
-        f.validacion_falta AS falta
-    FROM
-        persona AS p
-        JOIN horario AS h ON p.id_persona = h.id_persona
-        JOIN grupo AS g ON h.id_grupo = g.id_grupo
-        JOIN materia AS m ON h.id_materia = m.id_materia
-        JOIN asistencia AS a ON h.id_horario = a.id_horario
-        LEFT JOIN
-    retardo r ON h.id_horario = r.id_horario
-LEFT JOIN
-    falta f ON h.id_horario = f.id_horario
-    ORDER BY
-        persona,
-        dia_horario,
-        hora_inicio;`;
+    p.id_persona,
+    CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
+    g.nom_grupo AS grupo,
+    m.nom_materia AS materia,
+    h.dia_horario,
+    h.hora_inicio,
+    h.hora_final,
+    DATE_FORMAT(a.fecha_asistencia, '%d/%m/%y') AS fecha_asistencia, 
+    a.validacion_asistencia AS asistencia,
+    r.validacion_retardo AS retardo,
+    f.validacion_falta AS falta
+FROM
+    persona AS p
+    JOIN horario AS h ON p.id_persona = h.id_persona
+    JOIN grupo AS g ON h.id_grupo = g.id_grupo
+    JOIN materia AS m ON h.id_materia = m.id_materia
+    JOIN asistencia AS a ON h.id_horario = a.id_horario
+    LEFT JOIN retardo r ON h.id_horario = r.id_horario
+    LEFT JOIN falta f ON h.id_horario = f.id_horario
+ORDER BY
+    persona,
+    dia_horario,
+    hora_inicio;`;
 
     try {
         const [results] = await conexion.promise().query(query);
@@ -783,7 +782,7 @@ app.get('/api/consulta/:id', async (req, res) => {
     const query = `
     SELECT
         p.id_persona,
-        CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS persona,
+        CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
         g.nom_grupo AS grupo,
         m.nom_materia AS materia,
         h.dia_horario,
@@ -1166,43 +1165,47 @@ app.put('/editar-horario/:id', async (req, res) => {
 // --------------------------------- FIN RUTA EDITAR HORARIO ------------------------------------
 
 
-// ----------------------------------- RUTA FILTROS ---------------------------------------------
+// ----------------------------------- RUTA FILTROS HORARIOS ---------------------------------------------
 
 app.get('/api/filtros', async (req, res) => {
     try {
         const [horarios] = await conexion.promise().query(`
-            SELECT DISTINCT
-                h.id_horario,
-                h.dia_horario,
-                h.hora_inicio,
-                h.hora_final,
-                m.nom_materia,
-                CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
-                g.sem_grupo,
-                g.nom_grupo,
-                s.id_salon
-            FROM horario h
-            INNER JOIN grupo g ON h.id_grupo = g.id_grupo
-            INNER JOIN salon s ON h.id_salon = s.id_salon
-            JOIN materia m ON h.id_materia = m.id_materia
-            JOIN persona p ON h.id_persona = p.id_persona
-            LEFT JOIN asistencia a ON h.id_horario = a.id_horario
-            LEFT JOIN retardo r ON h.id_horario = r.id_horario
-            LEFT JOIN falta f ON h.id_horario = f.id_horario
+             SELECT DISTINCT
+            h.id_horario,
+            h.dia_horario,
+            h.hora_inicio,
+            h.hora_final,
+            m.nom_materia,
+            CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
+            g.sem_grupo,
+            g.nom_grupo,
+            s.id_salon,
+           a.fecha_asistencia as fecha_asistencia,
+        a.validacion_asistencia AS asistencia,
+        r.validacion_retardo AS retardo,
+        f.validacion_falta AS falta
+        FROM
+            horario h
+        INNER JOIN grupo g ON h.id_grupo = g.id_grupo
+        INNER JOIN salon s ON h.id_salon = s.id_salon
+        JOIN materia m ON h.id_materia = m.id_materia
+        JOIN persona p ON h.id_persona = p.id_persona
+        LEFT JOIN asistencia a ON h.id_horario = a.id_horario
+        LEFT JOIN retardo r ON h.id_horario = r.id_horario
+        LEFT JOIN falta f ON h.id_horario = f.id_horario
         `);
 
-        console.log("Datos obtenidos de la BD:", horarios); // Verifica que sí hay datos
         
         const salones = [...new Set(horarios.map(h => h.id_salon))];
+        const dias = [...new Set(horarios.map(h => h.dia_horario))];
         const grupos = [...new Set(horarios.map(h => `${h.nom_grupo}`))];
         const profesores = [...new Set(horarios.map(h => h.nombre_persona))];
         const materias = [...new Set(horarios.map(h => h.nom_materia))];
         const horasInicio = [...new Set(horarios.map(h => h.hora_inicio))].sort();
         const horasFin = [...new Set(horarios.map(h => h.hora_final))].sort();
 
-        console.log("Datos formateados:", { salones, grupos, profesores, materias, horasInicio, horasFin });
 
-        res.json({ salones, grupos, profesores, materias, horasInicio, horasFin });
+        res.json({ salones, dias, grupos, profesores, materias, horasInicio, horasFin });
 
     } catch (error) {
         console.error('Error al obtener filtros:', error);
@@ -1212,6 +1215,61 @@ app.get('/api/filtros', async (req, res) => {
   
 
 // ----------------------------------- FIN RUTA FILTROS ---------------------------------------------
+
+
+// ----------------------------------- RUTA FILTROS CONSULTAS ---------------------------------------------
+
+app.get('/api/filtrar-consulta', async (req, res) => {
+    try {
+        const [horarios] = await conexion.promise().query(`
+            SELECT DISTINCT
+        p.id_persona,
+        CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_persona,
+        g.nom_grupo,
+        m.nom_materia,
+        h.dia_horario,
+        h.hora_inicio,
+        h.hora_final,
+	a.fecha_asistencia as fecha_asistencia,
+        a.validacion_asistencia AS asistencia,
+        r.validacion_retardo AS retardo,
+        f.validacion_falta AS falta
+    FROM
+        persona AS p
+        JOIN horario AS h ON p.id_persona = h.id_persona
+        JOIN grupo AS g ON h.id_grupo = g.id_grupo
+        JOIN materia AS m ON h.id_materia = m.id_materia
+        JOIN asistencia AS a ON h.id_horario = a.id_horario
+        LEFT JOIN
+    retardo r ON h.id_horario = r.id_horario
+LEFT JOIN
+    falta f ON h.id_horario = f.id_horario
+        `);
+
+        
+        const grupos = [...new Set(horarios.map(h => `${h.nom_grupo}`))];
+        const profesores = [...new Set(horarios.map(h => h.nombre_persona))];
+        const materias = [...new Set(horarios.map(h => h.nom_materia))];
+        const dia = [...new Set(horarios.map(h => h.dia_horario))];
+        const asistencia = [...new Set(horarios.map(h => h.asistencia))];
+        const retardo = [...new Set(horarios.map(h => h.retardo))];
+        const falta = [...new Set(horarios.map(h => h.falta))];
+        const horasInicio = [...new Set(horarios.map(h => h.hora_inicio))].sort();
+        const horasFin = [...new Set(horarios.map(h => h.hora_final))].sort();
+
+
+        res.json({ dia, grupos, profesores, materias, asistencia, retardo, falta, horasInicio, horasFin});
+
+    } catch (error) {
+        console.error('Error al obtener filtros:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+  
+
+// ----------------------------------- FIN RUTA FILTROS ---------------------------------------------
+
+
 
 // -------------------------------- RUTA ASIS POR PROFESOR --------------------------------
 

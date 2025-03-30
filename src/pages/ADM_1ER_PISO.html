@@ -74,11 +74,9 @@
 
 		<!-- MAIN -->
 		<main>
-
 			<div class="alerta">
-				
+
 			</div>
-			
 			<h1 class="title">Prefect APP</h1>
 			<ul class="breadcrumbs">
 				<li><a href="#">P.A</a></li>
@@ -86,69 +84,98 @@
 				<li>Horarios / 1er Piso</li>
 
 			</ul>
-			<div class="info-data">
-
-				
-
-				<div class="horario">
-
-					
-
-					<main class="table" id="customers_table">
-						<section class="table__header">
-							<h1>Horarios de 2do Semestre:</h1>
-							<button id="selectAttendanceBtn" type="button">Seleccionar Asistencias</button>
-							<div class="input-group">
-								<input type="search" placeholder="Buscaaaar...">
-								
-								<img src="../public/images/search.png" alt="">
-							</div>
-							<div class="export__file">
-								<label for="export-file" class="export__file-btn" title="Exporta archivosss"></label>
-								<input type="checkbox" id="export-file">
-								<div class="export__file-options">
-									<label>Descargar &nbsp; &#10140;</label>
-									<label for="export-file" id="toPDF">PDF <img src="../public/images/pdf.png"
-											alt=""></label>
-									<label for="export-file" id="toJSON">JSON <img src="../public/images/json.png"
-											alt=""></label>
-									<label for="export-file" id="toCSV">CSV <img src="../public/images/csv.png"
-											alt=""></label>
-									<label for="export-file" id="toEXCEL">EXCEL <img src="../public/images/excel.png"
-											alt=""></label>
-								</div>
-							</div>
-						</section>
-						<section class="table__body">
-							<table>
-								<thead>
-
-									<tr>
-										<th> Salon <span class="icon-arrow">&UpArrow;</span></th>
-										<th> Grupo <span class="icon-arrow">&UpArrow;</span></th>
-										<th> Profesor <span class="icon-arrow">&UpArrow;</span></th>
-										<th> Materia <span class="icon-arrow">&UpArrow;</span></th>
-										<th> Hora <span class="icon-arrow">&UpArrow;</span></th>
-										<th colspan="3"> Acciones </th>
-
-									</tr>
-								</thead>
-								<tbody>
-									<th>fefeefee</th>
-									<th>fefeefdewfwefwefewee</th>
-									<th>fefeegrgergetgegregergfee</th>
-									<th>fefeefee</th>
-									<th>fefeefee</th>
-									<th>fefeefee</th>
-								</tbody>
-
-							</table>
-						</section>
-						<button type="submit" id="btnEnviar">Enviar pa</button>
-					</main>
-				</div>
-
+			<div class="filters">
+				<button id="selectAttendanceBtn" type="button" class="filter-btn">Seleccionar Asistencias</button>
+				<button class="filter-btn" id="filterBtn">FILTRAR POR:</button>
+				<select id="salon"><option value="">SALÓN</option></select>
+				<select id="grupo"><option value="">GRUPO</option></select>
+				<select id="profesor"><option value="">PROFESOR</option></select>
+				<select id="materia"><option value="">MATERIA</option></select>
+				<select id="horaInicio"><option value="">HORA INICIO</option></select>
+				<select id="horaFin"><option value="">HORA FIN</option></select>
 			</div>
+			<div class="contenedor-horario">
+				<div class="blur-overlay top"></div>
+				<div class="horarios-list" id="horario">
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Salón</b></span>
+						<span><b>Grupo</b></span>
+						<span><b>Profesor</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Hora</b></span>
+						<span><b>Acciones</b></span>
+					</div>
+					<div class="horario-content">
+						<span>1</span>
+						<span>XIV1</span>
+						<span>Profesor</span>
+						<span>Materia</span>
+						<span>00:00 - 01:00</span>
+						<div class="acciones">
+							<label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Asis.
+							  </label>
+	
+							  <label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Retardo
+							  </label>
+	
+							  <label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Falta
+							  </label>
+							
+						   
+						</div>
+					</div>
+				</div>
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Salón</b></span>
+						<span><b>Grupo</b></span>
+						<span><b>Profesor</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Hora</b></span>
+						<span><b>Acciones</b></span>
+					</div>
+					<div class="horario-content">
+						<span>1</span>
+						<span>XIV1</span>
+						<span>Profesor</span>
+						<span>Materia</span>
+						<span>00:00 - 01:00</span>
+						<div class="acciones">
+							<label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Asis.
+							  </label>
+	
+							  <label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Retardo
+							  </label>
+	
+							  <label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Falta
+							  </label>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+			<div class="blur-overlay bottom"></div>
+		</div>
+			<button type="button" class="btnEnviar" id="btnEnviar">enviarrrrrr</button>
 
 		</main>
 		<!-- MAIN -->
