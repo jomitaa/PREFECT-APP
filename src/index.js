@@ -81,7 +81,8 @@ app.use(session({
     cookie: {
       httpOnly: true,  // Evita el acceso a las cookies desde JavaScript
       secure: process.env.NODE_ENV === 'production', // Esto debe ser true en producción
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      expires: false
     }
   }));
 
@@ -283,6 +284,9 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/verify-otp', async (req, res) => {
+    console.log("Sesión en /verify-otp:", req.session);  // Para depuración
+
+    
     const { otpCode } = req.body;
 
     // Verificar si el OTP recibido es correcto
