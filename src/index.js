@@ -10,10 +10,6 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const MySQLStore = require('express-mysql-session')(session);
-
 
 
 
@@ -70,28 +66,19 @@ const query = (sql, params) => {
 // Middlewares
 app.set("port", 3000);
 app.use(bodyParser.urlencoded({ extended: true }));
-const sessionStore = new MySQLStore({}, conexion.promise());
-
-const isProduction = process.env.RAILWAY_ENVIRONMENT_NAME || process.env.NODE_ENV === 'production';
-
 app.use(session({
-    secret: 'jomitaaz',
+    secret: 'jomitaaz',  // Cambia esto por un secreto seguro
     resave: false,
-    saveUninitialized: true,
-    cookie: {
-      httpOnly: true,  // Evita el acceso a las cookies desde JavaScript
-      secure: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      expires: false
-    }
-  }));
+    saveUninitialized: false,
+    cookie: { 
+        secure: false, 
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        expires: false
+     } // Usa secure: true si usas HTTPS
+}));
 
-
-app.use(cors({
-    origin: ['https://prefect-app-production.up.railway.app'], 
-    credentials: true
-  }));
-  
+app.use(cors({ origin: '*' }));
 
 
 app.use( express.static(path.join(__dirname, 'public')));
