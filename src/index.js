@@ -75,7 +75,7 @@ const sessionStore = new MySQLStore({}, conexion.promise());
 const isProduction = process.env.RAILWAY_ENVIRONMENT_NAME || process.env.NODE_ENV === 'production';
 
 app.use(session({
-    secret: true,
+    secret: 'jomitaaz',
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -286,7 +286,6 @@ app.post('/login', async (req, res) => {
 app.post('/verify-otp', async (req, res) => {
     console.log("Sesión en /verify-otp:", req.session);  // Para depuración
 
-    
     const { otpCode } = req.body;
 
     // Verificar si el OTP recibido es correcto
@@ -318,6 +317,7 @@ app.post('/verify-otp', async (req, res) => {
     console.log("Redirigiendo a:", redirectUrl);
     return res.json({ success: true, redirectUrl });  // Devolver la URL de redirección
 });
+
 
 
 app.get('/validar-sesion', (req, res) => {
