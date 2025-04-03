@@ -83,7 +83,8 @@ app.use(session({
     httpOnly: true,
     secure: !!isProduction, 
     sameSite: 'lax',
-    maxAge: 60 * 60 * 1000
+    maxAge: 60 * 60 * 1000,
+    domain: 'prefect-app-production.up.railway.app'
   }
 }));
 
@@ -310,6 +311,8 @@ app.post('/verify-otp', async (req, res) => {
     console.log("Redirigiendo a:", redirectUrl);
     return res.json({ success: true, redirectUrl });
 });
+
+
 app.get('/validar-sesion', (req, res) => {
     if (req.session.loggedin) {
         res.json({ success: true, userName: req.session.userName, cargo: req.session.cargo });
