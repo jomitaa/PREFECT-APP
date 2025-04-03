@@ -113,7 +113,7 @@ const estadoValidacionCampos = {
           otpCode: otpCode,
           rememberMe: globalRememberMe
         }),
-        credentials: "include" // 👈 ESTO ES CLAVE EN PRODUCCIÓN
+        credentials: "include" 
       });
 
       const data = await response.json();  // Cambié aquí a .json()
