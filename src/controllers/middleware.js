@@ -10,6 +10,7 @@ export function authorize(roles) {
                 return res.status(403).send('No tienes los permisos necesarios.');
             }
         }
-        res.status(401).send('No estás autenticado.');
+        res.redirect("/pages/login.html");
+
     };
 }

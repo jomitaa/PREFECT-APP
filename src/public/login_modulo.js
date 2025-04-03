@@ -2,11 +2,14 @@ const estadoValidacionCampos = {
     userName: false,
     userPassword: false,
   };
-  
+  let globalUserName = "";
+  let globalRememberMe = false;
+
   document.addEventListener("DOMContentLoaded", () => {
     // Variables del formulario de login
     const formLogin = document.querySelector(".form-login");
     const inputPass = document.querySelector('.form-login input[type="password"]');
+    const rememberMeCheckbox = document.getElementById("rememberMe");
     const inputUser = document.querySelector('.form-login input[type="text"]');
     const alertaErrorLogin = document.querySelector(".form-login .alerta-error");
   
@@ -31,6 +34,10 @@ const estadoValidacionCampos = {
           const userName = inputUser.value;
           const userPassword = inputPass.value;
 
+          globalUserName = userName;
+          globalRememberMe = rememberMeCheckbox.checked;
+
+
   
           console.log("Enviando credenciales:", { userName, userPassword });
   
@@ -38,7 +45,8 @@ const estadoValidacionCampos = {
               const response = await fetch("/login", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ userName, userPassword }),
+                  body: JSON.stringify({ userName, userPassword, rememberMe: globalRememberMe }),
+
               });
   
               const text = await response.text();
@@ -88,20 +96,25 @@ const estadoValidacionCampos = {
   }
   
   // Función para verificar OTP
+
   async function verificarOTP() {
     const otpCode = document.getElementById("otp-input").value;
     const alertaErrorOTP = document.querySelector(".alerta-error");
-  
+
     try {
       const response = await fetch("/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ otp: otpCode }),
+        body: JSON.stringify({ 
+          userName: globalUserName,
+          otpCode: otpCode,
+          rememberMe: globalRememberMe
+        })
       });
-  
+
       const text = await response.text();
       console.log("Respuesta OTP recibida:", text);
-  
+
       let data;
       try {
         data = JSON.parse(text);
@@ -110,13 +123,13 @@ const estadoValidacionCampos = {
         mostrarMensaje(alertaErrorOTP, "Error en la verificación.");
         return;
       }
-  
+
       if (data.success) {
         window.location.href = data.redirectUrl;
       } else {
         mostrarMensaje(alertaErrorOTP, data.message);
       }
-  
+
     } catch (error) {
       console.error("Error verificando OTP:", error);
       mostrarMensaje(alertaErrorOTP, "Error en la verificación.");

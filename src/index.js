@@ -10,6 +10,9 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const MySQLStore = require('express-mysql-session')(session);
 
 
 
@@ -66,12 +69,23 @@ const query = (sql, params) => {
 // Middlewares
 app.set("port", 3000);
 app.use(bodyParser.urlencoded({ extended: true }));
+const sessionStore = new MySQLStore({}, conexion.promise());
+
 app.use(session({
-    secret: 'jomitaaz',  // Cambia esto por un secreto seguro
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false, httpOnly: true } // Usa secure: true si usas HTTPS
+  key: 'connect.sid',
+  secret: 'jomitaaz',
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 1000 // 1 hora por defecto
+  }
 }));
+
+
 
 app.use(cors({ origin: '*' }));
 
@@ -210,7 +224,8 @@ app.get('/pages/perfil.HTML', (req, res) => {
 // token recordar sesion esta mal
 // --------------------------------  LOGIN  -------------------------
 app.post('/login', async (req, res) => {
-    const { userName, userPassword } = req.body;
+    console.log("Cuerpo recibido en /login:", req.body); 
+    const { userName, userPassword, rememberMe } = req.body;
 
     if (!userName || !userPassword) {
         return res.json({ success: false, message: 'Nombre de usuario o contraseña no proporcionados.' });
@@ -236,6 +251,15 @@ app.post('/login', async (req, res) => {
         req.session.userName = user.nom_usuario;
         req.session.cargo = user.cargo.trim();
 
+        if (rememberMe) {
+            req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 días
+            console.log("Sesión configurada para 30 días.");
+        } else {
+            req.session.cookie.expires = false; // Hasta que cierre el navegador
+            console.log("Sesión configurada para durar solo mientras el navegador esté abierto.");
+        }
+
+
         console.log(`OTP generado para ${userName}:`, otpCode);
 
         const mailOptions = {
@@ -255,14 +279,16 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/verify-otp', async (req, res) => {
-    const { otp } = req.body;
+    const { otpCode } = req.body;
 
-    if (!req.session.otp || req.session.otp != otp) {
+    if (!req.session.otp || req.session.otp != otpCode) {
         return res.json({ success: false, message: "Código incorrecto." });
     }
 
     req.session.loggedin = true;
-    delete req.session.otp; // Eliminar OTP después de verificar
+    delete req.session.otp; 
+    req.session.touch(); 
+
 
     console.log("Usuario autenticado correctamente:", req.session.userName, "Cargo:", req.session.cargo);
 
@@ -279,6 +305,14 @@ app.post('/verify-otp', async (req, res) => {
     console.log("Redirigiendo a:", redirectUrl);
     return res.json({ success: true, redirectUrl });
 });
+app.get('/validar-sesion', (req, res) => {
+    if (req.session.loggedin) {
+        res.json({ success: true, userName: req.session.userName, cargo: req.session.cargo });
+    } else {
+        res.json({ success: false });
+    }
+});
+
 
 // --------------------------------  FIN LOGIN  -------------------------
 

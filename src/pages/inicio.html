@@ -46,6 +46,25 @@
 
       </div>
     </main>
-
+    <script>
+      window.addEventListener('DOMContentLoaded', async () => {
+        try {
+          const res = await fetch('/validar-sesion');
+          const data = await res.json();
+    
+          if (data.success) {
+            console.log("Sesión detectada para:", data.userName, "→", data.cargo);
+            if (data.cargo === 'admin') {
+              window.location.href = '/pages/ADM_menu.html';
+            } else if (data.cargo === 'prefecto') {
+              window.location.href = '/pages/PRF_menu.html';
+            }
+          }
+        } catch (err) {
+          console.error('Error al validar sesión desde inicio:', err);
+        }
+      });
+    </script>
+    
   </body>
 </html>
