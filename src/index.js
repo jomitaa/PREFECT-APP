@@ -80,7 +80,7 @@ app.use(session({
     saveUninitialized: true,
     cookie: {
       httpOnly: true,  // Evita el acceso a las cookies desde JavaScript
-      secure: process.env.NODE_ENV === 'production', // Esto debe ser true en producción
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
       expires: false
     }
