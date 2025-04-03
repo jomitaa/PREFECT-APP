@@ -75,18 +75,14 @@ const sessionStore = new MySQLStore({}, conexion.promise());
 const isProduction = process.env.RAILWAY_ENVIRONMENT_NAME || process.env.NODE_ENV === 'production';
 
 app.use(session({
-  key: 'connect.sid',
-  secret: 'jomitaaz',
-  store: sessionStore,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: isProduction, 
-    sameSite: 'none',
-    maxAge: 60 * 60 * 1000
-  }
-}));
+    secret: 'jomitaaz',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production', // Esto debe ser true en producción
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+    }
+  }));
 
 
 app.use(cors({
