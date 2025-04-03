@@ -115,18 +115,9 @@ const estadoValidacionCampos = {
         }),
         credentials: "include" // 👈 ESTO ES CLAVE EN PRODUCCIÓN
       });
-      
-      const text = await response.text();
-      console.log("Respuesta OTP recibida:", text);
 
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (error) {
-        console.error("Error al parsear JSON:", error);
-        mostrarMensaje(alertaErrorOTP, "Error en la verificación.");
-        return;
-      }
+      const data = await response.json();  // Cambié aquí a .json()
+      console.log("Respuesta OTP recibida:", data);
 
       if (data.success) {
         window.location.href = data.redirectUrl;
@@ -138,8 +129,8 @@ const estadoValidacionCampos = {
       console.error("Error verificando OTP:", error);
       mostrarMensaje(alertaErrorOTP, "Error en la verificación.");
     }
-  }
-  
+}
+
   // Función para validar los campos de usuario y contraseña
   function validarCampo(regularExpresion, campo, mensaje) {
     const esValido = regularExpresion.test(campo.value);

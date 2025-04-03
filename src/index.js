@@ -287,18 +287,23 @@ app.post('/login', async (req, res) => {
 app.post('/verify-otp', async (req, res) => {
     const { otpCode } = req.body;
 
+    // Verificar si el OTP recibido es correcto
+    console.log("OTP recibido en el servidor:", otpCode);
+    console.log("OTP almacenado en la sesión:", req.session.otp);
+
+    // Verificar si el OTP es válido
     if (!req.session.otp || req.session.otp != otpCode) {
         return res.json({ success: false, message: "Código incorrecto." });
     }
 
+    // Si el OTP es válido, marcar al usuario como autenticado
     req.session.loggedin = true;
-    delete req.session.otp; 
-    req.session.touch(); 
-
+    delete req.session.otp;  // Eliminar el OTP de la sesión
+    req.session.touch();     // Actualizar la sesión para mantenerla activa
 
     console.log("Usuario autenticado correctamente:", req.session.userName, "Cargo:", req.session.cargo);
 
-    // Validar que el cargo existe antes de redirigir
+    // Determinar la URL de redirección según el cargo del usuario
     let redirectUrl;
     if (req.session.cargo === 'admin') {
         redirectUrl = '/pages/ADM_menu.html';
@@ -309,7 +314,7 @@ app.post('/verify-otp', async (req, res) => {
     }
 
     console.log("Redirigiendo a:", redirectUrl);
-    return res.json({ success: true, redirectUrl });
+    return res.json({ success: true, redirectUrl });  // Devolver la URL de redirección
 });
 
 
