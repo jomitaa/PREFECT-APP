@@ -84,8 +84,7 @@ app.use(session({
     httpOnly: true,
     secure: !!isProduction, 
     sameSite: 'lax',
-    maxAge: 60 * 60 * 1000,
-    domain: 'prefect-app-production.up.railway.app'
+    maxAge: 60 * 60 * 1000
   }
 }));
 
