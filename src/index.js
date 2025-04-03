@@ -81,14 +81,18 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: !!isProduction, // ✅ Forzar secure en Railway
+    secure: !!isProduction, 
     sameSite: 'lax',
     maxAge: 60 * 60 * 1000
   }
 }));
 
 
-app.use(cors({ origin: '*' }));
+app.use(cors({
+    origin: ['https://prefect-app-production.up.railway.app'], 
+    credentials: true
+  }));
+  
 
 
 app.use( express.static(path.join(__dirname, 'public')));
