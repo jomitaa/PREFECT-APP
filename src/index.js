@@ -71,6 +71,8 @@ app.set("port", 3000);
 app.use(bodyParser.urlencoded({ extended: true }));
 const sessionStore = new MySQLStore({}, conexion.promise());
 
+const isProduction = process.env.RAILWAY_ENVIRONMENT_NAME || process.env.NODE_ENV === 'production';
+
 app.use(session({
   key: 'connect.sid',
   secret: 'jomitaaz',
@@ -79,12 +81,11 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: !!isProduction, // ✅ Forzar secure en Railway
     sameSite: 'lax',
-    maxAge: 60 * 60 * 1000 // 1 hora por defecto
+    maxAge: 60 * 60 * 1000
   }
 }));
-
 
 
 app.use(cors({ origin: '*' }));
