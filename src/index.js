@@ -75,10 +75,11 @@ const sessionStore = new MySQLStore({}, conexion.promise());
 const isProduction = process.env.RAILWAY_ENVIRONMENT_NAME || process.env.NODE_ENV === 'production';
 
 app.use(session({
-    secret: 'jomitaaz',
+    secret: true,
     resave: false,
     saveUninitialized: true,
     cookie: {
+      httpOnly: true,  // Evita el acceso a las cookies desde JavaScript
       secure: process.env.NODE_ENV === 'production', // Esto debe ser true en producción
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
     }
