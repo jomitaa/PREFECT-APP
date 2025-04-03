@@ -20,6 +20,7 @@ const MySQLStore = require('express-mysql-session')(session);
 
 
 
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
