@@ -104,14 +104,17 @@ const estadoValidacionCampos = {
     try {
       const response = await fetch("/verify-otp", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({ 
           userName: globalUserName,
           otpCode: otpCode,
           rememberMe: globalRememberMe
-        })
+        }),
+        credentials: "include" // 👈 ESTO ES CLAVE EN PRODUCCIÓN
       });
-
+      
       const text = await response.text();
       console.log("Respuesta OTP recibida:", text);
 
