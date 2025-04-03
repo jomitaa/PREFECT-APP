@@ -253,6 +253,7 @@ app.post('/login', async (req, res) => {
         // Generar código OTP de 6 dígitos
         const otpCode = Math.floor(100000 + Math.random() * 900000);
         req.session.otp = otpCode;
+        console.log("Código OTP generado en la sesion:", req.session.otp);
         req.session.userId = user.ID_usuario;
         req.session.userName = user.nom_usuario;
         req.session.cargo = user.cargo.trim();
