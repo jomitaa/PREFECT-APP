@@ -12,6 +12,9 @@ import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 
 
+import bcrypt from 'bcrypt';
+
+const saltRounds = 10;
 
 
 
@@ -47,7 +50,7 @@ conexion.getConnection(err => {
     console.error('Error conectando a la base de datos:', err);
   } else {
     console.log('Conectado a MySQL en Railway');
-  }
+  } 
 });
 
 
@@ -113,7 +116,6 @@ const protectedRoutesPrefecto = [
 // Aplicar el middleware de autorización a las rutas protegidas
 app.use(protectedRoutesAdmin, authorize(['admin']));
 app.use(protectedRoutesPrefecto, authorize(['prefecto']));
-
 
 
 // -------------------------------- RUTAS -----------------------------
@@ -227,18 +229,45 @@ app.post('/login', async (req, res) => {
         const results = await query('SELECT * FROM usuario WHERE nom_usuario = ?', [userName]);
         const user = results[0];
 
-        if (!user || user.contraseña !== userPassword) {
+        if (!user) {
+            console.log("Usuario no encontrado en la base de datos.");
+            return res.json({ success: false, message: 'Las credenciales que usas no son válidas.' });
+        }
+
+        let passwordMatch = false;
+
+        // Determinar si la contraseña ya está encriptada
+        if (user.contraseña.startsWith('$2')) {
+            // Contraseña ya hasheada
+            passwordMatch = await bcrypt.compare(userPassword, user.contraseña);
+            console.log("Contraseña hasheada comparada:", passwordMatch);
+        } else {
+            // Contraseña sin hash
+            passwordMatch = userPassword === user.contraseña;
+            console.log("Contraseña en texto plano comparada:", passwordMatch);
+
+            if (passwordMatch) {
+                // 🔐 Encriptar y actualizar en la base de datos
+                const hashed = await bcrypt.hash(userPassword, 10);
+                await query('UPDATE usuario SET contraseña = ? WHERE ID_usuario = ?', [hashed, user.ID_usuario]);
+                console.log(`Contraseña de ${userName} fue hasheada y actualizada en la base de datos.`);
+            }
+        }
+
+        if (!passwordMatch) {
+            console.log("Las credenciales que usas no son válidas.");
             return res.json({ success: false, message: 'Las credenciales que usas no son válidas.' });
         }
 
         if (!user.cargo) {
+            console.log("El usuario no tiene un cargo asignado.");
             return res.json({ success: false, message: 'El usuario no tiene un cargo asignado.' });
         }
 
         // Generar código OTP de 6 dígitos
         const otpCode = Math.floor(100000 + Math.random() * 900000);
         req.session.otp = otpCode;
-        console.log("Código OTP generado en la sesion:", req.session.otp);
+        console.log("Código OTP generado en la sesión:", req.session.otp);
         req.session.userId = user.ID_usuario;
         req.session.userName = user.nom_usuario;
         req.session.cargo = user.cargo.trim();
@@ -250,7 +279,6 @@ app.post('/login', async (req, res) => {
             req.session.cookie.expires = false; // Hasta que cierre el navegador
             console.log("Sesión configurada para durar solo mientras el navegador esté abierto.");
         }
-
 
         console.log(`OTP generado para ${userName}:`, otpCode);
 
@@ -270,28 +298,26 @@ app.post('/login', async (req, res) => {
     }
 });
 
+
+// ----------------------------- VERIFY OTP -----------------------------
 app.post('/verify-otp', async (req, res) => {
     console.log("Sesión en /verify-otp:", req.session);  // Para depuración
 
     const { otpCode } = req.body;
 
-    // Verificar si el OTP recibido es correcto
     console.log("OTP recibido en el servidor:", otpCode);
     console.log("OTP almacenado en la sesión:", req.session.otp);
 
-    // Verificar si el OTP es válido
     if (!req.session.otp || req.session.otp != otpCode) {
         return res.json({ success: false, message: "Código incorrecto." });
     }
 
-    // Si el OTP es válido, marcar al usuario como autenticado
     req.session.loggedin = true;
-    delete req.session.otp;  // Eliminar el OTP de la sesión
-    req.session.touch();     // Actualizar la sesión para mantenerla activa
+    delete req.session.otp;
+    req.session.touch();
 
     console.log("Usuario autenticado correctamente:", req.session.userName, "Cargo:", req.session.cargo);
 
-    // Determinar la URL de redirección según el cargo del usuario
     let redirectUrl;
     if (req.session.cargo === 'admin') {
         redirectUrl = '/pages/ADM_menu.html';
@@ -302,9 +328,8 @@ app.post('/verify-otp', async (req, res) => {
     }
 
     console.log("Redirigiendo a:", redirectUrl);
-    return res.json({ success: true, redirectUrl });  // Devolver la URL de redirección
+    return res.json({ success: true, redirectUrl });
 });
-
 
 
 app.get('/validar-sesion', (req, res) => {
@@ -366,9 +391,19 @@ app.post('/register', async (req, res) => {
             return res.json({ success: false, message: 'El correo ya está registrado.' });
         }
 
+        // 🔐 Encriptar la contraseña
+        const hashedPassword = await bcrypt.hash(userPassword, saltRounds);
+
         // 🔑 Generar un token de confirmación
         const confirmationToken = crypto.randomBytes(32).toString("hex");
-        tokenStore.set(confirmationToken, { userName, userEmail, userCargo, userPassword });
+
+        // 📦 Guardar los datos temporalmente con la contraseña encriptada
+        tokenStore.set(confirmationToken, {
+            userName,
+            userEmail,
+            userCargo,
+            userPassword: hashedPassword // ⚠️ Guardamos la contraseña encriptada
+        });
 
         // 📩 Enviar correo de confirmación
         const confirmationLink = `https://prefect-app-production.up.railway.app/confirm/${confirmationToken}`;
@@ -388,7 +423,6 @@ app.post('/register', async (req, res) => {
         res.json({ success: false, message: "Error al crear la cuenta." });
     }
 });
-
 // --------------------------------  RUTA DE CONFIRMACIÓN  --------------------------------
 
 app.get('/confirm/:token', async (req, res) => {
