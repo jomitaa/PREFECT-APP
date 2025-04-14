@@ -55,48 +55,68 @@ async function obtenerIdContenedor() {
 }
 
 async function filtrarHorarios(idContenedor) {
-    const idGrupo = document.getElementById('grupo').value;
-    const dia = document.getElementById('dia').value;
+	const idGrupo = document.getElementById('grupo').value;
+	const dia = document.getElementById('dia').value;
+	const contenedorHorarios = document.getElementById('horario');
 
-    if (!idGrupo || !dia) {
-        alert("Por favor, seleccione un grupo y un día antes de buscar.");
-        return;
-    }
+	contenedorHorarios.innerHTML = ''; // Limpiar anteriores
+	contenedorHorarios.style.display = 'none'; // Ocultar antes de buscar
 
-    try {
-        const respuesta = await fetch(`/obtener-horarios/${encodeURIComponent(dia)}/${idGrupo}/${idContenedor}`);
-        const horarios = await respuesta.json();
+	if (!idGrupo || !dia) {
+		createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'Por favor, selecciona grupo y día.');
+		return;
+	}
 
-        if (!Array.isArray(horarios)) {
-            throw new Error("La respuesta del servidor no es un array.");
-        }
+	try {
+		const respuesta = await fetch(`/obtener-horarios/${encodeURIComponent(dia)}/${idGrupo}/${idContenedor}`);
+		const horarios = await respuesta.json();
 
-        const contenedorHorarios = document.getElementById('contenedorHorarios');
-        contenedorHorarios.innerHTML = '';
+		if (!Array.isArray(horarios) || horarios.length === 0) {
+			createToast('info', 'fa-solid fa-circle-info', 'Sin resultados', 'No se encontraron horarios para el grupo y día seleccionados.');
+			return;
+		}
 
-        horarios.forEach(horario => {
-            const fila = document.createElement('div');
-            fila.classList.add('horario-item');
-            fila.innerHTML = `
-                <p><strong>Día:</strong> ${horario.dia_horario}</p>
-                <p><strong>Hora:</strong> ${horario.hora_inicio} - ${horario.hora_final}</p>
-                <p><strong>Salón:</strong> ${horario.id_salon}</p>
-                <p><strong>Materia:</strong> ${horario.nom_materia}</p>
-                <p><strong>Profesor:</strong> ${horario.nombre_completo}</p>
-                <button onclick="editarHorario(${horario.id_horario}, '${horario.id_salon}', '${horario.nom_materia}', '${horario.nombre_completo}')">Editar</button>
-            `;
-            contenedorHorarios.appendChild(fila);
-        });
-    } catch (error) {
-        console.error('Error al cargar horarios:', error);
-    }
+		horarios.forEach(horario => {
+			const card = document.createElement('div');
+			card.classList.add('horario-card');
+			card.innerHTML = `
+				<div class="horario-header">
+					<span><b>Grupo</b></span>
+                    <span><b>Salon</b></span>
+					<span><b>Profesor</b></span>
+					<span><b>Materia</b></span>
+					<span><b>Hora</b></span>
+					<span><b>Día</b></span>
+					<span><b>Editar horario</b></span>
+				</div>
+				<div class="horario-content">
+					<span>${horario.nom_grupo}</span>
+                    <span>${horario.id_salon}</span>
+					<span>${horario.nombre_completo}</span>
+					<span>${horario.nom_materia}</span>
+					<span>${horario.hora_inicio} - ${horario.hora_final}</span>
+					<span>${horario.dia_horario}</span>
+					<button class="btn-editar" onclick="editarHorario(${horario.id_horario}, '${horario.id_salon}', '${horario.nom_grupo}', '${horario.dia_horario}', '${horario.nom_materia}', '${horario.nombre_completo}')">Editar</button>
+				</div>
+			`;
+			contenedorHorarios.appendChild(card);
+		});
+
+		contenedorHorarios.style.display = 'block'; // Mostrar resultados
+	} catch (error) {
+		console.error('Error al cargar horarios:', error);
+		createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Hubo un error al obtener los horarios.');
+	}
 }
+
 
 async function obtenerOpcionesHorarios() {
     try {
         const respuesta = await fetch('/obtener-datos-horarios');
         const datos = await respuesta.json();
 
+        llenarSelect('grupo', datos.grupos, 'id_grupo', 'nom_grupo');
+        llenarSelect('dia', datos.dias, 'dia', 'dia');
         llenarSelect('salon', datos.salones, 'id_salon', 'id_salon');
         llenarSelect('materia', datos.materias, 'id_materia', 'nom_materia');
         llenarSelect('persona', datos.profesores, 'id_persona', 'nombre_completo');
@@ -105,31 +125,48 @@ async function obtenerOpcionesHorarios() {
     }
 }
 
-async function editarHorario(idHorario, idSalon, nomMateria, nombreProfesor) {
+async function editarHorario(idHorario, idGrupo, dia, idSalon, nomMateria, nombreProfesor) {
     console.log("Editando horario con ID:", idHorario);
+
+  // Cambiar la clase para hacer visible el formulario
+  document.getElementById('formularioEdicion').classList.remove('hidden');
+  document.getElementById('formularioEdicion').classList.add('visible');
 
     await obtenerOpcionesHorarios(); // Asegurar que los selects tienen opciones antes de asignar valores
 
-    const idHorarioInput = document.getElementById('idHorario');
+
+    const idGrupoInput = document.getElementById('grupo');
+    const diaInput = document.getElementById('dia');
     const salonSelect = document.getElementById('salon');
     const materiaSelect = document.getElementById('materia');
     const personaSelect = document.getElementById('persona');
 
-    if (!idHorarioInput || !salonSelect || !materiaSelect || !personaSelect) {
+    // Verificar que los elementos existen
+    console.log('ID Horario:', idHorarioInput);
+  console.log('Grupo:', document.getElementById('grupo'));
+  console.log('Día:', document.getElementById('dia'));
+  console.log('Salón:', document.getElementById('salon'));
+  console.log('Materia:', document.getElementById('materia'));
+  console.log('Profesor:', document.getElementById('persona'));
+
+    if ( !salonSelect || !materiaSelect || !personaSelect) {
         console.error("Uno o más elementos del formulario de edición no existen.");
         return;
     }
 
-    idHorarioInput.value = idHorario;
+
+    idGrupoInput.value = idGrupo;
+    diaInput.value = dia;
     salonSelect.value = idSalon;
     materiaSelect.value = nomMateria;
     personaSelect.value = nombreProfesor;
 
+    idGrupoInput.disabled = true;
+    diaInput.disabled = true;
     salonSelect.disabled = false;
     materiaSelect.disabled = false;
     personaSelect.disabled = false;
 
-    document.getElementById('formularioEdicion').style.display = 'block';
 }
 
 let alerta = document.querySelector('.alerta');
@@ -158,11 +195,13 @@ document.getElementById('btnGuardar').addEventListener('click', async (e) => {
     e.preventDefault();
 
     const idHorario = document.getElementById('idHorario').value;
+    const idGrupo = document.getElementById('grupo').value;
+    const dia = document.getElementById('dia').value;
     const idSalon = document.getElementById('salon').value;
     const idMateria = document.getElementById('materia').value;
     const idPersona = document.getElementById('persona').value;
 
-    if (!idHorario || !idSalon || !idMateria || !idPersona) {
+    if (!idHorario || !idGrupo || !dia || !idSalon || !idMateria || !idPersona) {
         createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'No se han seleccionado cambios.');
         return;
     }

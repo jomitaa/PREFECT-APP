@@ -247,7 +247,7 @@ app.post('/login', async (req, res) => {
             console.log("Contraseña en texto plano comparada:", passwordMatch);
 
             if (passwordMatch) {
-                // 🔐 Encriptar y actualizar en la base de datos
+               
                 const hashed = await bcrypt.hash(userPassword, 10);
                 await query('UPDATE usuario SET contraseña = ? WHERE ID_usuario = ?', [hashed, user.ID_usuario]);
                 console.log(`Contraseña de ${userName} fue hasheada y actualizada en la base de datos.`);
@@ -472,46 +472,74 @@ app.post('/logout', (req, res) => {
 app.get('/api/horarios', async (req, res) => {
     const diaActual = new Date().toLocaleDateString('es-MX', { weekday: 'long' });
     const diaCapitalizado = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
-    const diaPrueba = 'Lunes';
-    console.log('Día actual corregido:', diaCapitalizado);
-    console.log('Día Prueba:', diaPrueba);
-    
-    console.log('Día actual:', diaCapitalizado);
+    const diaPrueba = 'Lunes'; // Puedes cambiar esto a `diaCapitalizado` si deseas usar el día real
 
-    const queryText = `
-        SELECT DISTINCT
-            h.id_horario,
-            h.dia_horario,
-            h.hora_inicio,
-            h.hora_final,
-            m.nom_materia,
-            CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
-            g.sem_grupo,
-            g.nom_grupo,
-            s.id_salon,
-            CASE WHEN a.id_asistencia IS NOT NULL THEN '✔' ELSE '' END AS asistencia,
-            CASE WHEN r.id_retardo IS NOT NULL THEN '✔' ELSE '' END AS retardo,
-            CASE WHEN f.id_falta IS NOT NULL THEN '✔' ELSE '' END AS falta
-        FROM
-            horario h
-        INNER JOIN grupo g ON h.id_grupo = g.id_grupo
-        INNER JOIN salon s ON h.id_salon = s.id_salon
-        JOIN materia m ON h.id_materia = m.id_materia
-        JOIN persona p ON h.id_persona = p.id_persona
-        LEFT JOIN asistencia a ON h.id_horario = a.id_horario
-        LEFT JOIN retardo r ON h.id_horario = r.id_horario
-        LEFT JOIN falta f ON h.id_horario = f.id_horario
-        WHERE h.dia_horario = ?;  
-    `;
+    const fechaActual = new Date();
+    const anio = fechaActual.getFullYear();
+    const mes = fechaActual.getMonth() + 1;
+    const periodo = mes >= 1 && mes <= 6 ? 1 : 2;
 
     try {
-        const results = await query(queryText, [diaPrueba]);
+        // 1️⃣ Buscar el id_periodo actual
+        const [periodoRows] = await conexion.promise().query(
+            'SELECT id_periodo FROM periodos WHERE anio = ? AND periodo = ?',
+            [anio, periodo]
+        );
+
+        if (periodoRows.length === 0) {
+            return res.status(404).json({ error: 'No existe el periodo actual.' });
+        }
+
+        const idPeriodo = periodoRows[0].id_periodo;
+
+        // 2️⃣ Buscar el contenedor correspondiente
+        const [contenedorRows] = await conexion.promise().query(
+            'SELECT id_contenedor FROM contenedor WHERE id_periodo = ?',
+            [idPeriodo]
+        );
+
+        if (contenedorRows.length === 0) {
+            return res.status(404).json({ error: 'No existe un contenedor para el periodo actual.' });
+        }
+
+        const idContenedor = contenedorRows[0].id_contenedor;
+
+        // 3️⃣ Consulta filtrando por el contenedor actual
+        const queryText = `
+            SELECT DISTINCT
+                h.id_horario,
+                h.dia_horario,
+                h.hora_inicio,
+                h.hora_final,
+                m.nom_materia,
+                CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
+                g.sem_grupo,
+                g.nom_grupo,
+                s.id_salon,
+                CASE WHEN a.id_asistencia IS NOT NULL THEN '✔' ELSE '' END AS asistencia,
+                CASE WHEN r.id_retardo IS NOT NULL THEN '✔' ELSE '' END AS retardo,
+                CASE WHEN f.id_falta IS NOT NULL THEN '✔' ELSE '' END AS falta
+            FROM
+                horario h
+            INNER JOIN grupo g ON h.id_grupo = g.id_grupo
+            INNER JOIN salon s ON h.id_salon = s.id_salon
+            JOIN materia m ON h.id_materia = m.id_materia
+            JOIN persona p ON h.id_persona = p.id_persona
+            LEFT JOIN asistencia a ON h.id_horario = a.id_horario
+            LEFT JOIN retardo r ON h.id_horario = r.id_horario
+            LEFT JOIN falta f ON h.id_horario = f.id_horario
+            WHERE h.dia_horario = ? AND h.id_contenedor = ?;
+        `;
+
+        const [results] = await conexion.promise().query(queryText, [diaPrueba, idContenedor]);
+
         res.json(results);
     } catch (err) {
         console.error('Error fetching horarios:', err);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Error interno al obtener horarios.' });
     }
 });
+
 // --------------------------------  FIN RUTA HORARIOS  -------------------------
 
 
@@ -519,27 +547,29 @@ app.get('/api/horarios', async (req, res) => {
 app.get('/api/horarios/:id', async (req, res) => {
     const id = req.params.id;
     const queryText = `
-        SELECT DISTINCT
-            h.id_horario,
-            h.dia_horario,
-            h.hora_inicio,
-            h.hora_final,
-            m.nom_materia,
-            CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
-            g.sem_grupo,
-            g.nom_grupo,
-            s.id_salon
-            
-        FROM
-            horario h
-        INNER JOIN grupo g ON h.id_grupo = g.id_grupo
-        INNER JOIN salon s ON h.id_salon = s.id_salon
-        JOIN materia m ON h.id_materia = m.id_materia
-        JOIN persona p ON h.id_persona = p.id_persona
-        LEFT JOIN asistencia a ON h.id_horario = a.id_horario
-        LEFT JOIN retardo r ON h.id_horario = r.id_horario
-        LEFT JOIN falta f ON h.id_horario = f.id_horario
-        WHERE h.id_horario = ?
+          SELECT DISTINCT
+                h.id_horario,
+                h.dia_horario,
+                h.hora_inicio,
+                h.hora_final,
+                m.nom_materia,
+                CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
+                g.sem_grupo,
+                g.nom_grupo,
+                s.id_salon,
+                CASE WHEN a.id_asistencia IS NOT NULL THEN '✔' ELSE '' END AS asistencia,
+                CASE WHEN r.id_retardo IS NOT NULL THEN '✔' ELSE '' END AS retardo,
+                CASE WHEN f.id_falta IS NOT NULL THEN '✔' ELSE '' END AS falta
+            FROM
+                horario h
+            INNER JOIN grupo g ON h.id_grupo = g.id_grupo
+            INNER JOIN salon s ON h.id_salon = s.id_salon
+            JOIN materia m ON h.id_materia = m.id_materia
+            JOIN persona p ON h.id_persona = p.id_persona
+            LEFT JOIN asistencia a ON h.id_horario = a.id_horario
+            LEFT JOIN retardo r ON h.id_horario = r.id_horario
+            LEFT JOIN falta f ON h.id_horario = f.id_horario
+        WHERE h.id_horario = ?;
     `;
 
     try {
@@ -805,7 +835,7 @@ app.put('/api/editarsur/:id', async (req, res) => {
 
 app.get('/api/consulta', async (req, res) => {
     const query = `
-    SELECT DISTINCT
+   SELECT DISTINCT
     p.id_persona,
     CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
     g.nom_grupo AS grupo,
@@ -816,10 +846,14 @@ app.get('/api/consulta', async (req, res) => {
     DATE_FORMAT(a.fecha_asistencia, '%d/%m/%y') AS fecha_asistencia, 
     a.validacion_asistencia AS asistencia,
     r.validacion_retardo AS retardo,
-    f.validacion_falta AS falta
+    f.validacion_falta AS falta,
+    per.anio,
+    per.periodo
 FROM
     persona AS p
     JOIN horario AS h ON p.id_persona = h.id_persona
+    JOIN contenedor AS c ON h.id_contenedor = c.id_contenedor
+    JOIN periodos AS per ON c.id_periodo = per.id_periodo
     JOIN grupo AS g ON h.id_grupo = g.id_grupo
     JOIN materia AS m ON h.id_materia = m.id_materia
     JOIN asistencia AS a ON h.id_horario = a.id_horario
@@ -828,7 +862,8 @@ FROM
 ORDER BY
     persona,
     dia_horario,
-    hora_inicio;`;
+    hora_inicio;
+`;
 
     try {
         const [results] = await conexion.promise().query(query);
@@ -850,32 +885,34 @@ ORDER BY
 app.get('/api/consulta/:id', async (req, res) => {
     const id_persona = req.params.id;
     const query = `
-    SELECT
-        p.id_persona,
-        CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
-        g.nom_grupo AS grupo,
-        m.nom_materia AS materia,
-        h.dia_horario,
-        h.hora_inicio,
-        h.hora_final,
-	a.fecha_asistencia as fecha_asistencia,
-        a.validacion_asistencia AS asistencia,
-        r.validacion_retardo AS retardo,
-        f.validacion_falta AS falta
-    FROM
-        persona AS p
-        JOIN horario AS h ON p.id_persona = h.id_persona
-        JOIN grupo AS g ON h.id_grupo = g.id_grupo
-        JOIN materia AS m ON h.id_materia = m.id_materia
-        JOIN asistencia AS a ON h.id_horario = a.id_horario
-        LEFT JOIN
-    retardo r ON h.id_horario = r.id_horario
-LEFT JOIN
-    falta f ON h.id_horario = f.id_horario
-    ORDER BY
-        persona,
-        dia_horario,
-        hora_inicio;`;
+    SELECT DISTINCT
+    p.id_persona,
+    CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
+    g.nom_grupo AS grupo,
+    m.nom_materia AS materia,
+    h.dia_horario,
+    h.hora_inicio,
+    h.hora_final,
+    DATE_FORMAT(a.fecha_asistencia, '%d/%m/%y') AS fecha_asistencia, 
+    a.validacion_asistencia AS asistencia,
+    r.validacion_retardo AS retardo,
+    f.validacion_falta AS falta,
+    per.anio,
+    per.periodo
+FROM
+    persona AS p
+    JOIN horario AS h ON p.id_persona = h.id_persona
+    JOIN contenedor AS c ON h.id_contenedor = c.id_contenedor
+    JOIN periodos AS per ON c.id_periodo = per.id_periodo
+    JOIN grupo AS g ON h.id_grupo = g.id_grupo
+    JOIN materia AS m ON h.id_materia = m.id_materia
+    JOIN asistencia AS a ON h.id_horario = a.id_horario
+    LEFT JOIN retardo r ON h.id_horario = r.id_horario
+    LEFT JOIN falta f ON h.id_horario = f.id_horario
+ORDER BY
+    persona,
+    dia_horario,
+    hora_inicio;`;
 
     try {
         const [results] = await conexion.promise().query(query, [id_persona]);
@@ -1181,10 +1218,11 @@ app.get('/obtener-horarios/:dia/:idGrupo/:idContenedor', async (req, res) => {
 
     try {
         const [horarios] = await conexion.promise().query(`
-            SELECT h.id_horario, h.dia_horario, h.hora_inicio, h.hora_final, 
-                   h.id_salon, m.nom_materia, 
+            SELECT h.id_horario, h.dia_horario, h.hora_inicio, h.hora_final,
+                   h.id_salon, m.nom_materia, g.nom_grupo,
                    CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo
             FROM horario h
+            INNER JOIN grupo g ON h.id_grupo = g.id_grupo
             JOIN materia m ON h.id_materia = m.id_materia
             JOIN persona p ON h.id_persona = p.id_persona
             WHERE h.id_grupo = ? AND h.dia_horario = ? AND h.id_contenedor = ?`,
@@ -1241,28 +1279,32 @@ app.get('/api/filtros', async (req, res) => {
     try {
         const [horarios] = await conexion.promise().query(`
              SELECT DISTINCT
-            h.id_horario,
-            h.dia_horario,
-            h.hora_inicio,
-            h.hora_final,
-            m.nom_materia,
-            CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
-            g.sem_grupo,
-            g.nom_grupo,
-            s.id_salon,
-           a.fecha_asistencia as fecha_asistencia,
-        a.validacion_asistencia AS asistencia,
-        r.validacion_retardo AS retardo,
-        f.validacion_falta AS falta
-        FROM
-            horario h
-        INNER JOIN grupo g ON h.id_grupo = g.id_grupo
-        INNER JOIN salon s ON h.id_salon = s.id_salon
-        JOIN materia m ON h.id_materia = m.id_materia
-        JOIN persona p ON h.id_persona = p.id_persona
-        LEFT JOIN asistencia a ON h.id_horario = a.id_horario
-        LEFT JOIN retardo r ON h.id_horario = r.id_horario
-        LEFT JOIN falta f ON h.id_horario = f.id_horario
+    h.id_horario,
+    h.dia_horario,
+    h.hora_inicio,
+    h.hora_final,
+    m.nom_materia,
+    CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
+    g.sem_grupo,
+    g.nom_grupo,
+    s.id_salon,
+    a.fecha_asistencia AS fecha_asistencia,
+    a.validacion_asistencia AS asistencia,
+    r.validacion_retardo AS retardo,
+    f.validacion_falta AS falta,
+    per.anio,
+    per.periodo
+FROM
+    horario h
+    INNER JOIN grupo g ON h.id_grupo = g.id_grupo
+    INNER JOIN salon s ON h.id_salon = s.id_salon
+    JOIN materia m ON h.id_materia = m.id_materia
+    JOIN persona p ON h.id_persona = p.id_persona
+    LEFT JOIN asistencia a ON h.id_horario = a.id_horario
+    LEFT JOIN retardo r ON h.id_horario = r.id_horario
+    LEFT JOIN falta f ON h.id_horario = f.id_horario
+    JOIN contenedor c ON h.id_contenedor = c.id_contenedor
+    JOIN periodos per ON c.id_periodo = per.id_periodo
         `);
 
         
@@ -1273,9 +1315,11 @@ app.get('/api/filtros', async (req, res) => {
         const materias = [...new Set(horarios.map(h => h.nom_materia))];
         const horasInicio = [...new Set(horarios.map(h => h.hora_inicio))].sort();
         const horasFin = [...new Set(horarios.map(h => h.hora_final))].sort();
+        const anios = [...new Set(horarios.map(h => h.anio))];
+        const periodos = [...new Set(horarios.map(h => h.periodo))];
 
 
-        res.json({ salones, dias, grupos, profesores, materias, horasInicio, horasFin });
+        res.json({ salones, dias, grupos, profesores, materias, horasInicio, horasFin, anios, periodos });
 
     } catch (error) {
         console.error('Error al obtener filtros:', error);

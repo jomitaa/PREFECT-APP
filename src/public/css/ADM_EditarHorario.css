@@ -410,350 +410,8 @@ main .info-data {
 /* MAIN */
 /* CONTENT */
 
-.horario {
-	font-size: 70% !important;
-    min-height: 76vh;
-	background-color: #1775F1;
-	border-radius: 3rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-main.table {
-    width: 95%;
-    height: 70vh;
-    background-color: #fff5;
-
-    backdrop-filter: blur(7px);
-    box-shadow: 0 .4rem .8rem #0005;
-    border-radius: .8rem;
-
-    overflow: hidden;
-}
-
-.table__header {
-    width: 100%;
-    height: 10%;
-	border-radius: .4rem;
-    background-color: #fff4;
-    padding: .3rem .8rem;
-    font-size: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.table__header .input-group {
-    width: 40%;
-    height: 75%;
-    background-color: #fff5;
-    padding: 0 .8rem;
-    border-radius: 2rem;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    transition: .2s;
-}
-
-.input-group input::placeholder {
-    color: #000268;
-}
-
-.table__header .input-group:hover {
-    width: 45%;
-    background-color: #fff8;
-    box-shadow: 0 .1rem .4rem #0002;
-}
-
-.table__header .input-group img {
-    width: 1.2rem;
-    height: 1.2rem;
-}
-
-.table__header .input-group input {
-    width: 100%;
-    padding: 0 .5rem 0 .3rem;
-    background-color: transparent;
-    border: none;
-    outline: none;
-}
-
-.table__body {
-    width: 97%;
-    max-height: calc(80% - 1.6rem);
-    background-color: #fffb;
-    font-size: 1.2rem;
-    margin: 1rem auto;
-    border-radius: .6rem;
-
-    overflow: auto;
-    overflow: overlay;
-}
-
-
-.table__body::-webkit-scrollbar {
-    width: 0.8rem;
-    height: 0.5rem;
-}
-
-.table__body::-webkit-scrollbar-thumb {
-    border-radius: .5rem;
-    background-color: #0004;
-    visibility: hidden;
-}
-
-.table__body:hover::-webkit-scrollbar-thumb {
-    visibility: visible;
-}
-
-
-table {
-    width: 100%;
-	margin: 0;
-}
-
-td img {
-    width: 36px;
-    height: 36px;
-    margin-right: .5rem;
-    border-radius: 50%;
-
-    vertical-align: middle;
-}
-
-table,
-th,
-td {
-	margin: 0;
-    border-collapse: collapse;
-    padding: 1rem;
-    text-align: left;
-}
-
-thead th {
-    position: sticky;
-    top: 0;
-    left: 0;
-    background-color: #d5d1defe;
-    cursor: pointer;
-    text-transform: capitalize;
-}
-
-tbody {
-    justify-content: center;
-	font-size: .8rem;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #0000000b;
-}
-
-tbody tr {
-    --delay: .1s;
-    transition: .2s ease-in-out;
-    justify-content: center;
-}
-
-tbody tr.hide {
-    opacity: 0;
-    transform: scale(0);
-    transform: translateX(100%);
-    height: 0;
-    padding: 0;
-    margin: 0;
-    border: none;
-    position: absolute;
-}
-
-tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.616) !important;
-}
-
-tbody tr td,
-tbody tr td p,
-tbody tr td img {
-    transition: .2s ease-in-out;
-}
-
-tbody tr.hide td,
-tbody tr.hide td p {
-    padding: .001px;
-    font: 0 / 0 sans-serif;
-    transition: .2s ease-in-out .5s;
-}
-
-tbody tr.hide td img {
-    width: 0px;
-    height: 0px;
-    transition: .2s ease-in-out .5s;
-}
-
-.status {
-    padding: .6rem 0;
-    border-radius: 2rem;
-    text-align: center;
-}
-
-.status.delivered {
-    background-color: #86e49d;
-    color: #006b21;
-}
-
-.status.cancelled {
-    background-color: #d893a3;
-    color: #b30021;
-}
-
-.status.pending {
-    background-color: #ebc474;
-}
-
-.status.shipped {
-    background-color: #6fcaea;
-}
-
-
-@media (max-width: 1000px) {
-    td:not(:first-of-type) {
-        min-width: 12.1rem;
-    }
-}
-
-thead th span.icon-arrow {
-    display: inline-block;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    border: 2px solid transparent;
-
-    text-align: center;
-    font-size: 1.3rem;
-
-    margin-left: .5rem;
-    transition: .2s ease-in-out;
-}
-
-thead th:hover span.icon-arrow {
-    border: 1.4px solid #0045bd;
-}
-
-thead th:hover {
-    color: #0045bd;
-}
-
-thead th.active span.icon-arrow {
-    background-color: #0045bd;
-    color: #fff;
-}
-
-thead th.asc span.icon-arrow {
-    transform: rotate(180deg);
-}
-
-thead th.active,
-tbody td.active {
-    color: #0045bd;
-}
-
-.export__file {
-    position: relative;
-}
-
-.export__file .export__file-btn {
-    display: inline-block;
-    width: 2rem;
-    height: 2rem;
-    background: #fff6 url(../images/export.png) center / 70% no-repeat;
-    border-radius: 50%;
-    transition: .2s ease-in-out;
-}
-
-.export__file .export__file-btn:hover {
-    background-color: #fff;
-    transform: scale(1.15);
-    cursor: pointer;
-}
-
-.export__file input {
-    display: none;
-}
-
-.export__file .export__file-options {
-    position: absolute;
-    right: 0;
-    font-size: .75rem;
-    width: 8rem;
-    border-radius: .5rem;
-    overflow: hidden;
-    text-align: center;
-	z-index: -100;
-    opacity: 0;
-    transform: scale(.8);
-    transform-origin: top right;
-
-    box-shadow: 0 .2rem .5rem #0004;
-
-    transition: .3s;
-}
-
-.export__file input:checked+.export__file-options {
-    opacity: 1;
-    transform: scale(1);
-    z-index: 100;
-}
-
-.export__file .export__file-options label {
-    display: block;
-    width: 100%;
-    padding: .6rem 0;
-    background-color: #f2f2f2;
-
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-
-    transition: .2s ease-in-out;
-}
-
-.export__file .export__file-options label:first-of-type {
-    padding: 1rem 0;
-    background-color: #86e49d !important;
-}
-
-.export__file .export__file-options label:hover {
-    transform: scale(1.05);
-    background-color: #fff;
-    cursor: pointer;
-}
-
-.export__file .export__file-options img {
-    width: 2rem;
-    height: auto;
-}
-
-
-
-
-@media screen and (max-width: 768px) {
-	#content {
-		position: relative;
-		width: calc(100% - 60px);
-		transition: all .3s ease;
-	}
-	nav .nav-link,
-	nav .divider {
-		display: none;
-	}
-}
-
-
-
-
-
-.info-data, #formularioEdicion {
+.info-data,
+#formularioEdicion {
 	background-color: var(--light);
 	border-radius: 16px;
 	padding: 20px;
@@ -762,7 +420,17 @@ tbody td.active {
 	transition: all 0.3s ease;
 }
 
-.info-data label, #formularioEdicion label {
+.hidden {
+    display: none;
+}
+
+/* Clase que muestra el formulario */
+.visible {
+    display: block;
+}
+
+.info-data label,
+label {
 	font-weight: 600;
 	color: var(--dark);
 	display: block;
@@ -770,7 +438,8 @@ tbody td.active {
 	margin-bottom: 6px;
 }
 
-.info-data select, #formularioEdicion select {
+.info-data select,
+#formularioEdicion select {
 	width: 100%;
 	padding: 10px 12px;
 	border: 1px solid var(--dark-grey);
@@ -781,14 +450,15 @@ tbody td.active {
 	transition: all 0.2s ease;
 }
 
-.info-data select:focus, 
+.info-data select:focus,
 #formularioEdicion select:focus {
 	border-color: var(--blue);
 	box-shadow: 0 0 0 2px var(--light-blue);
 	outline: none;
 }
 
-#btnBuscar, #btnGuardar {
+#btnBuscar,
+#btnGuardar {
 	margin-top: 20px;
 	padding: 12px 20px;
 	border: none;
@@ -801,23 +471,187 @@ tbody td.active {
 	transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-#btnBuscar:hover, #btnGuardar:hover {
+#btnBuscar:hover,
+#btnGuardar:hover {
 	background-color: var(--dark-blue);
 	transform: scale(1.03);
 }
 
-#btnBuscar:active, #btnGuardar:active {
+#btnBuscar:active,
+#btnGuardar:active {
 	transform: scale(0.98);
 }
 
-.table-data h3, #formularioEdicion h3 {
+.table-data h3,
+#formularioEdicion h3 {
 	margin-top: 30px;
 	font-size: 22px;
 	color: var(--blue);
 }
 
+/* Contenedor de "Editar horario seleccionado" */
+#formularioEdicion {
+	background-color: #FFFFFF;
+	border-radius: 16px;
+	padding: 20px;
+	margin-top: 40px;
+	/* Asegura que haya espacio encima del formulario */
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
 
-#contenedorHorarios {
+#formularioEdicion h3 {
+	font-size: 22px;
+	color: #0838B4;
+	margin-bottom: 16px;
+	text-align: center;
+}
+
+/* Agrupar los campos en una sola fila */
+#formularioEdicion .input-group {
+	display: flex;
+	gap: 16px;
+	/* Espaciado entre los campos */
+	width: 100%;
+	align-items: center;
+}
+
+#formularioEdicion select,
+#formularioEdicion input {
+	flex: 1;
+	/* Los campos ocupan el mismo espacio */
+	padding: 10px 12px;
+	border: 1px solid #D9D9D9;
+	border-radius: 10px;
+	background-color: #F1F8FC;
+	color: #0838B4;
+	font-size: 14px;
+	transition: all 0.2s ease;
+}
+
+#formularioEdicion select:focus,
+#formularioEdicion input:focus {
+	border-color: #57AAF8;
+	box-shadow: 0 0 0 2px #D0E4FF;
+	outline: none;
+}
+
+#formularioEdicion button {
+	margin-top: 20px;
+	padding: 12px 20px;
+	border: none;
+	border-radius: 10px;
+	background-color: #57AAF8;
+	color: #FFFFFF;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#formularioEdicion button:hover {
+	background-color: #0838B4;
+	transform: scale(1.03);
+}
+
+#formularioEdicion button:active {
+	transform: scale(0.98);
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+	#formularioEdicion .input-group {
+		flex-direction: column;
+		/* Cambiar a columna en pantallas pequeñas */
+	}
+
+	#formularioEdicion select,
+	#formularioEdicion input,
+	#formularioEdicion button {
+		width: 100%;
+		/* Ancho completo para campos y botón */
+	}
+}
+
+/* Contenedor único para "Buscar horarios", "Grupo", "Día" y el botón */
+.info-data .form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	background-color: #FFFFFF;
+	/* Fondo blanco */
+	padding: 20px;
+	border-radius: 10px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	/* Sombra suave */
+	align-items: stretch;
+	/* Asegura que los elementos ocupen todo el ancho */
+}
+
+/* Estilo del encabezado */
+.info-data .form-group h3 {
+	font-size: 18px;
+	font-weight: 600;
+	color: #0838B4;
+	/* Azul oscuro */
+	text-align: center;
+	margin: 0;
+	/* Elimina márgenes adicionales */
+}
+
+/* Estilo de los campos */
+.info-data .form-group label {
+	font-size: 14px;
+	color: #0838B4;
+	/* Azul oscuro */
+	margin-bottom: 6px;
+}
+
+.info-data .form-group select {
+	padding: 10px;
+	border: 1px solid #D9D9D9;
+	border-radius: 8px;
+	background-color: #F1F8FC;
+	color: #0838B4;
+	font-size: 14px;
+}
+
+/* Estilo del botón */
+.info-data .form-group button {
+	padding: 12px 20px;
+	border: none;
+	border-radius: 8px;
+	background-color: #57AAF8;
+	color: #FFFFFF;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover y active para el botón */
+.info-data .form-group button:hover {
+	background-color: #0838B4;
+	transform: scale(1.03);
+}
+
+.info-data .form-group button:active {
+	transform: scale(0.98);
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+	.info-data .form-group {
+		gap: 12px;
+	}
+
+	.info-data .form-group select,
+	.info-data .form-group button {
+		width: 100%;
+		/* Ocupan todo el ancho en pantallas pequeñas */
+	}
+}
+
+.contenedorHorarios {
 	margin-top: 16px;
 	padding: 16px;
 	background-color: var(--light-blue);
@@ -829,46 +663,57 @@ tbody td.active {
 
 
 @media (max-width: 768px) {
-	.info-data, #formularioEdicion {
+
+	.info-data,
+	#formularioEdicion {
 		padding: 16px;
 	}
 
-	#btnBuscar, #btnGuardar {
+	#btnBuscar,
+	#btnGuardar {
 		width: 100%;
+	}
+
+	#formularioEdicion .input-group {
+		flex-direction: column;
+		/* Cambiar a columna en pantallas pequeñas */
 	}
 }
 
 .table-wrapper {
-	width: 100%;
-	overflow-x: auto;
-	margin-top: 16px;
+	background-color: #FFFFFF;
+	padding: 16px;
+	border-radius: 10px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	margin-top: 20px;
+	margin-bottom: 40px;
+	/* Agrega espacio debajo de la tabla */
 }
 
 .table-wrapper table {
 	width: 100%;
 	border-collapse: collapse;
-	border: 1px solid var(--grey);
-	background: var(--light);
-	border-radius: 12px;
-	overflow: hidden;
 }
 
-.table-wrapper th, .table-wrapper td {
+.table-wrapper th,
+.table-wrapper td {
 	padding: 12px 16px;
 	text-align: left;
-	border-bottom: 1px solid var(--grey);
-	color: var(--dark);
+	border-bottom: 1px solid #D9D9D9;
+	color: #0838B4;
 	font-size: 14px;
 }
 
 .table-wrapper th {
-	background-color: var(--light-blue);
-	color: var(--dark);
+	background-color: #57AAF8;
+	/* Azul claro */
+	color: #FFFFFF;
 	font-weight: 600;
 }
 
 .table-wrapper tr:hover {
-	background-color: var(--light-green);
+	background-color: #F1F8FC;
+	/* Fondo claro */
 	cursor: pointer;
 }
 
@@ -877,8 +722,9 @@ tbody td.active {
 }
 
 .table-wrapper .btn-editar {
-	background-color: var(--yellow);
-	color: var(--dark);
+	background-color: #57AAF8;
+	/* Azul claro */
+	color: #FFFFFF;
 	border: none;
 	border-radius: 6px;
 	padding: 6px 12px;
@@ -887,120 +733,584 @@ tbody td.active {
 }
 
 .table-wrapper .btn-editar:hover {
-	background-color: var(--orange);
+	background-color: #0838B4;
+	/* Azul oscuro */
 }
 
+/* Contenedor de "Editar horario seleccionado" */
+#formularioEdicion {
+	padding: 0;
+	/* Elimina el padding que crea espacio adicional */
+	background-color: transparent;
+	/* Elimina el fondo */
+	box-shadow: none;
+	/* Elimina la sombra */
+	border-radius: 0;
+	/* Elimina los bordes redondeados */
+	margin-top: 0;
+	/* Elimina el margen superior */
+}
 
+#formularioEdicion h3 {
+	font-size: 22px;
+	color: #0838B4;
+	margin-bottom: 16px;
+	text-align: center;
+}
 
+/* Agrupar los campos en una sola fila */
+ .input-group {
+	display: flex;
+	gap: 16px;
+	/* Espaciado entre los campos */
+	width: 100%;
+	align-items: center;
+}
 
+#formularioEdicion select,
+#formularioEdicion input {
+	flex: 1;
+	/* Los campos ocupan el mismo espacio */
+	padding: 10px 12px;
+	border: 1px solid #D9D9D9;
+	border-radius: 10px;
+	background-color: #F1F8FC;
+	color: #0838B4;
+	font-size: 14px;
+	transition: all 0.2s ease;
+}
+
+#formularioEdicion select:focus,
+#formularioEdicion input:focus {
+	border-color: #57AAF8;
+	box-shadow: 0 0 0 2px #D0E4FF;
+	outline: none;
+}
+
+#formularioEdicion button {
+	margin-top: 20px;
+	padding: 12px 20px;
+	border: none;
+	border-radius: 10px;
+	background-color: #57AAF8;
+	color: #FFFFFF;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#formularioEdicion button:hover {
+	background-color: #0838B4;
+	transform: scale(1.03);
+}
+
+#formularioEdicion button:active {
+	transform: scale(0.98);
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+	#formularioEdicion .input-group {
+		flex-direction: column;
+		/* Cambiar a columna en pantallas pequeñas */
+	}
+
+	#formularioEdicion select,
+	#formularioEdicion input,
+	#formularioEdicion button {
+		width: 100%;
+		/* Ancho completo para campos y botón */
+	}
+}
+
+/* Contenedor único para "Grupo", "Día" y el botón */
+.info-data .form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	background-color: #FFFFFF;
+	/* Fondo blanco */
+	padding: 20px;
+	border-radius: 10px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	/* Sombra suave */
+	align-items: stretch;
+	/* Asegura que los elementos ocupen todo el ancho */
+}
+
+/* Estilo de los campos y el botón */
+.info-data .input-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.info-data select {
+	padding: 10px;
+	border: 1px solid #D9D9D9;
+	border-radius: 8px;
+	background-color: #F1F8FC;
+	color: #0838B4;
+	font-size: 14px;
+}
+
+.info-data button {
+	padding: 12px 20px;
+	border: none;
+	border-radius: 8px;
+	background-color: #57AAF8;
+	color: #FFFFFF;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover y active para el botón */
+.info-data button:hover {
+	background-color: #0838B4;
+	transform: scale(1.03);
+}
+
+.info-data button:active {
+	transform: scale(0.98);
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+	.info-data .form-group {
+		gap: 12px;
+	}
+
+	.info-data .input-group {
+		flex-direction: column;
+	}
+
+	.info-data select,
+	.info-data button {
+		width: 100%;
+		/* Ocupan todo el ancho en pantallas pequeñas */
+	}
+}
 
 .alerta {
-    display: grid;
-    position: fixed;
+	display: grid;
+	position: fixed;
 	top: 30px;
 	right: 20px;
 	z-index: 300;
 }
-.toast{
-    position: relative;
-    margin-bottom: 10px;
-    color: #000000;
-    width: 400px;
-    display: grid;
-    grid-template-columns: 70px 1fr 70px;
-    border-radius: 5px;
-    --color: #0abf30;
-    background-color: rgba(240, 240, 240, 0.808);
-    animation: show_toast 0.3s ease forwards;
-    box-shadow: #22242f48 0px 0px 5px;
+
+.toast {
+	position: relative;
+	margin-bottom: 10px;
+	color: #000000;
+	width: 400px;
+	display: grid;
+	grid-template-columns: 70px 1fr 70px;
+	border-radius: 5px;
+	--color: #0abf30;
+	background-color: rgba(240, 240, 240, 0.808);
+	animation: show_toast 0.3s ease forwards;
+	box-shadow: #22242f48 0px 0px 5px;
 }
 
 .icono {
-    position: relative;  /* Necesario para colocar el pseudo-elemento */
-    display: flex;
-    margin-right: 10px;
-    border-end-end-radius: 20px;
-    border-start-end-radius: 20px;
-    justify-content: center;
-    align-items: center;
+	position: relative;
+	/* Necesario para colocar el pseudo-elemento */
+	display: flex;
+	margin-right: 10px;
+	border-end-end-radius: 20px;
+	border-start-end-radius: 20px;
+	justify-content: center;
+	align-items: center;
 
 }
 
 .icono::before {
-    content: "";
-    position: absolute;
-    inset: 0;  /* Hace que ocupe todo el área del icono */
-    background-color: var(--color);
-    opacity: 0.4;  /* Opacidad reducida solo para el fondo */
-    border-end-end-radius: 20px;
-    border-start-end-radius: 20px;
-    z-index: -1;  /* Asegura que el fondo esté detrás del icono */
+	content: "";
+	position: absolute;
+	inset: 0;
+	/* Hace que ocupe todo el área del icono */
+	background-color: var(--color);
+	opacity: 0.4;
+	/* Opacidad reducida solo para el fondo */
+	border-end-end-radius: 20px;
+	border-start-end-radius: 20px;
+	z-index: -1;
+	/* Asegura que el fondo esté detrás del icono */
 }
 
-.content{
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+.content {
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
 }
 
-.toast i{
-    color: var(--color);
+.toast i {
+	color: var(--color);
 }
-.toast .title{
-    font-size: 20px;
-    font-weight: bold;
+
+.toast .title {
+	font-size: 20px;
+	font-weight: bold;
 }
-.toast i{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 20px;
+
+.toast i {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 20px;
 }
+
 .toast span,
-.toast .close{
-    font-size: small;
-    opacity: 0.7;
-    color: #000000
+.toast .close {
+	font-size: small;
+	opacity: 0.7;
+	color: #000000
 }
 
 @keyframes show_toast {
 	0% {
 		transform: translateX(100%);
 	}
+
 	40% {
 		transform: translateX(-5%);
 	}
+
 	80% {
 		transform: translateX(0%);
 	}
+
 	100% {
 		transform: translateX(-10%);
 	}
 }
-.toast::before{
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    background-color: var(--color);
-    box-shadow: 0 0 10px var(--color);
-    content: '';
-    width: 100%;
-    height: 3px;
-    animation: timeOut 5s linear 1 forwards;
-}
-@keyframes timeOut{
-    to{
-        width: 0%;  
-    }
+
+.toast::before {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	background-color: var(--color);
+	box-shadow: 0 0 10px var(--color);
+	content: '';
+	width: 100%;
+	height: 3px;
+	animation: timeOut 5s linear 1 forwards;
 }
 
-.toast.error{
-   --color: #f24d4c;
+@keyframes timeOut {
+	to {
+		width: 0%;
+	}
 }
 
-.toast.advertencia{
-    --color: #f2a74c;
- }
- 
+.toast.error {
+	--color: #f24d4c;
+}
+
+.toast.advertencia {
+	--color: #f2a74c;
+}
+
+/* Eliminar estilos innecesarios de .info-data */
+.info-data {
+	padding: 0;
+	/* Elimina el padding que crea espacio adicional */
+	background-color: transparent;
+	/* Elimina el fondo */
+	box-shadow: none;
+	/* Elimina la sombra */
+	border-radius: 0;
+	/* Elimina los bordes redondeados */
+	margin-top: 0;
+	/* Elimina el margen superior */
+}
+
+/* Contenedor único para "Buscar horarios", "Grupo", "Día" y el botón */
+.info-data .form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	background-color: #FFFFFF;
+	/* Fondo blanco */
+	padding: 20px;
+	border-radius: 10px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	/* Sombra suave */
+	align-items: stretch;
+	/* Asegura que los elementos ocupen todo el ancho */
+}
+
+/* Estilo del encabezado */
+.info-data .form-group h3 {
+	font-size: 18px;
+	font-weight: 600;
+	color: #0838B4;
+	/* Azul oscuro */
+	text-align: center;
+	margin: 0;
+	/* Elimina márgenes adicionales */
+}
+
+/* Estilo de los campos */
+.info-data .form-group label {
+	font-size: 14px;
+	color: #0838B4;
+	/* Azul oscuro */
+	margin-bottom: 6px;
+}
+
+.info-data .form-group select {
+	padding: 10px;
+	border: 1px solid #D9D9D9;
+	border-radius: 8px;
+	background-color: #F1F8FC;
+	color: #0838B4;
+	font-size: 14px;
+}
+
+/* Estilo del botón */
+.info-data .form-group button {
+	padding: 12px 20px;
+	border: none;
+	border-radius: 8px;
+	background-color: #57AAF8;
+	color: #FFFFFF;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover y active para el botón */
+.info-data .form-group button:hover {
+	background-color: #0838B4;
+	transform: scale(1.03);
+}
+
+.info-data .form-group button:active {
+	transform: scale(0.98);
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+	.info-data .form-group {
+		gap: 12px;
+	}
+
+	.info-data .form-group select,
+	.info-data .form-group button {
+		width: 100%;
+		/* Ocupan todo el ancho en pantallas pequeñas */
+	}
+}
+
+/* Contenedor único para "Editar horario seleccionado", los campos y el botón */
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	background-color: #FFFFFF;
+	/* Fondo blanco */
+	padding: 20px;
+	border-radius: 10px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	/* Sombra suave */
+	align-items: stretch;
+	/* Asegura que los elementos ocupen todo el ancho */
+}
+
+/* Estilo del encabezado */
+#formularioEdicion .form-group h3 {
+	font-size: 18px;
+	font-weight: 600;
+	color: #0838B4;
+	/* Azul oscuro */
+	text-align: center;
+	margin: 0;
+	/* Elimina márgenes adicionales */
+}
+
+/* Estilo de los campos */
+#formularioEdicion .form-group label {
+	font-size: 14px;
+	color: #0838B4;
+	/* Azul oscuro */
+	margin-bottom: 6px;
+}
+
+#formularioEdicion .form-group select {
+	padding: 10px;
+	border: 1px solid #D9D9D9;
+	border-radius: 8px;
+	background-color: #F1F8FC;
+	color: #0838B4;
+	font-size: 14px;
+}
+
+/* Estilo del botón */
+#formularioEdicion .form-group button {
+	padding: 12px 20px;
+	border: none;
+	border-radius: 8px;
+	background-color: #57AAF8;
+	color: #FFFFFF;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover y active para el botón */
+#formularioEdicion .form-group button:hover {
+	background-color: #0838B4;
+	transform: scale(1.03);
+}
+
+#formularioEdicion .form-group button:active {
+	transform: scale(0.98);
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+	#formularioEdicion .form-group {
+		gap: 12px;
+	}
+
+	#formularioEdicion .form-group select,
+	#formularioEdicion .form-group button {
+		width: 100%;
+		/* Ocupan todo el ancho en pantallas pequeñas */
+	}
+}
+
+.contenedor-horario {
+	position: relative;
+}
+
+.horarios-list {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	max-height: 425px;
+	margin-top: 40px;
+	overflow-y: auto;
+	position: relative;
+}
+
+.blur-overlay {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 50px;
+	background-color: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(7px);
+	z-index: 1;
+}
+
+.blur-overlay.top {
+	border-start-start-radius: 20px;
+	border-start-end-radius: 20px;
+	top: -35px;
+}
+
+.blur-overlay.bottom {
+	bottom: -30px;
+	border-end-start-radius: 20px;
+	border-end-end-radius: 20px;
+
+}
+
+.horario-card {
+	background: #FFFFFF;
+	padding: 15px;
+	border-radius: 15px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	display: flex;
+	flex-direction: column;
+}
+
+.horario-header,
+.horario-content {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+	gap: 10px;
+	align-items: center;
+	padding: 10px;
+}
+
+.horario-header {
+	background: #007BFF;
+	border-radius: 10px;
+	color: white;
+	font-weight: bold;
+	text-align: center;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.horario-content {
+	text-align: center;
+}
+
+.asis {
+	background-color: #86e49d;
+	color: #006b21;
+	padding: 5px;
+	border-radius: 5px;
+}
+
+.falta {
+	background-color: #d893a3;
+	color: #b30021;
+	padding: 5px;
+	border-radius: 5px;
+}
+
+.ret {
+	background-color: #f4e0b7;
+	color: #7a560e;
+	padding: 5px;
+	border-radius: 5px;
+}
+
+/* Agregar margen inferior a la sección de horarios disponibles */
+.table-data {
+	margin-bottom: 60px;
+	/* Espacio debajo de los horarios disponibles */
+}
+
+/* Agregar margen superior al formulario de edición */
+#formularioEdicion {
+	margin-top: 40px;
+	/* Espacio encima del formulario */
+}
+
+/* Estilo del botón "Editar" */
+.horario-content .btn-editar {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 8px;
+	background-color: #57AAF8;
+	/* Azul claro */
+	color: #FFFFFF;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover y active para el botón "Editar" */
+.horario-content .btn-editar:hover {
+	background-color: #0838B4;
+	/* Azul oscuro */
+	transform: scale(1.03);
+}
+
+.horario-content .btn-editar:active {
+	transform: scale(0.98);
+}

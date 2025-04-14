@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         llenarSelect('materia', data.materias);
         llenarSelect('horaInicio', data.horasInicio);
         llenarSelect('horaFin', data.horasFin);
+        llenarSelect('anio', data.anios);
+        llenarSelect('periodo', data.periodos);
 
     } catch (error) {
         createToast(
@@ -44,6 +46,12 @@ function llenarSelect(id, datos) {
     // Aquí cambiamos el texto que aparece en la opción por defecto
     let label = '';
     switch (id) {
+        case 'anio':
+            label = 'Seleccione un AÑO';
+            break;
+        case 'periodo':
+            label = 'Seleccione un PERIODO';
+            break;
         case 'dia':
             label = 'Seleccione un DIA';
             break;
@@ -177,8 +185,35 @@ function createToast(type, icon, title, text) {
 
         document.getElementById("filterBtn").replaceWith(document.getElementById("filterBtn").cloneNode(true));
     document.getElementById("filterBtn").addEventListener("click", filtrarHorarios);
+
+    const filtros = [
+        "anio",
+        "periodo",
+        "dia",
+        "grupo",
+        "profesor",
+        "materia",
+        "horaInicio",
+        "horaFin",
+        "fecha",
+        "asistencia"
+
+      ];
+    
+      filtros.forEach((id) => {
+        const select = document.getElementById(id);
+        select.addEventListener("change", () => {
+          if (select.value !== "") {
+            select.classList.add("filtro-activo");
+          } else {
+            select.classList.remove("filtro-activo");
+          }
+        });
+      });
     
     async function filtrarHorarios() {
+        const anio = document.getElementById("anio").value;
+        const periodo = document.getElementById("periodo").value;
         const grupo = document.getElementById("grupo").value;
         const dia = document.getElementById("dia").value;
         const fecha = document.getElementById("fecha").value;
@@ -187,6 +222,10 @@ function createToast(type, icon, title, text) {
         const materia = document.getElementById("materia").value;
         const horaInicio = document.getElementById("horaInicio").value;
         const horaFin = document.getElementById("horaFin").value;
+
+        const anioFiltro = anio ? Number(anio) : null;
+        const periodoFiltro = periodo ? Number(periodo) : null;
+    
     
         try {
             const response = await fetch("/api/consulta");
@@ -200,7 +239,7 @@ function createToast(type, icon, title, text) {
 
                 const fechaAsistencia = consulta.fecha_asistencia; 
 
-                const [year, month, day] = fecha.split("-"); // Separa la fecha en partes
+                const [year, month, day] = fecha.split("-"); 
                 const fechaUsuario = `${day}/${month}/${year.slice(-2)}`;
 
 
@@ -224,6 +263,8 @@ function createToast(type, icon, title, text) {
                     (!materia || consulta.materia === materia) &&
                     (!horaInicio || consulta.hora_inicio === horaInicio) &&
                     (!horaFin || consulta.hora_final === horaFin) &&
+                    (!anioFiltro || Number(consulta.anio) === anioFiltro) &&
+                    (!periodoFiltro || Number(consulta.periodo) === periodoFiltro) &&
                     filtroAsistencia
                 );
             });
@@ -264,7 +305,14 @@ function createToast(type, icon, title, text) {
         document.getElementById("horaInicio").value = "";
         document.getElementById("horaFin").value = "";
     
+        filtros.forEach((id) => {
+            const select = document.getElementById(id);
+            select.classList.remove("filtro-activo");
+          });
+
+
         filtrarHorarios();
+
     });
     
 

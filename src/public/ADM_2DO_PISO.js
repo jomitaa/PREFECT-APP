@@ -268,6 +268,27 @@ function checkAndSubmit(event) {
   
       document.getElementById("filterBtn").replaceWith(document.getElementById("filterBtn").cloneNode(true));
       document.getElementById("filterBtn").addEventListener("click", filtrarHorarios);
+
+      const filtros = [
+        "salon",
+        "grupo",
+        "profesor",
+        "materia",
+        "horaInicio",
+        "horaFin",
+      ];
+    
+      filtros.forEach((id) => {
+        const select = document.getElementById(id);
+        select.addEventListener("change", () => {
+          if (select.value !== "") {
+            select.classList.add("filtro-activo");
+          } else {
+            select.classList.remove("filtro-activo");
+          }
+        });
+      });
+    
       
       async function filtrarHorarios() {
           const salon = document.getElementById("salon").value.trim();

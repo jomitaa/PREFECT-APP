@@ -410,13 +410,21 @@ main .breadcrumbs li.divider {
     margin: 20px 0;
 }
 
-.filters button, .filters select {
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background: var(--light-blue);
-    font-weight: bold;
+.filters button,
+.filters select {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: var(--light-blue);
+  font-weight: bold;
+  transition: all 0.3s ease; /* animación suave */
 }
+
+.filters select.filtro-activo {
+  background: var(--blue); 
+  color: var(--light); 
+}
+
 
 .filter-btn {
 	grid-column: span 3;
