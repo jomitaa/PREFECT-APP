@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="/css/Login-Register.css" />
+  <title>Registrar Administrador</title>
+</head>
+<body>
+  <div class="container-form register">
+    <div class="information">
+      <div class="info-childs">
+        <h2>Registrar Administrador</h2>
+        <p>Desde aquí puedes crear cuentas administrativas y asignarles una escuela.</p>
+        <a href="./login.html"><input class="ini" type="button" value="Iniciar Sesión" id="sign-in" /></a>
+      </div>
+    </div>
+
+    <div class="form-information">
+      <div class="form-information-childs">
+        <h2>Nueva Cuenta Admin</h2>
+
+        <form class="form form-register" action="/register" method="post">
+          <div>
+            <label>
+              <i class='bx bx-user'></i>
+              <input type="text" placeholder="Nombre Usuario" name="userName" required />
+            </label>
+          </div>
+          <div>
+            <label>
+              <i class='bx bx-envelope'></i>
+              <input type="email" placeholder="Correo Electrónico" name="userEmail" required />
+            </label>
+          </div>
+          <div>
+            <label>
+              <i class="bx bxs-pin"></i>
+              <!-- Solo muestra 'Administrador', el valor real se envía con hidden -->
+              <input type="hidden" name="userCargo" value="admin" />
+              <input type="text" value="Administrador" disabled />
+            </label>
+          </div>
+          <div>
+            <label>
+              <i class='bx bx-building-house'></i>
+              <select name="idEscuela" required>
+                <option disabled selected>Selecciona la escuela</option>
+                <!-- Opciones dinámicas -->
+              </select>
+            </label>
+          </div>
+          <div>
+            <label>
+              <i class='bx bx-lock-alt'></i>
+              <input type="password" placeholder="Contraseña" name="userPassword" required />
+            </label>
+          </div>
+          <div>
+            <label>
+              <i class='bx bx-lock-alt'></i>
+              <input type="password" placeholder="Confirmar Contraseña" name="confirmar_contrasena" required />
+            </label>
+          </div>
+
+          <input type="submit" value="Registrar Administrador" />
+          <div class="alerta-error" style="display:none;">Todos los campos son obligatorios</div>
+          <div class="alerta-exito" style="display:none;">Te registraste correctamente</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script corregido sin /public -->
+  <script src="/registrar_empresa.js"></script>
+</body>
+</html>
+

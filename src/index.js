@@ -113,10 +113,17 @@ const protectedRoutesPrefecto = [
     '/pages/PRF_Reportes.html'
 ];
 
+const protectedRoutesEmpresa = [
+    '/pages/Empresa_menu.html',
+    '/pages/empresa_editar.html',
+    '/pages/empresa_editarescuela.html',
+    '/pages/empresa_registrar.html',
+    '/pages/empresa_registrarescuela.html'
+]
 // Aplicar el middleware de autorización a las rutas protegidas
 app.use(protectedRoutesAdmin, authorize(['admin']));
 app.use(protectedRoutesPrefecto, authorize(['prefecto']));
-
+app.use(protectedRoutesEmpresa, authorize(['empresa']));
 
 // -------------------------------- RUTAS -----------------------------
 
@@ -180,6 +187,22 @@ app.get('/pages/PRF_3ER_PISO.html', (req, res) => {
 
 app.get('/pages/PRF_Reportes.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'PRF_Reportes.html'));
+});
+// RUTAS EMPRESA
+app.get('/pages/Empresa_menu.html',(req, res)=>{
+    res.sendFile(path.join(__dirname,'pages','Empresa_menu.html'));
+});
+app.get('/pages/empresa_registrar.html',(req, res)=>{
+    res.sendFile(path.join(__dirname,'pages','empresa_registrar.html'));
+});
+app.get('/pages/empresa_registrarescuela.html',(req, res)=>{
+    res.sendFile(path.join(__dirname,'pages','empresa_registrarescuela.html'));
+});
+app.get('/pages/empresa_editar.html',(req, res)=>{
+    res.sendFile(path.join(__dirname,'pages','empresa_editar.html'));
+});
+app.get('/pages/empresa_editarescuela.html',(req, res)=>{
+    res.sendFile(path.join(__dirname,'pages','empresa_editarescuela.html'));
 });
 
 // Ruta de prueba para sesión
@@ -271,6 +294,7 @@ app.post('/login', async (req, res) => {
         req.session.userId = user.ID_usuario;
         req.session.userName = user.nom_usuario;
         req.session.cargo = user.cargo.trim();
+        req.session.id_escuela = user.id_escuela;
 
         if (rememberMe) {
             req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 días
@@ -323,6 +347,8 @@ app.post('/verify-otp', async (req, res) => {
         redirectUrl = '/pages/ADM_menu.html';
     } else if (req.session.cargo === 'prefecto') {
         redirectUrl = '/pages/PRF_menu.html';
+    } else if (req.session.cargo === 'empresa'){
+        redirectUrl = '/pages/Empresa_menu.html';
     } else {
         return res.json({ success: false, message: "No tienes un cargo asignado." });
     }
@@ -356,7 +382,16 @@ app.get('/obtenerUsuario', (req, res) => {
         nom_usuario: req.session.nombre
     });
 });
-
+app.get('/api/escuelas', async (req, res) => {
+    try {
+      const [rows] = await conexion.promise().query(`SELECT id_escuela, nom_escuela FROM escuela`);
+      res.json(rows);
+    } catch (error) {
+      console.error("Error al obtener escuelas:", error);
+      res.status(500).json({ error: "Error al cargar escuelas" });
+    }
+  });
+  
 // --------------------------------  REGISTRAR  --------------------------------
 const tokenStore = new Map();
 
@@ -374,7 +409,15 @@ const transporter = nodemailer.createTransport({
 app.post('/register', async (req, res) => {
     console.log('Datos recibidos en el servidor:', req.body);
 
-    const { userName, userEmail, userCargo, userPassword, confirmar_contrasena } = req.body;
+    const { userName, userEmail, userCargo, userPassword, confirmar_contrasena, idEscuela: idEscuelaBody } = req.body;
+    
+        let idEscuela;
+        if (req.session.cargo === 'empresa') {
+            idEscuela = idEscuelaBody;
+        } else {
+            idEscuela = req.session.id_escuela;
+        }
+
 
     if (!userName || !userEmail || !userCargo || !userPassword || !confirmar_contrasena) {
         return res.json({ success: false, message: 'Todos los campos son obligatorios.' });
@@ -402,10 +445,12 @@ app.post('/register', async (req, res) => {
             userName,
             userEmail,
             userCargo,
-            userPassword: hashedPassword // ⚠️ Guardamos la contraseña encriptada
+            userPassword: hashedPassword,
+            idEscuela
         });
+        
 
-        // 📩 Enviar correo de confirmación
+        //  Enviar correo de confirmación
         const confirmationLink = `https://prefect-app-production.up.railway.app/confirm/${confirmationToken}`;
         const mailOptions = {
             from: process.env.EMAIL_USER,
@@ -436,8 +481,14 @@ app.get('/confirm/:token', async (req, res) => {
 
     try {
         // ✅ Insertar usuario en la base de datos una vez confirmado
-        const queryInsert = "INSERT INTO usuario (nom_usuario, correo, cargo, contraseña) VALUES (?, ?, ?, ?)";
-        await query(queryInsert, [userData.userName, userData.userEmail, userData.userCargo, userData.userPassword]);
+        const queryInsert = `INSERT INTO usuario (nom_usuario, correo, cargo, contraseña, id_escuela) VALUES (?, ?, ?, ?, ?)`;
+        await query(queryInsert, [
+            userData.userName,
+            userData.userEmail,
+            userData.userCargo,
+            userData.userPassword,
+            userData.idEscuela
+        ]);
 
         // 🔄 Eliminar el token del almacenamiento temporal
           // Elimina el token después del registro
@@ -478,6 +529,7 @@ app.get('/api/horarios', async (req, res) => {
     const anio = fechaActual.getFullYear();
     const mes = fechaActual.getMonth() + 1;
     const periodo = mes >= 1 && mes <= 6 ? 1 : 2;
+    const idEscuela = req.session.id_escuela;
 
     try {
         // 1️⃣ Buscar el id_periodo actual
@@ -528,10 +580,11 @@ app.get('/api/horarios', async (req, res) => {
             LEFT JOIN asistencia a ON h.id_horario = a.id_horario
             LEFT JOIN retardo r ON h.id_horario = r.id_horario
             LEFT JOIN falta f ON h.id_horario = f.id_horario
-            WHERE h.dia_horario = ? AND h.id_contenedor = ?;
-        `;
+            WHERE h.dia_horario = ? AND h.id_contenedor = ? AND h.id_escuela = ?;
+`;
 
-        const [results] = await conexion.promise().query(queryText, [diaPrueba, idContenedor]);
+
+        const [results] = await conexion.promise().query(queryText, [diaPrueba, idContenedor, idEscuela]);
 
         res.json(results);
     } catch (err) {

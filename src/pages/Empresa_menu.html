@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prefect App - Empresa</title>
+
+    <link rel="stylesheet" href="/css/ADM_menu.css" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+      <a href="#" class="brand"><i class="bx bxs-parking icon"></i> PREFECT APP</a>
+      <ul class="side-menu">
+        <li>
+          <a href="#" class="active"><i class="bx bxs-dashboard icon"></i> EMPRESA</a>
+        </li>
+
+        <li>
+          <a href="./Empresa_menu.html"><i class="bx bx-table icon"></i> Inicio</a>
+        </li>
+
+        <li class="divider" data-text="Usuarios"></li>
+        <li>
+          <a href="#"><i class="bx bxs-inbox icon"></i> Gestión Usuarios <i class="bx bx-chevron-right icon-right"></i></a>
+          <ul class="side-dropdown">
+            <li><a href="./empresa_registrar.html">Registrar usuario</a></li>
+            <li><a href="./empresa_editar.html">Editar usuarios</a></li>
+          </ul>
+        </li>
+        <li class="divider" data-text="Escuelas"></li>
+        <li>
+          <a href="#"><i class="bx bxs-inbox icon"></i> Gestión escuelas <i class="bx bx-chevron-right icon-right"></i></a>
+          <ul class="side-dropdown">
+            <li><a href="./empresa_registrarescuela.html">Registrar escuela</a></li>
+            <li><a href="./empresa_editarescuela.html">Editar escuelas</a></li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <!-- CONTENIDO -->
+    <section id="content">
+      <!-- NAVBAR -->
+      <nav>
+        <i class="bx bx-menu toggle-sidebar"></i>
+
+        <form action="#"><div class="form-group"></div></form>
+
+        <input type="checkbox" id="switch-mode" hidden />
+        <label for="switch-mode" class="switch-mode"></label>
+
+        <span class="divider"></span>
+        <div class="profile">
+          <img src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png" alt="perfil" />
+          <ul class="profile-link">
+            <li><a href="./perfil.html"><i class="bx bxs-user-circle icon"></i> Perfil</a></li>
+            <li><a href="#" onclick="cerrarSesion()"><i class="bx bxs-log-out-circle"></i> Cerrar Sesión</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- MAIN -->
+      <main>
+        <h1 class="title">Panel Empresa</h1>
+        <ul class="breadcrumbs">
+          <li><a href="#">P.A</a></li>
+          <li>/</li>
+          <li>Inicio</li>
+        </ul>
+
+        <ul class="box-info">
+          <li>
+            <i class="bx bxs-calendar-check"></i>
+            <span class="text">
+              <h3 id="current-day"></h3>
+              <p id="current-date"></p>
+            </span>
+          </li>
+          <li>
+            <i class="bx bxs-group"></i>
+            <span class="text">
+              <h3>Usuarios</h3>
+              <p>Usuarios registrados</p>
+            </span>
+          </li>
+          <li>
+            <i class="bx bxs-briefcase-alt-2"></i>
+            <span class="text">
+              <h3>Activa</h3>
+              <p>Sesión actual</p>
+            </span>
+          </li>
+        </ul>
+
+        <div class="table-data">
+          <div class="order">
+            <div class="head">
+              <h3>Movimientos recientes</h3>
+              <i class="bx bx-search"></i>
+              <i class="bx bx-filter"></i>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Fecha</th>
+                  <th>Acción</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </section>
+
+    <script>
+      const days = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+      const date = new Date();
+      document.getElementById("current-day").textContent = days[date.getDay()];
+      document.getElementById("current-date").textContent = date.toLocaleDateString();
+
+      function cerrarSesion() {
+        fetch("/logout", { method: "POST", credentials: "same-origin" })
+          .then((res) => res.ok ? window.location.href = "/" : console.error("Error al cerrar sesión"))
+          .catch((err) => console.error("Error:", err));
+      }
+
+      const sidebar = document.getElementById("sidebar");
+      const allDropdown = document.querySelectorAll("#sidebar .side-dropdown");
+      const toggleSidebar = document.querySelector("nav .toggle-sidebar");
+      const allSideDivider = document.querySelectorAll("#sidebar .divider");
+
+      allDropdown.forEach(item => {
+        const a = item.parentElement.querySelector("a:first-child");
+        a.addEventListener("click", e => {
+          e.preventDefault();
+          if (!a.classList.contains("active")) {
+            allDropdown.forEach(i => {
+              i.parentElement.querySelector("a:first-child").classList.remove("active");
+              i.classList.remove("show");
+            });
+          }
+          a.classList.toggle("active");
+          item.classList.toggle("show");
+        });
+      });
+
+      toggleSidebar.addEventListener("click", () => {
+        sidebar.classList.toggle("hide");
+        allSideDivider.forEach(div => {
+          div.textContent = sidebar.classList.contains("hide") ? "-" : div.dataset.text;
+        });
+      });
+
+      const profile = document.querySelector("nav .profile");
+      const imgProfile = profile.querySelector("img");
+      const dropdownProfile = profile.querySelector(".profile-link");
+
+      imgProfile.addEventListener("click", () => {
+        dropdownProfile.classList.toggle("show");
+      });
+
+      window.addEventListener("click", (e) => {
+        if (!profile.contains(e.target)) dropdownProfile.classList.remove("show");
+      });
+
+      document.getElementById("switch-mode").addEventListener("change", function () {
+        document.body.classList.toggle("dark", this.checked);
+      });
+    </script>
+  </body>
+</html>
