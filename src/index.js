@@ -91,6 +91,7 @@ app.use((req, res, next) => {
     console.log('Ruta solicitada:', req.path); // Verifica qué ruta se está solicitando
     next();
 });
+
 // Middleware de autorización
 const protectedRoutesAdmin = [
     '/pages/ADM_menu.html',
@@ -382,15 +383,85 @@ app.get('/obtenerUsuario', (req, res) => {
         nom_usuario: req.session.nombre
     });
 });
-app.get('/api/escuelas', async (req, res) => {
+
+
+//--------------------------------- REGISTRAR ESCUELAS--------------------------
+// Nueva ruta para registrar una escuela
+app.post('/api/escuelas', async (req, res) => {
+    const { nom_escuela, CCT, telefono_escuela } = req.body;
+  
+    if (!nom_escuela || !CCT || !telefono_escuela) {
+      return res.json({ success: false, message: 'Todos los campos son obligatorios.' });
+    }
+  
     try {
-      const [rows] = await conexion.promise().query(`SELECT id_escuela, nom_escuela FROM escuela`);
-      res.json(rows);
+      await conexion.promise().query(
+        `INSERT INTO escuela (nom_escuela, CCT, telefono_escuela) VALUES (?, ?, ?)`,
+        [nom_escuela, CCT, telefono_escuela]
+      );
+      res.json({ success: true, message: 'Escuela registrada exitosamente.' });
     } catch (error) {
-      console.error("Error al obtener escuelas:", error);
-      res.status(500).json({ error: "Error al cargar escuelas" });
+      console.error('Error registrando escuela:', error);
+      res.status(500).json({ success: false, message: 'Error al registrar escuela.' });
     }
   });
+
+//---------------------------------EDITSR ESCUELAS -----------------------------
+// Traer escuela por ID (para cargar en el modal de edición)
+// Obtener TODAS las escuelas
+app.get('/api/escuelas', async (req, res) => {
+    try {
+      const [rows] = await conexion.promise().query('SELECT ID_escuela, nom_escuela, CCT, telefono_escuela FROM escuela');
+      res.json(rows);
+    } catch (error) {
+      console.error('Error obteniendo escuelas:', error);
+      res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  });
+  
+  // Obtener una escuela por su ID
+  app.get('/api/escuelas/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+      const [rows] = await conexion.promise().query('SELECT ID_escuela, nom_escuela, CCT, telefono_escuela FROM escuela WHERE ID_escuela = ?', [id]);
+      if (rows.length === 0) {
+        return res.status(404).json({ message: 'Escuela no encontrada' });
+      }
+      res.json(rows[0]);
+    } catch (error) {
+      console.error('Error obteniendo escuela por ID:', error);
+      res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  });
+  
+  // Actualizar una escuela
+  app.put('/api/escuelas/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nom_escuela, CCT, telefono_escuela } = req.body;
+    try {
+      await conexion.promise().query(
+        'UPDATE escuela SET nom_escuela = ?, CCT = ?, telefono_escuela = ? WHERE ID_escuela = ?',
+        [nom_escuela, CCT, telefono_escuela, id]
+      );
+      res.json({ success: true, message: 'Escuela actualizada exitosamente' });
+    } catch (error) {
+      console.error('Error actualizando escuela:', error);
+      res.status(500).json({ success: false, message: 'Error actualizando escuela' });
+    }
+  });
+  
+  // Eliminar una escuela
+  app.delete('/api/escuelas/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+      await conexion.promise().query('DELETE FROM escuela WHERE ID_escuela = ?', [id]);
+      res.json({ success: true, message: 'Escuela eliminada exitosamente' });
+    } catch (error) {
+      console.error('Error eliminando escuela:', error);
+      res.status(500).json({ success: false, message: 'Error eliminando escuela' });
+    }
+  });
+  
   
 // --------------------------------  REGISTRAR  --------------------------------
 const tokenStore = new Map();
@@ -787,6 +858,92 @@ async function actualizarFalta(validacion_falta, id_horario) {
     });
 }
 // --------------------------------  FIN RUTA ACTUALIZACIÓN ADMINISTRADOR  -------------------------
+
+// Nueva ruta para EMPRESA ver solo administradores
+app.get('/api/usuarios', async (req, res) => {
+    try {
+        const [rows] = await conexion.promise().query(`
+            SELECT ID_usuario, nom_usuario, cargo, contraseña 
+            FROM usuario 
+            WHERE cargo = 'admin'
+        `);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'No hay administradores registrados.' });
+        }
+
+        // Opcionalmente podrías "limpiar" las contraseñas si están hasheadas
+        const administradores = rows.map(usuario => {
+            if (usuario.contraseña.startsWith('$2')) {
+                usuario.contraseña = ''; // No mostrar si está hasheada
+            }
+            return usuario;
+        });
+
+        res.json(administradores);
+    } catch (error) {
+        console.error('Error obteniendo administradores:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+});
+app.get('/api/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await conexion.promise().query(`
+            SELECT ID_usuario, nom_usuario, cargo, contraseña 
+            FROM usuario 
+            WHERE ID_usuario = ? AND cargo = 'admin'
+        `, [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Administrador no encontrado.' });
+        }
+
+        // Si la contraseña está hasheada, la ocultamos
+        const usuario = rows[0];
+        if (usuario.contraseña.startsWith('$2')) {
+            usuario.contraseña = '(No disponible)';
+        }
+
+        res.json(usuario);
+    } catch (error) {
+        console.error('Error obteniendo administrador:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+});
+
+// Ruta para actualizar administrador
+app.put('/api/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nom_usuario, contrasena } = req.body;
+
+    try {
+        // Si no envían contraseña nueva
+        if (!contrasena || contrasena.trim() === '') {
+            // Solo actualizar nombre de usuario
+            await conexion.promise().query(`
+                UPDATE usuario
+                SET nom_usuario = ?
+                WHERE ID_usuario = ? AND cargo = 'admin'
+            `, [nom_usuario, id]);
+        } else {
+            // Si envían nueva contraseña, la encriptamos
+            const hashedPassword = await bcrypt.hash(contrasena, 10);
+
+            await conexion.promise().query(`
+                UPDATE usuario
+                SET nom_usuario = ?, contraseña = ?
+                WHERE ID_usuario = ? AND cargo = 'admin'
+            `, [nom_usuario, hashedPassword, id]);
+        }
+
+        res.json({ message: 'Administrador actualizado exitosamente.' });
+
+    } catch (error) {
+        console.error('Error actualizando administrador:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+});
 
 // ------------------------------- RUTA DE MOSTRAR USUARIOS  --------------------------------
 

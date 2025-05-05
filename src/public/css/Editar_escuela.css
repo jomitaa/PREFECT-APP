@@ -1,0 +1,435 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+* {
+  font-family: 'Open Sans', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --grey: #F1F0F6;
+  --dark-grey: #8D8D8D;
+  --light: #ffffff;
+  --dark: #000000;
+  --blue: #1775F1;
+  --dark-blue: #0e5bd6;
+  --light-blue: #D0E4FF;
+  --red: #FC3B56;
+}
+
+/* General */
+body {
+  background: var(--grey);
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Sidebar */
+#sidebar {
+  position: fixed;
+  width: 260px;
+  background: var(--light);
+  height: 100vh;
+  padding: 20px;
+}
+
+#sidebar .brand {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 20px;
+}
+
+.side-menu li {
+  margin: 20px 0;
+}
+
+.side-menu a {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--dark);
+}
+
+.side-menu a.active,
+.side-menu a:hover {
+  background: var(--light-blue);
+  color: var(--blue);
+}
+
+/* Content */
+#content {
+  margin-left: 260px;
+  padding: 20px;
+}
+
+.title {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: var(--dark);
+}
+
+/* Contenedor Escuelas */
+.joma {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.todo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  background: var(--light);
+  padding: 20px;
+  border-radius: 20px;
+  width: 95%;
+  justify-content: center;
+}
+
+/* Tarjetas */
+.list {
+  background: var(--light);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 16px;
+  box-shadow: 0px 5px 20px rgba(0,0,0,0.1);
+  width: 260px;
+  padding: 20px;
+  min-height: 220px;
+  position: relative;
+}
+
+/* Usuario en la tarjeta */
+.user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.imgBx {
+  width: 50px;
+  height: 50px;
+  background: var(--blue);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.imgBx i {
+  color: #fff;
+  font-size: 24px;
+}
+
+.details h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.details p {
+  font-size: 14px;
+  color: var(--dark-grey);
+  margin-top: 5px;
+}
+
+/* Botones de editar y borrar */
+.navigation {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.navigation span {
+  background: var(--light-blue);
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navigation span i {
+  font-size: 18px;
+  color: var(--blue);
+}
+
+.navigation span:hover {
+  background: var(--blue);
+  transform: scale(1.1);
+}
+
+.navigation span:hover i {
+  color: var(--light);
+}
+
+/* Modales (Editar y Borrar) */
+.modal, .modal2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s ease;
+  z-index: 500;
+}
+
+.modal--show, .modal--show2 {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Contenedor del modal */
+.modal__container, .modal__container2 {
+  background: var(--light);
+  border-radius: 16px;
+  padding: 30px 25px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0px 5px 20px rgba(0,0,0,0.1);
+  animation: fadeIn 0.5s ease;
+}
+
+.modal__title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 20px;
+}
+
+.modal__paragraph {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* Inputs del modal */
+.form-register input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid var(--grey);
+  border-radius: 8px;
+  background: var(--grey);
+  font-size: 14px;
+  color: var(--dark);
+  transition: border 0.3s ease;
+}
+
+.form-register input:focus {
+  outline: none;
+  border: 1px solid var(--blue);
+  background: var(--light);
+}
+
+/* Botones de acción */
+.btnEditar, .btnBorrar, .modal__close, .modal__close2 {
+  display: inline-block;
+  width: 100%;
+  padding: 12px 0;
+  border-radius: 10px;
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btnEditar {
+  background: var(--blue);
+  color: var(--light);
+}
+
+.btnEditar:hover {
+  background: var(--dark-blue);
+}
+
+.btnBorrar {
+  background: var(--red);
+  color: var(--light);
+}
+
+.btnBorrar:hover {
+  background: #c62828;
+}
+
+.modal__close, .modal__close2 {
+  background: var(--light-blue);
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.modal__close:hover, .modal__close2:hover {
+  background: var(--blue);
+  color: var(--light);
+}
+
+/* Alertas de éxito y error */
+.alerta-error, .alerta-exito {
+  display: none;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.alerta-error.show {
+  display: block;
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.alerta-exito.show {
+  display: block;
+  background: #d4edda;
+  color: #155724;
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from {transform: scale(0.95); opacity: 0;}
+  to {transform: scale(1); opacity: 1;}
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  #sidebar {
+    width: 60px;
+    padding: 10px;
+  }
+
+  #content {
+    margin-left: 60px;
+    padding: 10px;
+  }
+
+  .todo {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .list {
+    width: 90%;
+  }
+
+  nav {
+    flex-wrap: wrap;
+  }
+
+  .profile {
+    margin-top: 10px;
+  }
+}
+/* Imagen de perfil */
+.perfil-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  /* Tarjetas de escuela más limpias */
+  .list {
+    background: var(--light);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 16px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+    width: 240px;
+    padding: 20px;
+    min-height: 220px;
+    position: relative;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .list:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 20px rgba(0,0,0,0.1);
+  }
+  
+  /* Ícono círculo arriba de tarjeta */
+  .imgBx {
+    width: 45px;
+    height: 45px;
+    background: var(--blue);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin-bottom: 12px;
+  }
+  
+  .imgBx i {
+    color: #fff;
+    font-size: 20px;
+  }
+  
+  /* Texto */
+  .details h3 {
+    font-size: 17px;
+    font-weight: 700;
+    text-align: center;
+  }
+  
+  .details p {
+    font-size: 13px;
+    color: var(--dark-grey);
+    margin-top: 4px;
+  }
+  
+  /* Botones de editar y borrar más bonitos */
+  .navigation {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  
+  .navigation span {
+    background: var(--light-blue);
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .navigation span i {
+    font-size: 16px;
+    color: var(--blue);
+  }
+  
+  .navigation span:hover {
+    background: var(--blue);
+    transform: scale(1.1);
+  }
+  
+  .navigation span:hover i {
+    color: var(--light);
+  }
+  

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="/css/Editar_escuela.css">
+  <title>Editar Escuelas</title>
+</head>
+
+<body>
+
+<section id="sidebar">
+  <a href="#" class="brand"><i class="bx bxs-school icon"></i> PREFECT APP</a>
+  <ul class="side-menu">
+    <li><a href="./Empresa_menu.html"><i class="bx bxs-dashboard icon"></i> Inicio</a></li>
+    <li class="divider" data-text="Escuelas"></li>
+    <li><a href="./empresa_editarescuela.html" class="active"><i class="bx bx-table icon"></i> Editar Escuelas</a></li>
+  </ul>
+</section>
+
+<section id="content">
+  <nav>
+    <i class='bx bx-menu toggle-sidebar'></i>
+    <span class="divider"></span>
+    <div class="profile">
+      <img src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png" alt="Perfil" class="perfil-img">
+      <ul class="profile-link">
+        <li><a href="#" onclick="cerrarSesion()"><i class='bx bxs-log-out-circle'></i> Cerrar Sesión</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <h1 class="title">Editar Escuelas</h1>
+    <div class="info-data">
+      <section class="joma">
+        <div class="todo" id="contenedor-escuelas"></div>
+      </section>
+
+      <!-- Modal para borrar -->
+      <section class="modal" id="modal-borrar">
+        <div class="modal__container">
+          <h2 class="modal__title">¿Borrar Escuela?</h2>
+          <p class="modal__paragraph">¿Estás seguro de eliminar esta escuela?</p>
+          <button class="btnBorrar" id="btnConfirmarBorrar">Borrar</button>
+          <a href="#" class="modal__close">Cancelar</a>
+        </div>
+      </section>
+
+      <!-- Modal para editar -->
+      <section class="modal2" id="modal-editar">
+        <div class="modal__container2">
+          <h2 class="modal__title">Editar Escuela</h2>
+
+          <form class="form form-register" id="formEditarEscuela">
+            <div>
+              <label>
+                <i class='bx bx-building-house'></i>
+                <input type="text" name="nom_escuela" placeholder="Nombre de la Escuela" required>
+              </label>
+            </div>
+            <div>
+              <label>
+                <i class='bx bx-id-card'></i>
+                <input type="text" name="CCT" placeholder="Clave CCT" required>
+              </label>
+            </div>
+            <div>
+              <label>
+                <i class='bx bx-phone'></i>
+                <input type="text" name="telefono_escuela" placeholder="Teléfono" required>
+              </label>
+            </div>
+
+            <button type="submit" class="btnEditar">Confirmar Edición</button>
+            <div class="alerta-error"></div>
+            <div class="alerta-exito"></div>
+          </form>
+
+          <a href="#" class="modal__close2">Cancelar</a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</section>
+
+<script src="/Editar_Escuelas.js"></script>
+</body>
+</html>
