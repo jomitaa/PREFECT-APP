@@ -639,6 +639,8 @@ app.get('/api/horarios', async (req, res) => {
                 g.sem_grupo,
                 g.nom_grupo,
                 s.id_salon,
+                g.id_turno,
+                t.nom_turno,
                 CASE WHEN a.id_asistencia IS NOT NULL THEN '✔' ELSE '' END AS asistencia,
                 CASE WHEN r.id_retardo IS NOT NULL THEN '✔' ELSE '' END AS retardo,
                 CASE WHEN f.id_falta IS NOT NULL THEN '✔' ELSE '' END AS falta
@@ -648,6 +650,7 @@ app.get('/api/horarios', async (req, res) => {
             INNER JOIN salon s ON h.id_salon = s.id_salon
             JOIN materia m ON h.id_materia = m.id_materia
             JOIN persona p ON h.id_persona = p.id_persona
+            join turno t on g.id_turno = t.id_turno
             LEFT JOIN asistencia a ON h.id_horario = a.id_horario
             LEFT JOIN retardo r ON h.id_horario = r.id_horario
             LEFT JOIN falta f ON h.id_horario = f.id_horario
@@ -1155,8 +1158,8 @@ app.post('/agregarReporte', (req, res) => {
 
 
     const query = `
-        INSERT INTO reportes (id_tiporeporte, descripcion, ID_usuario)
-        VALUES (?, ?, ?)
+        INSERT INTO reportes (id_tiporeporte, descripcion, ID_usuario, fecha_reporte)
+        VALUES (?, ?, ?, NOW())
     `;
 
     conexion.execute(query, [id_tiporeporte, descripcion, ID_usuario], (err, result) => {
@@ -1190,6 +1193,7 @@ app.get('/obtenerReportes', (req, res) => {
             r.id_reporte, 
             r.descripcion, 
             r.id_tiporeporte, 
+            r.fecha_reporte,
             u.nom_usuario, 
             t.tipo AS tipo_reporte
         FROM reportes r
@@ -1233,8 +1237,8 @@ app.put('/actualizarReporte', (req, res) => {
 app.get('/obtener-datos-horarios', async (req, res) => {
     try {
         const [grupos] = await conexion.promise().query(`
-           SELECT DISTINCT g.id_grupo, g.nom_grupo 
-            FROM horario h 
+          SELECT DISTINCT g.id_grupo, g.nom_grupo, g.id_turno 
+            FROM grupo h 
             JOIN grupo g ON h.id_grupo = g.id_grupo;
         `);
 
@@ -1252,20 +1256,20 @@ app.get('/obtener-datos-horarios', async (req, res) => {
 
         const [salones] = await conexion.promise().query(`
             SELECT DISTINCT s.id_salon
-            FROM horario h 
+            FROM salon h 
             JOIN salon s ON h.id_salon = s.id_salon
         `);
 
         const [materias] = await conexion.promise().query(`
            SELECT DISTINCT m.id_materia, m.nom_materia 
-            FROM horario h 
+            FROM materia h 
             JOIN materia m ON h.id_materia = m.id_materia;
         `);
 
         const [profesores] = await conexion.promise().query(`
             SELECT DISTINCT p.id_persona, 
                 CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo
-            FROM horario h 
+            FROM persona h 
             JOIN persona p ON h.id_persona = p.id_persona
         `);
 
@@ -1327,6 +1331,11 @@ app.post('/agregar-horario', async (req, res) => {
     const anio = fechaActual.getFullYear();
     const mes = fechaActual.getMonth() + 1;
     const periodo = mes >= 1 && mes <= 6 ? 1 : 2; // 1er semestre (Ene-Jun), 2do semestre (Jul-Dic)
+    let idEscuela = req.session.id_escuela;
+    const id_Escuela = req.session.id_escuela;
+    console.log('Datos recibidos en /agregar-horario:', { dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona });
+    console.log('ID Escuela:', idEscuela);
+
 
     try {
         // 1️⃣ Verificar si ya existe el periodo actual
@@ -1366,9 +1375,11 @@ app.post('/agregar-horario', async (req, res) => {
             idContenedor = contenedorExistente[0].id_contenedor;
         }
 
+
+
         // 3️⃣ Verificar si ya existe un horario con los mismos datos
         for (let i = 0; i < hora_inicio.length; i++) {
-            if (!hora_inicio[i] || !hora_final[i] || !id_salon[i] || !id_persona[i]) {
+            if (!hora_inicio[i] || !hora_final[i] || !id_salon[i] || !id_persona[i] || !id_materia[i]) { 
                 return res.status(400).json({ success: false, message: 'Todos los campos deben estar completos.' });
             }
 
@@ -1378,9 +1389,14 @@ app.post('/agregar-horario', async (req, res) => {
                  AND hora_final = ? 
                  AND id_salon = ? 
                  AND id_grupo = ? 
-                 AND id_persona = ?`,
+                 AND id_persona = ?
+                 
+                `,
+
+
                 [hora_inicio[i], hora_final[i], id_salon[i], id_grupo, id_persona[i]]
             );
+           
 
             if (horarioExistente.length > 0) {
                 return res.status(400).json({ success: false, message: 'Ya existe un horario con estos datos.' });
@@ -1399,13 +1415,14 @@ app.post('/agregar-horario', async (req, res) => {
                 id_grupo,            // Usamos el valor del primer select
                 id_materia[i],
                 id_persona[i],
-                idContenedor
+                idContenedor,
+                idEscuela
             ]);
         }
 
         // Insertar todos los horarios a la vez
         await conexion.promise().query(
-            `INSERT INTO horario (dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona, id_contenedor)
+            `INSERT INTO horario (dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona, id_contenedor, id_escuela)
             VALUES ?`,
             [horarios]
         );
@@ -1593,7 +1610,38 @@ LEFT JOIN
 
 // ----------------------------------- FIN RUTA FILTROS ---------------------------------------------
 
+// ----------------------------------- RUTA FILTRO VER REPORTES ---------------------------------------------
 
+
+app.get('/api/filtrar-reportes', async (req, res) => {
+    try {
+        const [reportes] = await conexion.promise().query(`
+            SELECT 
+            r.id_reporte, 
+            r.descripcion, 
+            r.id_tiporeporte, 
+            r.fecha_reporte,
+            u.nom_usuario, 
+            t.tipo AS tipo_reporte
+        FROM reportes r
+        JOIN tiporeportes t ON r.id_tiporeporte = t.id_tiporeporte
+        JOIN usuario u ON r.id_usuario = u.id_usuario
+        `);
+
+        
+        const tipo_reporte = [...new Set(reportes.map(r => `${r.tipo_reporte}`))];
+        const nom_usuario = [...new Set(reportes.map(r => r.nom_usuario))];
+
+        res.json({ tipo_reporte, nom_usuario });
+
+    } catch (error) {
+        console.error('Error al obtener filtros:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+  
+
+// -----------------------------------  FIN RUTA FILTRO VER REPORTES ---------------------------------------------
 
 // -------------------------------- RUTA ASIS POR PROFESOR --------------------------------
 

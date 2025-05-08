@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const respuesta = await fetch('/obtener-datos-horarios');
         const datos = await respuesta.json();
 
-        llenarSelect('grupo', datos.grupos, 'id_grupo', 'nom_grupo');
         llenarSelect('dia', datos.dias, 'dia', 'dia');
         llenarSelect('hora_inicio', datos.hora_inicio, 'hora_inicio', 'hora_inicio');
         llenarSelect('hora_final', datos.hora_final, 'hora_final', 'hora_final');
@@ -88,64 +87,146 @@ function createToast(type, icon, title, text) {
     newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
 }
 
+function obtenerHorasPorTurno(turnoId) {
+    return {
+        vespertino: { inicio: 13, fin: 21 }, // 13:00 - 21:00
+        matutino: { inicio: 7, fin: 15 }      // 7:00 - 14:00
+    }[turnoId === "2" ? "vespertino" : "matutino"];
+}
+
+let todosLosGrupos = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const respuesta = await fetch('/obtener-datos-horarios');
+        const datos = await respuesta.json();
+        
+        // Guardar grupos originales
+        todosLosGrupos = datos.grupos;
+        
+       
+        
+        // Escuchar cambios en el turno
+        document.getElementById('selectTurno').addEventListener('change', function() {
+            const turnoId = this.value;
+            const grupoSelect = document.getElementById('selectGrupo');
+            
+            // Habilitar el select de grupo
+            grupoSelect.disabled = false;
+            
+            // Filtrar y llenar grupos
+            filtrarGruposPorTurno(turnoId);
+
+            actualizarHorasSegunTurno(turnoId);
+        });
+
+    } catch (error) {
+        console.error('Error al cargar datos:', error);
+    }
+});
+
+function filtrarGruposPorTurno(turnoId) {
+    const grupoSelect = document.getElementById('selectGrupo');
+    
+    // Limpiar y establecer mensaje inicial
+    grupoSelect.innerHTML = '<option disabled selected>Seleccione un grupo</option>';
+    
+    // Filtrar grupos
+    const gruposFiltrados = todosLosGrupos.filter(grupo => grupo.id_turno == turnoId);
+    
+    // Llenar opciones
+    gruposFiltrados.forEach(grupo => {
+        const option = document.createElement('option');
+        option.value = grupo.id_grupo;
+        option.textContent = grupo.nom_grupo;
+        grupoSelect.appendChild(option);
+    });
+}
+
+function actualizarHorasSegunTurno(turnoId) {
+    const { inicio, fin } = obtenerHorasPorTurno(turnoId);
+    const cards = document.querySelectorAll('.horario-card');
+
+    cards.forEach((card, index) => {
+        const horaInicioSpan = card.querySelector('span[name="hora_inicio"]');
+        const horaFinalSpan = card.querySelector('span[name="hora_final"]');
+        
+        // Calculamos las horas (ej: 13 + 0 = 13:00, 13 + 1 = 14:00, etc.)
+        const horaActual = inicio + index;
+        
+        // Si excede el límite del turno, ocultamos la card
+        if (horaActual >= fin) {
+            card.style.display = 'none';
+            return;
+        }
+        
+        // Mostrar la card si estaba oculta
+        card.style.display = '';
+        
+        // Formatear a HH:00:00
+        horaInicioSpan.textContent = `${horaActual}:00:00`;
+        horaFinalSpan.textContent = `${horaActual + 1}:00:00`;
+    });
+}
+
 
 // Evento para enviar el formulario
 document.getElementById('btnEnviar').addEventListener('click', async (e) => {
-    e.preventDefault(); // Evita recargar la página
+    e.preventDefault();
 
-    // Crear un objeto para almacenar los valores de todos los campos
+    // 1. Validar campos generales (Día y Grupo)
+    const dia = document.querySelector('select[name="dia"]').value;
+    const grupo = document.querySelector('select[name="grupo"]').value;
+
+    if (!dia || !grupo) {
+        createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'Selecciona el Día y el Grupo antes de continuar.');
+        return;
+    }
+
+    // 2. Recopilar datos de cards VÁLIDAS (con valores numéricos)
     const datosHorario = {
-        dia_horario: null, // Cambio aquí: solo un valor único
+        dia_horario: dia,
+        id_grupo: grupo,
         hora_inicio: [],
         hora_final: [],
         id_salon: [],
-        id_grupo: null,  // Cambio aquí: solo un valor único
         id_materia: [],
         id_persona: []
     };
 
-    // Obtener el valor del primer select para "dia_horario" y "id_grupo" (solo un valor único)
-    const diaSelect = document.querySelector('select[name="dia"]');
-    if (diaSelect && diaSelect.value) {
-        datosHorario.dia_horario = diaSelect.value;  // Solo un valor de "dia"
-    }
+    let cardsValidas = 0;
+    const cards = document.querySelectorAll('.horario-card');
 
-    const grupoSelect = document.querySelector('select[name="grupo"]');
-    if (grupoSelect && grupoSelect.value) {
-        datosHorario.id_grupo = grupoSelect.value;  // Solo un valor de "grupo"
-    }
+    cards.forEach(card => {
+        const salon = card.querySelector('select[name="salon"]').value;
+        const materia = card.querySelector('select[name="materia"]').value;
+        const profesor = card.querySelector('select[name="persona"]').value;
+        const horaInicio = card.querySelector('span[name="hora_inicio"]').textContent.trim();
+        const horaFinal = card.querySelector('span[name="hora_final"]').textContent.trim();
 
-    // Recorrer los demás select y obtener sus valores
-    document.querySelectorAll('select[name="hora_inicio"]').forEach(select => {
-        if (select.value) datosHorario.hora_inicio.push(select.value);
-    });
-    document.querySelectorAll('select[name="hora_final"]').forEach(select => {
-        if (select.value) datosHorario.hora_final.push(select.value);
-    });
-    document.querySelectorAll('select[name="salon"]').forEach(select => {
-        if (select.value) datosHorario.id_salon.push(select.value);
-    });
-    document.querySelectorAll('select[name="materia"]').forEach(select => {
-        if (select.value) datosHorario.id_materia.push(select.value);
-    });
-    document.querySelectorAll('select[name="persona"]').forEach(select => {
-        if (select.value) datosHorario.id_persona.push(select.value);
+        // Verificar si los valores son numéricos (y no placeholders)
+        const esValido = 
+            !isNaN(salon) && salon !== "" && 
+            !isNaN(materia) && materia !== "" && 
+            !isNaN(profesor) && profesor !== "";
+
+        if (esValido) {
+            datosHorario.hora_inicio.push(horaInicio);
+            datosHorario.hora_final.push(horaFinal);
+            datosHorario.id_salon.push(parseInt(salon));
+            datosHorario.id_materia.push(parseInt(materia));
+            datosHorario.id_persona.push(parseInt(profesor));
+            cardsValidas++;
+        }
     });
 
-    // Verificar que todos los campos tengan valores
-    if (!datosHorario.dia_horario || 
-        datosHorario.hora_inicio.length === 0 || 
-        datosHorario.hora_final.length === 0 || 
-        datosHorario.id_salon.length === 0 || 
-        !datosHorario.id_grupo || 
-        datosHorario.id_materia.length === 0 || 
-        datosHorario.id_persona.length === 0) {
-        
-        createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'Por favor, complete todos los campos.');
+    // 3. Validar al menos 1 card válida
+    if (cardsValidas === 0) {
+        createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'Completa al menos un bloque de horario con valores válidos.');
         return;
     }
 
-    // Enviar los datos al servidor
+    // 4. Enviar al servidor
     try {
         const respuesta = await fetch('/agregar-horario', {
             method: 'POST',
@@ -156,13 +237,13 @@ document.getElementById('btnEnviar').addEventListener('click', async (e) => {
         const resultado = await respuesta.json();
 
         if (resultado.success) {
-            createToast('Correcto', 'fa-solid fa-circle-check', 'Horario agregado', 'Horario agregado correctamente.');
-            setTimeout(() => location.reload(), 1500); // Recargar después de mostrar la alerta
+            createToast('Correcto', 'fa-solid fa-circle-check', 'Éxito', 'Horario guardado correctamente.');
+            setTimeout(() => location.reload(), 1500);
         } else {
-            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Hubo un problema al agregar el horario.');
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', resultado.message || 'Error al guardar el horario.');
         }
     } catch (error) {
-        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Error de conexión al intentar agregar el horario.');
-        console.error('Error al enviar horario:', error);
+        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Error de conexión con el servidor.');
+        console.error('Error:', error);
     }
 });

@@ -375,6 +375,50 @@ nav .profile .profile-link a:hover {
 /* NAVBAR */
 
 
+.filters {
+    display: grid;
+	grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.filters button,
+.filters select {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: var(--light-blue);
+  font-weight: bold;
+  transition: all 0.3s ease; /* animación suave */
+}
+
+.filters select.filtro-activo {
+  background: var(--blue); 
+  color: var(--light); 
+}
+
+
+.filter-btn {
+	grid-column: span 3;
+	transition: all .3s ease;
+	background: var(--blue);
+	color: var(--dark);
+	padding: 10px;
+	border-radius: 8px;
+	border: none;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.filter-btn:hover {
+	background: var(--blue);
+	color: var(--light);
+}
+
+
 
 /* MAIN */
 main {

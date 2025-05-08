@@ -111,12 +111,25 @@
 				<li>Inicio</li>
 
 			</ul>
+
+			<div class="filters">
+				<button class="filter-btn" id="filterBtn">FILTRAR POR:</button>
+				<select id="tipo_reporte">Tipo Reporte</select>
+				<select id="nom_usuario">Usuarios</select>
+				<input type="date" id="fecha_reporte" placeholder="FECHA">
+				<button id="resetFiltersButton" class="filter-btn">Restablecer Filtros</button>
+
+			</div>
+
 			<div class="info-data">
 
 				<ul class="box-info" id="lista-reportes">
+					<li></li>
                     <!-- Aquí se llenarán los reportes dinámicamente con JS -->
 
-                </ul>
+            	</ul>
+
+			
 	
 				<!-- Modal para ver y editar reportes -->
 <div id="modal-reporte" class="modal">

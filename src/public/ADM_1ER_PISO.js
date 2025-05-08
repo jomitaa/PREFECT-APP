@@ -226,23 +226,85 @@ inicializarCheckboxes();
 
 const contenedor = document.getElementById("horario");
 
+contenedor.innerHTML = `
+  <div class="no-horarios-message">
+    <i class="fas fa-clock"></i>
+    <p>Primero seleccione un Turno</p>
+  </div>
+`;
+
+// Agregamos estilos CSS (puedes ponerlos en tu archivo CSS)
+const style = document.createElement('style');
+style.textContent = `
+  .no-horarios-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #666;
+    font-size: 1.2rem;
+  }
+  .no-horarios-message i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #aaa;
+  }
+`;
+document.head.appendChild(style);
+
+let todosLosHorarios = []; // Variable global para almacenar todos los horarios
+
 async function fetchHorarios() {
   try {
     const response = await fetch("/api/horarios");
-    if (!response.ok) {
-      throw new Error(`Error en la solicitud: ${response.status}`);
-    }
-    const horarios = await response.json();
-    mostrar(horarios);
+    if (!response.ok) throw new Error(`Error en la solicitud: ${response.status}`);
+    
+    todosLosHorarios = await response.json();
+    
+    // Escuchamos cambios en el select de turno
+    document.querySelector('select[name="turno"]').addEventListener('change', function() {
+      const turnoSeleccionado = this.value;
+      filtrarPorTurno(turnoSeleccionado);
+    });
+    
   } catch (error) {
     console.error("Error al obtener los horarios:", error);
-    contenedor.innerHTML =
-      '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
+    contenedor.innerHTML = '<div class="error-message">Error al cargar los horarios</div>';
+  }
+}
+
+function filtrarPorTurno(turnoId) {
+  // Filtramos por semestre 2 Y por turno
+  const horariosFiltrados = todosLosHorarios.filter(horario => 
+    horario.sem_grupo === 2 && horario.id_turno == turnoId
+  );
+
+  if (horariosFiltrados.length === 0) {
+    contenedor.innerHTML = `
+      <div class="no-horarios-message">
+        <i class="fas fa-clock"></i>
+        <p>No hay horarios para este turno</p>
+      </div>
+    `;
+  } else {
+    mostrar(horariosFiltrados);
   }
 }
 
 function mostrar(horarios) {
-  let resultados = "";
+  if (!horarios || horarios.length === 0) {
+    contenedor.innerHTML = `
+      <div class="no-horarios-message">
+        <i class="fas fa-clock"></i>
+        <p>No hay horarios para mostrar</p>
+      </div>
+    `;
+    return;
+  }
+
+  let resultados = '';
+
 
   const horariosSemestre2 = horarios.filter(
     (horario) => horario.sem_grupo === 2
@@ -324,6 +386,14 @@ function mostrar(horarios) {
   });
 
   async function filtrarHorarios() {
+
+    const turno = document.querySelector('select[name="turno"]').value;
+  if (!turno) {
+    createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Atención', 'Debes seleccionar un turno primero');
+    return;
+  }
+
+
     const salon = document.getElementById("salon").value.trim();
     const grupo = document.getElementById("grupo").value;
     const profesor = document.getElementById("profesor").value;
@@ -342,8 +412,10 @@ function mostrar(horarios) {
         (horario) => horario.sem_grupo === 2
       );
 
-      const horariosFiltrados = horariosSemestre2.filter((horario) => {
+      const horariosFiltrados = todosLosHorarios.filter((horario) => {
         return (
+          horario.sem_grupo === 2 &&
+          horario.id_turno == turno &&
           (!salon ||
             String(horario.id_salon).trim() === String(salon).trim()) &&
           (!grupo || horario.nom_grupo === grupo) &&

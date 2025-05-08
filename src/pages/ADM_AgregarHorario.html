@@ -115,138 +115,260 @@
 				<li>Inicio</li>
 
 			</ul>
-			<div class="info-data">
+			
+			
+			<div class="filters">
+				<select name="turno" placeholder="Turno" id="selectTurno">
+					<option disabled selected>Seleccione el Turno:</option>
+					<option value="2">Vespertino</option>
+					<option value="1">Matutino</option>
+				</select>
+				<select name="grupo" placeholder="Grupo" id="selectGrupo">
+					<option disabled selected>Seleccione primero el turno por favor</option>
+					
+				</select>
+				<select name="dia" placeholder="Dia" id="">
+					<option disabled selected>Seleccione el Dia:</option>
+					<option value="Lunes">Lunes</option>
+				</select>
+			</div>
 
-                <div class="horario">
-					<main class="table" id="customers_table">
-                    <form action="">
-						<section class="table__header">
-							<h1>Agregar Horarios:</h1>
-							<div class="input-group">
-								<select name="grupo" placeholder="Grupo" id="">
-                                    <option disabled selected>Seleccione el Grupo:</option>
-                                    <option value="1IV6">1IV6</option>
-                                </select>
-								
-							</div>
-							<div class="input-group">
-                                <select name="dia" placeholder="Dia" id="">
-                                    <option disabled selected>Seleccione el Dia:</option>
-                                    <option value="Lunes">Lunes</option>
-                                </select>
-						</section>
-						<section class="table__body">
-                        
-							<table>
-								<thead>
-
-									<tr>
-										<th> Hora Inicio </th>
-										<th> Hora Fin </th>
-										<th> Salon </th>
-										<th> Materia </th>
-										<th> Profesor </th>
-										
-
-									</tr>
-								</thead>
-								<tbody>
-                                    <tr>
-									<th>
-                                        <select name="hora_inicio" id="" class="select-group">
-                                            
-                                        </select>
-                                    </th>
-									<th>
-                                        <select name="hora_final" id="" class="select-group">
-                                          
-                                        </select>
-                                    </th>
-									<th>
-                                        <select name="salon" id="" class="select-group">
+			<div class="contenedor-horario">
+				<div class="blur-overlay top"></div>
+				<div class="horarios-list" id="horario">
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Hora Inicio</b></span>
+						<span><b>Hora Final</b></span>
+						<span><b>Salon</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Profesor</b></span>
+						
+					</div>
+					<div class="horario-content">
+						<span name="hora_inicio" id="" class="select-group">
+							Selecciona Truno
+						
+						</span>
+						<span name="hora_final" id="" class="select-group">
+                                 Selecciona Turno
+							
+						</span>
+						<span><select name="salon" id="" class="select-group">
                                            
-                                        </select>
-                                    </th>
-									<th>
-                                        <select name="materia" id="" class="select-group">
+						</select></span>
+						<span><select name="materia" id="" class="select-group">
                                            
-                                        </select>
-                                    </th>
-									<th>
-                                        <select name="persona" id="" class="select-group">
+						</select></span>
+						<span><select name="persona" id="" class="select-group">
                                             
-                                        </select>
-                                    </th>
-									
-                                    </tr>
-                                    <tr>
-                                        <th>
-                                            <select name="hora_inicio" id="" class="select-group">
-                                                
-                                            </select>
-                                        </th>
-                                        <th>
-                                            <select name="hora_final" id="" class="select-group">
-                                              
-                                            </select>
-                                        </th>
-                                        <th>
-                                            <select name="salon" id="" class="select-group">
-                                               
-                                            </select>
-                                        </th>
-                                        <th>
-                                            <select name="materia" id="" class="select-group">
-                                               
-                                            </select>
-                                        </th>
-                                        <th>
-                                            <select name="persona" id="" class="select-group">
-                                                
-                                            </select>
-                                        </th>
-                                        
-                                        </tr>
-                                        <tr>
-                                            <th>
-                                                <select name="hora_inicio" id="" class="select-group">
-                                                    
-                                                </select>
-                                            </th>
-                                            <th>
-                                                <select name="hora_final" id="" class="select-group">
-                                                  
-                                                </select>
-                                            </th>
-                                            <th>
-                                                <select name="salon" id="" class="select-group">
-                                                   
-                                                </select>
-                                            </th>
-                                            <th>
-                                                <select name="materia" id="" class="select-group">
-                                                   
-                                                </select>
-                                            </th>
-                                            <th>
-                                                <select name="persona" id="" class="select-group">
-                                                    
-                                                </select>
-                                            </th>
-                                            
-                                            </tr>
-                                            
-								</tbody>
-
-							</table>
-                    
-						</section>
-						<button type="submit" id="btnEnviar">Enviar pa</button>
-                    </form>
-					</main>
+						</select></span>
+						
+					</div>
 				</div>
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Hora Inicio</b></span>
+						<span><b>Hora Final</b></span>
+						<span><b>Salon</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Profesor</b></span>
+						
+					</div>
+					<div class="horario-content">
+						<span name="hora_inicio" id="" class="select-group">
+							Selecciona Turno						
+						</span>
+						<span name="hora_final" id="" class="select-group">
+							Selecciona Turno							
+						</span>
+						<span><select name="salon" id="" class="select-group">
+                                           
+						</select></span>
+						<span><select name="materia" id="" class="select-group">
+                                           
+						</select></span>
+						<span><select name="persona" id="" class="select-group">
+                                            
+						</select></span>
+						
+					</div>
+				</div>
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Hora Inicio</b></span>
+						<span><b>Hora Final</b></span>
+						<span><b>Salon</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Profesor</b></span>
+						
+					</div>
+					<div class="horario-content">
+						<span name="hora_inicio" id="" class="select-group">
+							Selecciona Turno						
+						</span>
+						<span name="hora_final" id="" class="select-group">
+							Selecciona Turno							
+						</span>
+						<span><select name="salon" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="materia" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="persona" id="" class="select-group">
+											
+						</select></span>
+						
+					</div>
+				</div>
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Hora Inicio</b></span>
+						<span><b>Hora Final</b></span>
+						<span><b>Salon</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Profesor</b></span>
+						
+					</div>
+					<div class="horario-content">
+						<span name="hora_inicio" id="" class="select-group">
+							Selecciona Turno						
+						</span>
+						<span name="hora_final" id="" class="select-group">
+							Selecciona Turno							
+						</span>
+						<span><select name="salon" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="materia" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="persona" id="" class="select-group">
+											
+						</select></span>
+						
+					</div>
+				</div>
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Hora Inicio</b></span>
+						<span><b>Hora Final</b></span>
+						<span><b>Salon</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Profesor</b></span>
+						
+					</div>
+					<div class="horario-content">
+						<span name="hora_inicio" id="" class="select-group">
+							Selecciona Turno						
+						</span>
+						<span name="hora_final" id="" class="select-group">
+							Selecciona Turno							
+						</span>
+						<span><select name="salon" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="materia" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="persona" id="" class="select-group">
+											
+						</select></span>
+						
+					</div>
+				</div>
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Hora Inicio</b></span>
+						<span><b>Hora Final</b></span>
+						<span><b>Salon</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Profesor</b></span>
+						
+					</div>
+					<div class="horario-content">
+						<span name="hora_inicio" id="" class="select-group">
+							Selecciona Turno						
+						</span>
+						<span name="hora_final" id="" class="select-group">
+							Selecciona Turno							
+						</span>
+						<span><select name="salon" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="materia" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="persona" id="" class="select-group">
+											
+						</select></span>
+						
+					</div>
+				</div>
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Hora Inicio</b></span>
+						<span><b>Hora Final</b></span>
+						<span><b>Salon</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Profesor</b></span>
+						
+					</div>
+					<div class="horario-content">
+						<span name="hora_inicio" id="" class="select-group">
+							Selecciona Turno						
+						</span>
+						<span name="hora_final" id="" class="select-group">
+							Selecciona Turno							
+						</span>
+						<span><select name="salon" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="materia" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="persona" id="" class="select-group">
+											
+						</select></span>
+						
+					</div>
+				</div>
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Hora Inicio</b></span>
+						<span><b>Hora Final</b></span>
+						<span><b>Salon</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Profesor</b></span>
+						
+					</div>
+					<div class="horario-content">
+						<span name="hora_inicio" id="" class="select-group">
+							Selecciona Turno						
+						</span>
+						<span name="hora_final" id="" class="select-group">
+							Selecciona Turno							
+						</span>
+						<span><select name="salon" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="materia" id="" class="select-group">
+										   
+						</select></span>
+						<span><select name="persona" id="" class="select-group">
+											
+						</select></span>
+						
+					</div>
+				</div>						
 
 			</div>
+			<div class="blur-overlay bottom"></div>
+		</div>
+			<button type="button" class="btnEnviar" id="btnEnviar">enviarrrrrr</button>
+
+			
 
 		</main>
 		<!-- MAIN -->
