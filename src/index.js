@@ -1047,46 +1047,58 @@ app.put('/api/editarsur/:id', async (req, res) => {
 // ------------------------------- RUTA DE CONSULTAR TODOS LOS REGISTROS --------------------------------
 
 app.get('/api/consulta', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
     const query = `
-   SELECT DISTINCT
-    p.id_persona,
-    CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
-    g.nom_grupo AS grupo,
-    m.nom_materia AS materia,
-    h.dia_horario,
-    h.hora_inicio,
-    h.hora_final,
-    DATE_FORMAT(a.fecha_asistencia, '%d/%m/%y') AS fecha_asistencia, 
-    a.validacion_asistencia AS asistencia,
-    r.validacion_retardo AS retardo,
-    f.validacion_falta AS falta,
-    per.anio,
-    per.periodo
-FROM
-    persona AS p
-    JOIN horario AS h ON p.id_persona = h.id_persona
-    JOIN contenedor AS c ON h.id_contenedor = c.id_contenedor
-    JOIN periodos AS per ON c.id_periodo = per.id_periodo
-    JOIN grupo AS g ON h.id_grupo = g.id_grupo
-    JOIN materia AS m ON h.id_materia = m.id_materia
-    JOIN asistencia AS a ON h.id_horario = a.id_horario
-    LEFT JOIN retardo r ON h.id_horario = r.id_horario
-    LEFT JOIN falta f ON h.id_horario = f.id_horario
-ORDER BY
-    persona,
-    dia_horario,
-    hora_inicio;
-`;
+        SELECT DISTINCT
+            p.id_persona,
+            CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
+            g.nom_grupo AS grupo,
+            m.nom_materia AS materia,
+            h.dia_horario,
+            h.hora_inicio,
+            h.hora_final,
+            DATE_FORMAT(a.fecha_asistencia, '%d/%m/%y') AS fecha_asistencia, 
+            a.validacion_asistencia AS asistencia,
+            r.validacion_retardo AS retardo,
+            f.validacion_falta AS falta,
+            per.anio,
+            per.periodo
+        FROM
+            persona AS p
+            JOIN horario AS h ON p.id_persona = h.id_persona
+            JOIN contenedor AS c ON h.id_contenedor = c.id_contenedor
+            JOIN periodos AS per ON c.id_periodo = per.id_periodo
+            JOIN grupo AS g ON h.id_grupo = g.id_grupo
+            JOIN materia AS m ON h.id_materia = m.id_materia
+            JOIN asistencia AS a ON h.id_horario = a.id_horario
+            LEFT JOIN retardo r ON h.id_horario = r.id_horario
+            LEFT JOIN falta f ON h.id_horario = f.id_horario
+        WHERE h.id_escuela = ?
+        ORDER BY
+            persona,
+            dia_horario,
+            hora_inicio;
+    `;
 
     try {
-        const [results] = await conexion.promise().query(query);
-        if (results.length === 0) {
-            return res.status(404).json({ error: 'No records found' });
-        }
-        res.json(results);
+        const [results] = await conexion.promise().query(query, [idEscuela]);
+        
+        // Respuesta estandarizada
+        res.status(200).json({
+            success: true,
+            data: results,
+            message: results.length > 0 ? 'Datos obtenidos' : 'No hay registros',
+            count: results.length
+        });
+        
     } catch (err) {
         console.error('Error fetching records:', err);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({
+            success: false,
+            data: null,
+            message: 'Error en el servidor',
+            error: err.message
+        });
     }
 });
 
@@ -1148,21 +1160,22 @@ app.post('/agregarReporte', (req, res) => {
     const { id_tiporeporte, descripcion } = req.body;
     const ID_usuario = req.session.userId;  
     const nom_usuario = req.session.userName; 
+    let idEscuela = req.session.id_escuela;
 
-    console.log('Datos recibidos en /agregarReporte:', { id_tiporeporte, descripcion, ID_usuario, nom_usuario });
+    console.log('Datos recibidos en /agregarReporte:', { id_tiporeporte, descripcion, ID_usuario, nom_usuario, idEscuela });
 
-    if (!id_tiporeporte || !descripcion || !ID_usuario || !nom_usuario) {
+    if (!id_tiporeporte || !descripcion || !ID_usuario || !nom_usuario || !idEscuela) {
         console.error(' ERROR: Datos incompletos:', { id_tiporeporte, descripcion, ID_usuario, nom_usuario });
         return res.status(400).json({ success: false, message: 'Faltan datos para registrar el reporte.' });
     }
 
 
     const query = `
-        INSERT INTO reportes (id_tiporeporte, descripcion, ID_usuario, fecha_reporte)
-        VALUES (?, ?, ?, NOW())
+        INSERT INTO reportes (id_tiporeporte, descripcion, ID_usuario, fecha_reporte, id_escuela)
+        VALUES (?, ?, ?, NOW(), ?)
     `;
 
-    conexion.execute(query, [id_tiporeporte, descripcion, ID_usuario], (err, result) => {
+    conexion.execute(query, [id_tiporeporte, descripcion, ID_usuario, idEscuela], (err, result) => {
         if (err) {
             console.error(' ERROR en la consulta SQL:', err);
             return res.status(500).json({ success: false, message: 'Hubo un error al agregar el reporte.' });
@@ -1180,7 +1193,8 @@ app.get('/obtenerUsuario', (req, res) => {
     res.json({ 
         success: true, 
         ID_usuario: req.session.userId, 
-        nom_usuario: req.session.userName 
+        nom_usuario: req.session.userName, 
+        idEscuela: req.session.id_escuela
     });
 });
 
@@ -1188,6 +1202,7 @@ app.get('/obtenerUsuario', (req, res) => {
 
 // Ruta para obtener todos los reportes con el nombre del usuario
 app.get('/obtenerReportes', (req, res) => {
+    let idEscuela = req.session.id_escuela;
     const query = `
         SELECT 
             r.id_reporte, 
@@ -1199,9 +1214,11 @@ app.get('/obtenerReportes', (req, res) => {
         FROM reportes r
         JOIN tiporeportes t ON r.id_tiporeporte = t.id_tiporeporte
         JOIN usuario u ON r.id_usuario = u.id_usuario
+        WHERE r.id_escuela = ?
+        ORDER BY r.fecha_reporte DESC
     `;
 
-    conexion.query(query, (err, results) => {
+    conexion.query(query, idEscuela, (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Error al obtener reportes' });

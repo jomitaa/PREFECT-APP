@@ -108,23 +108,100 @@ function createToast(type, icon, title, text) {
 }
 
 
+const style = document.createElement('style');
+style.textContent = `
+  .no-horarios-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #666;
+    font-size: 1.2rem;
+  }
+  .no-horarios-message i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #aaa;
+  }
+`;
+document.head.appendChild(style);
 
     //--------------------------------------------------------------- CODIGO CONSULTA --------------------------
     const contenedor = document.getElementById("horario");
+    contenedor.innerHTML = `
+  
+`;
 
     // Función para obtener los datos de la consulta
     async function fetchConsulta() {
         try {
             const response = await fetch('/api/consulta');
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud: ${response.status}`);
+            const contentType = response.headers.get('content-type');
+            
+            // Verificar si la respuesta es JSON válido
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('La respuesta no es JSON válido');
             }
-            const consulta = await response.json();
-            mostrar(consulta);
+    
+            const result = await response.json();
+            
+            // Verificar estructura de respuesta
+            if (!result || typeof result !== 'object') {
+                throw new Error('Estructura de respuesta inválida');
+            }
+    
+            // Manejar errores del servidor
+            if (!result.success) {
+                throw new Error(result.message || 'Error en el servidor');
+            }
+    
+            // Caso sin datos
+            if (result.count === 0 || !result.data || result.data.length === 0) {
+                mostrarMensajeNoDatos(result.message || 'No hay registros disponibles');
+                return;
+            }
+    
+            // Caso con datos válidos
+            mostrar(result.data);
+            
         } catch (error) {
-            console.error('Error al obtener los datos de la consulta:', error);
-            contenedor.innerHTML = '<tr><td colspan="10">Error al cargar los datos</td></tr>';
+            console.error('Error en fetchConsulta:', error);
+            mostrarMensajeError(error);
+            
         }
+    }
+    
+    // Nueva función para mostrar mensaje de "no hay datos"
+    function mostrarMensajeNoDatos() {
+        contenedor.innerHTML = `
+            <div class="no-horarios-message">
+                <i class="fas fa-database"></i>
+                <p>No se encontraron registros de asistencia</p>
+            </div>
+        `;
+        createToast(
+            "advertencia",
+            "fa-solid fa-triangle-exclamation",
+            "Información",
+            "No hay registros de asistencia para mostrar."
+        );
+    }
+    
+    // Nueva función para mostrar mensaje de error
+    function mostrarMensajeError() {
+        contenedor.innerHTML = `
+            <div class="no-horarios-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Error al cargar los datos</p>
+            </div>
+        `;
+        createToast(
+            "error",
+            "fa-solid fa-circle-exclamation",
+            "Error",
+            "Hubo un problema al cargar los datos."
+        );
     }
 
     // Función para mostrar los datos de la consulta en la tabla
@@ -232,7 +309,15 @@ function createToast(type, icon, title, text) {
             if (!response.ok) {
                 throw new Error(`Error en la solicitud: ${response.status}`);
             }
-            const consulta = await response.json();
+            const resultado = await response.json();
+        
+            // Verificar si la respuesta tiene la estructura esperada
+            if (!resultado.success || !Array.isArray(resultado.data)) {
+                throw new Error('Estructura de datos inválida');
+            }
+    
+            const consulta = resultado.data; // Accedemos al array dentro de data
+            
             
     
             const horariosFiltrados = consulta.filter(consulta => {

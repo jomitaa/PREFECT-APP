@@ -1,3 +1,24 @@
+let alerta = document.querySelector(".alerta");
+
+function createToast(type, icon, title, text) {
+    let newToast = document.createElement("div");
+    newToast.innerHTML = `
+        <div class="toast ${type}">
+            <div class="icono">
+                <i class="${icon}"></i>
+            </div>
+            <div class="content">
+                <div class="title">${title}</div>
+                <span>${text}</span>
+            </div>
+            <i style="cursor: pointer;" class="close fa-solid fa-xmark"
+               onclick="(this.parentElement).remove()"></i>
+        </div>`;
+
+    alerta.appendChild(newToast);
+    newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
 
     try {
@@ -29,6 +50,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error al cargar los filtros:', error);
     }
 });
+
+
+
 
 // ✅ Función para llenar selects
 function llenarSelect(id, datos) {
@@ -63,6 +87,7 @@ function llenarSelect(id, datos) {
         select.appendChild(option);
     });
 }
+
 
 
     // Obtener referencias del modal y botón de cerrar
