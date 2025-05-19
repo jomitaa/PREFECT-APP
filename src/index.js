@@ -544,15 +544,24 @@ app.post('/register', async (req, res) => {
 app.get('/confirm/:token', async (req, res) => {
     const { token } = req.params;
 
+    console.log("🔐 Token recibido en URL:", token);
+    console.log("🧠 Tokens activos en memoria:", Array.from(tokenStore.keys()));
+
     const userData = tokenStore.get(token);
 
     if (!userData) {
+        console.warn("⚠️ Token no encontrado o expirado.");
         return res.status(400).send("Token inválido o expirado.");
     }
 
+    console.log("✅ Datos del usuario recuperados:", userData);
+
     try {
-        // ✅ Insertar usuario en la base de datos una vez confirmado
-        const queryInsert = `INSERT INTO usuario (nom_usuario, correo, cargo, contraseña, id_escuela) VALUES (?, ?, ?, ?, ?)`;
+        const queryInsert = `
+            INSERT INTO usuario (nom_usuario, correo, cargo, contraseña, id_escuela)
+            VALUES (?, ?, ?, ?, ?)
+        `;
+
         await query(queryInsert, [
             userData.userName,
             userData.userEmail,
@@ -561,18 +570,19 @@ app.get('/confirm/:token', async (req, res) => {
             userData.idEscuela
         ]);
 
-        // 🔄 Eliminar el token del almacenamiento temporal
-          // Elimina el token después del registro
-          tokenStore.delete(token);
+        console.log("✅ Usuario insertado correctamente.");
 
-          // Redirige a la página de confirmación
-          res.sendFile(path.join(__dirname, 'pages', 'confirmacion.html'));
-  
+        tokenStore.delete(token);
+        console.log("🧹 Token eliminado de memoria.");
+
+        res.sendFile(path.join(__dirname, 'pages', 'confirmacion.html'));
+
     } catch (err) {
-        console.error("Error al confirmar usuario:", err);
+        console.error("❌ Error al confirmar usuario:", err);
         res.status(500).send("Error al procesar la confirmación.");
     }
 });
+
 
 // --------------------------------  FIN REGISTRAR  -------------------------
 
