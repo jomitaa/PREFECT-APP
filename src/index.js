@@ -478,20 +478,21 @@ const transporter = nodemailer.createTransport({
 // --------------------------------  RUTA DE REGISTRO  --------------------------------
 
 app.post('/register', async (req, res) => {
-    console.log('Datos recibidos en el servidor:', req.body);
+    console.log('📩 Datos recibidos en el servidor (registro):', req.body);
 
-    const { userName, userEmail, userCargo, userPassword, confirmar_contrasena, idEscuela: idEscuelaBody } = req.body;
-    
-        let idEscuela;
-        if (req.session.cargo === 'empresa') {
-            idEscuela = idEscuelaBody;
-        } else {
-            idEscuela = req.session.id_escuela;
-        }
+    const {
+        userName,
+        userEmail,
+        userCargo,
+        userPassword,
+        confirmar_contrasena,
+        idEscuela
+    } = req.body;
 
-
-    if (!userName || !userEmail || !userCargo || !userPassword || !confirmar_contrasena) {
-        return res.json({ success: false, message: 'Todos los campos son obligatorios.' });
+    // Validación de campos
+    if (!userName || !userEmail || !userCargo || !userPassword || !confirmar_contrasena || !idEscuela) {
+        console.warn('⚠️ Faltan campos en el registro:', req.body);
+        return res.json({ success: false, message: 'Todos los campos son obligatorios, incluyendo escuela.' });
     }
 
     if (userPassword !== confirmar_contrasena) {
@@ -499,19 +500,19 @@ app.post('/register', async (req, res) => {
     }
 
     try {
-        // Verificar si el usuario ya existe
+        // Verificar si el correo ya está registrado
         const existingUser = await query("SELECT * FROM usuario WHERE correo = ?", [userEmail]);
         if (existingUser.length > 0) {
             return res.json({ success: false, message: 'El correo ya está registrado.' });
         }
 
-        // 🔐 Encriptar la contraseña
+        // Encriptar contraseña
         const hashedPassword = await bcrypt.hash(userPassword, saltRounds);
 
-        // 🔑 Generar un token de confirmación
+        // Generar token de confirmación
         const confirmationToken = crypto.randomBytes(32).toString("hex");
 
-        // 📦 Guardar los datos temporalmente con la contraseña encriptada
+        // Guardar temporalmente el registro
         tokenStore.set(confirmationToken, {
             userName,
             userEmail,
@@ -519,15 +520,19 @@ app.post('/register', async (req, res) => {
             userPassword: hashedPassword,
             idEscuela
         });
-        
 
-        //  Enviar correo de confirmación
-        const confirmationLink = `https://prefect-app-production.up.railway.app/confirm/${confirmationToken}`;
+        const baseUrl = process.env.NODE_ENV === 'production'
+            ? 'https://prefect-app-production.up.railway.app'
+            : 'http://localhost:3000';
+
+        const confirmationLink = `${baseUrl}/confirm/${confirmationToken}`;
+        console.log("🔗 Link de confirmación generado:", confirmationLink);
+
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: userEmail,
             subject: "Confirma tu registro",
-            text: `Hola ${userName}, por favor confirma tu cuenta haciendo clic en el siguiente enlace: ${confirmationLink}`
+            text: `Hola ${userName}, por favor confirma tu cuenta haciendo clic en el siguiente enlace:\n\n${confirmationLink}`
         };
 
         await transporter.sendMail(mailOptions);
@@ -535,76 +540,11 @@ app.post('/register', async (req, res) => {
         res.json({ success: true, message: "Registro iniciado. Revisa tu email para confirmar la cuenta." });
 
     } catch (err) {
-        console.error("Error en el registro:", err);
+        console.error("❌ Error en el proceso de registro:", err);
         res.json({ success: false, message: "Error al crear la cuenta." });
     }
 });
-// --------------------------------  RUTA DE CONFIRMACIÓN  --------------------------------
 
-app.get('/confirm/:token', async (req, res) => {
-    const { token } = req.params;
-
-    console.log("🔐 Token recibido en URL:", token);
-    console.log("🧠 Tokens activos en memoria:", Array.from(tokenStore.keys()));
-
-    const userData = tokenStore.get(token);
-
-    if (!userData) {
-        console.warn("⚠️ Token no encontrado o expirado.");
-        return res.status(400).send("Token inválido o expirado.");
-    }
-
-    // Validar que idEscuela esté presente
-    if (!userData.idEscuela) {
-        console.warn("⛔ No se proporcionó idEscuela en los datos del token:", userData);
-        return res.status(400).send("Error: No se asignó una escuela a esta cuenta.");
-    }
-
-    console.log("✅ Datos del usuario recuperados:", userData);
-    console.log("📌 Escuela asociada al usuario:", userData.idEscuela);
-
-    try {
-        const queryInsert = `
-            INSERT INTO usuario (nom_usuario, correo, cargo, contraseña, id_escuela)
-            VALUES (?, ?, ?, ?, ?)
-        `;
-
-        await query(queryInsert, [
-            userData.userName,
-            userData.userEmail,
-            userData.userCargo,
-            userData.userPassword,
-            userData.idEscuela
-        ]);
-
-        console.log("✅ Usuario insertado correctamente en la base de datos.");
-
-        tokenStore.delete(token);
-        console.log("🧹 Token eliminado de memoria.");
-
-        res.sendFile(path.join(__dirname, 'pages', 'confirmacion.html'));
-
-    } catch (err) {
-        console.error("❌ Error al confirmar usuario:", err);
-        res.status(500).send("Error al procesar la confirmación.");
-    }
-});
-
-
-
-// --------------------------------  FIN REGISTRAR  -------------------------
-
-// -------------------------------- CERRAR SESION  --------------------------------
-app.post('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            console.error('Error al cerrar sesión:', err);
-            res.sendStatus(500);
-        } else {
-            res.sendStatus(200);
-        }
-    });
-});
 // --------------------------------  FIN CERRAR SEISON  -------------------------
 
 
