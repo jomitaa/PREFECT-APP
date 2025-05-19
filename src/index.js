@@ -554,7 +554,14 @@ app.get('/confirm/:token', async (req, res) => {
         return res.status(400).send("Token inválido o expirado.");
     }
 
+    // Validar que idEscuela esté presente
+    if (!userData.idEscuela) {
+        console.warn("⛔ No se proporcionó idEscuela en los datos del token:", userData);
+        return res.status(400).send("Error: No se asignó una escuela a esta cuenta.");
+    }
+
     console.log("✅ Datos del usuario recuperados:", userData);
+    console.log("📌 Escuela asociada al usuario:", userData.idEscuela);
 
     try {
         const queryInsert = `
@@ -570,7 +577,7 @@ app.get('/confirm/:token', async (req, res) => {
             userData.idEscuela
         ]);
 
-        console.log("✅ Usuario insertado correctamente.");
+        console.log("✅ Usuario insertado correctamente en la base de datos.");
 
         tokenStore.delete(token);
         console.log("🧹 Token eliminado de memoria.");
@@ -582,6 +589,7 @@ app.get('/confirm/:token', async (req, res) => {
         res.status(500).send("Error al procesar la confirmación.");
     }
 });
+
 
 
 // --------------------------------  FIN REGISTRAR  -------------------------
