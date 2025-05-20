@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     userName: false,
     userEmail: false,
     userPassword: false,
-    userCargo: true, // fijo como admin
+    userCargo: true,
     idEscuela: false
   };
 
@@ -46,7 +46,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("❌ Error al cargar escuelas:", err);
   }
 
-  // Validaciones
   inputUser.addEventListener("input", () =>
     validarCampo(userNameRegex, inputUser, "userName", "Usuario inválido")
   );
@@ -64,7 +63,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     limpiarErrorSelect(selectEscuela);
   });
 
-  // Submit del formulario
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
