@@ -544,6 +544,31 @@ app.post('/register', async (req, res) => {
         res.json({ success: false, message: "Error al crear la cuenta." });
     }
 });
+// --------------------------------  CONFIRMACIÓN DE REGISTRO POR TOKEN  --------------------------------
+app.get('/confirm/:token', async (req, res) => {
+  const { token } = req.params;
+
+  const userData = tokenStore.get(token);
+  if (!userData) {
+    return res.status(400).send("⚠️ Token inválido o expirado.");
+  }
+
+  const { userName, userEmail, userCargo, userPassword, idEscuela } = userData;
+
+  try {
+    await query(`
+      INSERT INTO usuario (nom_usuario, correo, cargo, contraseña, id_escuela)
+      VALUES (?, ?, ?, ?, ?)
+    `, [userName, userEmail, userCargo, userPassword, idEscuela]);
+
+    tokenStore.delete(token);
+
+    return res.send("✅ Usuario registrado correctamente. Ya puedes iniciar sesión.");
+  } catch (error) {
+    console.error("❌ Error insertando usuario confirmado:", error);
+    return res.status(500).send("Error al registrar usuario.");
+  }
+});
 
 // --------------------------------  FIN CERRAR SEISON  -------------------------
 
