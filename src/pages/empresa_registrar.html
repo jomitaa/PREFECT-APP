@@ -41,7 +41,6 @@
           <div>
             <label>
               <i class="bx bxs-pin"></i>
-              <!-- Solo muestra 'Administrador', el valor real se envía con hidden -->
               <input type="hidden" name="userCargo" value="admin" />
               <input type="text" value="Administrador" disabled />
             </label>
@@ -49,9 +48,8 @@
           <div>
             <label>
               <i class='bx bx-building-house'></i>
-              <select name="idEscuela" required>
-                <option disabled selected>Selecciona la escuela</option>
-                <!-- Opciones dinámicas -->
+              <select name="idEscuela" required disabled>
+                <option value="" disabled selected>Selecciona la escuela</option>
               </select>
             </label>
           </div>
@@ -76,8 +74,6 @@
     </div>
   </div>
 
-  <!-- Script corregido sin /public -->
   <script src="/registrar_empresa.js"></script>
 </body>
 </html>
-

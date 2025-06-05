@@ -1,16 +1,12 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const form = document.querySelector(".form-register");
-  if (!form) {
-    console.error("⛔ No se encontró el formulario .form-register");
-    return;
-  }
+  const selectEscuela = form.querySelector('select[name="idEscuela"]');
 
   const inputUser = form.querySelector('input[name="userName"]');
   const inputEmail = form.querySelector('input[name="userEmail"]');
   const inputPass = form.querySelector('input[name="userPassword"]');
   const inputConfirm = form.querySelector('input[name="confirmar_contrasena"]');
   const inputCargo = form.querySelector('input[name="userCargo"]');
-  const selectEscuela = form.querySelector('select[name="idEscuela"]');
   const alertaError = form.querySelector(".alerta-error");
   const alertaExito = form.querySelector(".alerta-exito");
 
@@ -26,7 +22,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
   const passwordRegex = /^.{4,12}$/;
 
-  // Cargar escuelas dinámicamente
+  // Deshabilitar el select mientras carga
+  selectEscuela.disabled = true;
+
+  // Cargar escuelas
   try {
     const response = await fetch("/api/escuelas");
     const escuelas = await response.json();
@@ -40,8 +39,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       selectEscuela.appendChild(option);
     });
 
+    selectEscuela.disabled = false;
     console.log("🏫 Opciones cargadas:", escuelas);
-    console.log("🔍 Contenido final del select:", selectEscuela.innerHTML);
   } catch (err) {
     console.error("❌ Error al cargar escuelas:", err);
   }
@@ -58,6 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   inputConfirm.addEventListener("input", () =>
     validarCampo(passwordRegex, inputConfirm, "confirmar_contrasena", "Contraseña inválida")
   );
+
   selectEscuela.addEventListener("change", () => {
     estadoValidacionEmpresa.idEscuela = !!selectEscuela.value;
     limpiarErrorSelect(selectEscuela);
@@ -67,17 +67,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     e.preventDefault();
 
     const idEscuelaSeleccionada = selectEscuela.value;
-    console.log("📤 Escuela seleccionada en submit:", idEscuelaSeleccionada);
+    console.log("🎓 Escuela seleccionada:", idEscuelaSeleccionada);
 
-    if (!idEscuelaSeleccionada || idEscuelaSeleccionada === "Selecciona la escuela") {
+    if (!idEscuelaSeleccionada || idEscuelaSeleccionada === "") {
       mostrarMensaje(alertaError, "Selecciona una escuela válida.", false);
       marcarErrorSelect(selectEscuela);
       return;
-    } else {
-      limpiarErrorSelect(selectEscuela);
     }
 
-    if (Object.values(estadoValidacionEmpresa).every(v => v)) {
+    if (Object.values(estadoValidacionEmpresa).every(Boolean)) {
       const data = {
         userName: inputUser.value,
         userEmail: inputEmail.value,
