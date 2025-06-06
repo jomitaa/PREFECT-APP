@@ -942,37 +942,32 @@ app.get('/api/usuarios/:id', async (req, res) => {
 });
 
 // Ruta para actualizar administrador
-app.put('/api/usuarios/:id', async (req, res) => {
-    const { id } = req.params;
-    const { nom_usuario, contrasena } = req.body;
+app.put('/api/editarsur/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nom_usuario, correo, id_escuela, contrasena } = req.body;
 
-    try {
-        // Si no envían contraseña nueva
-        if (!contrasena || contrasena.trim() === '') {
-            // Solo actualizar nombre de usuario
-            await conexion.promise().query(`
-                UPDATE usuario
-                SET nom_usuario = ?
-                WHERE ID_usuario = ? AND cargo = 'admin'
-            `, [nom_usuario, id]);
-        } else {
-            // Si envían nueva contraseña, la encriptamos
-            const hashedPassword = await bcrypt.hash(contrasena, 10);
+  try {
+    let query = 'UPDATE usuarios SET nom_usuario = ?, correo = ?, id_escuela = ?';
+    const params = [nom_usuario, correo, id_escuela];
 
-            await conexion.promise().query(`
-                UPDATE usuario
-                SET nom_usuario = ?, contraseña = ?
-                WHERE ID_usuario = ? AND cargo = 'admin'
-            `, [nom_usuario, hashedPassword, id]);
-        }
-
-        res.json({ message: 'Administrador actualizado exitosamente.' });
-
-    } catch (error) {
-        console.error('Error actualizando administrador:', error);
-        res.status(500).json({ message: 'Error interno del servidor.' });
+    if (contrasena && contrasena.trim() !== '') {
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash(contrasena, 10);
+      query += ', contrasena = ?';
+      params.push(hashedPassword);
     }
+
+    query += ' WHERE ID_usuario = ?';
+    params.push(id);
+
+    await db.query(query, params);
+    res.sendStatus(200);
+  } catch (err) {
+    console.error('Error al actualizar usuario:', err);
+    res.status(500).json({ error: 'Error al actualizar usuario' });
+  }
 });
+
 
 // ------------------------------- RUTA DE MOSTRAR USUARIOS  --------------------------------
 

@@ -9,8 +9,6 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
 <body>
-
-<!-- Menú lateral -->
 <section id="sidebar">
   <a href="#" class="brand"><i class="fa-solid fa-building"></i> PREFECT APP</a>
   <ul class="side-menu">
@@ -18,8 +16,6 @@
     <li><a href="/pages/empresa_editarusuarios.html" class="active"><i class="fa-solid fa-user-pen"></i> Editar Administradores</a></li>
   </ul>
 </section>
-
-<!-- Contenido principal -->
 <section id="content">
   <nav>
     <i class='bx bx-menu toggle-sidebar'></i>
@@ -31,35 +27,26 @@
       </ul>
     </div>
   </nav>
-
   <main>
     <h1 class="title">Editar Administradores</h1>
     <div class="info-data">
       <section class="joma">
-        <div class="todo" id="contenedor-usuarios">
-          <!-- Usuarios insertados dinámicamente -->
-        </div>
+        <div class="todo" id="contenedor-usuarios"></div>
       </section>
-
-      <!-- Modal de edición -->
       <section class="modal" id="modal-editar">
         <div class="modal__container">
           <h2 class="modal__title">Editar Administrador</h2>
           <form class="form form-register" id="formEditarUsuario">
-            <label>
-              <i class='bx bx-user'></i>
-              <input type="text" id="nombreEditar" placeholder="Nombre de Usuario" required>
-            </label>
-            <label>
-              <i class='bx bx-envelope'></i>
-              <input type="email" id="correoEditar" placeholder="Correo electrónico" required>
-            </label>
-            <label>
-              <i class='bx bx-buildings'></i>
+            <label><i class='bx bx-user'></i>
+              <input type="text" id="nombreEditar" placeholder="Nombre de Usuario" required></label>
+            <label><i class='bx bx-envelope'></i>
+              <input type="email" id="correoEditar" placeholder="Correo electrónico" required></label>
+            <label><i class='bx bx-buildings'></i>
               <select id="escuelaEditar" required>
                 <option value="">Selecciona una escuela</option>
-              </select>
-            </label>
+              </select></label>
+            <label><i class='bx bx-lock'></i>
+              <input type="password" id="contrasenaEditar" placeholder="Nueva contraseña (opcional)"></label>
             <button type="button" class="btnEditar">Confirmar Edición</button>
             <div class="alerta-error"></div>
             <div class="alerta-exito"></div>
@@ -67,8 +54,6 @@
           <a href="#" class="modal__close2">Cancelar</a>
         </div>
       </section>
-
-      <!-- Modal de borrar -->
       <section class="modal2" id="modal-borrar">
         <div class="modal__container2">
           <h2 class="modal__title">¿Borrar Administrador?</h2>
@@ -80,7 +65,6 @@
     </div>
   </main>
 </section>
-
 <script src="/empresa_Editar_Usuarios.js"></script>
 </body>
 </html>

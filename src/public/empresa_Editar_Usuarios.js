@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnBorrar = document.querySelector('.btnBorrar');
   const inputNombre = document.querySelector('#nombreEditar');
   const inputCorreo = document.querySelector('#correoEditar');
+  const inputContrasena = document.querySelector('#contrasenaEditar');
   const selectEscuela = document.querySelector('#escuelaEditar');
   const alertaExito = document.querySelector('.alerta-exito');
   const alertaError = document.querySelector('.alerta-error');
@@ -34,7 +35,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const res = await fetch('/api/usuarios');
       const usuarios = await res.json();
-
       contenedor.innerHTML = '';
 
       usuarios.forEach(usuario => {
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const divNavigation = document.createElement('div');
         divNavigation.className = 'navigation';
         divNavigation.innerHTML = `
-          <span onclick="abrirModal('${usuario.ID_usuario}', '${usuario.nom_usuario}', '${usuario.correo}', '${usuario.id_escuela}')">
+          <span onclick="abrirModal('${usuario.ID_usuario}', '${usuario.nom_usuario}', '${usuario.correo || ''}', '${usuario.id_escuela || ''}')">
             <i class="bx bx-edit"></i>
           </span>
           <span onclick="abrirModalBorrar('${usuario.ID_usuario}')">
@@ -82,8 +82,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     usuarioSeleccionadoId = id;
     inputNombre.value = nombre;
     inputCorreo.value = correo;
-    selectEscuela.value = escuela;
-    modal.classList.add('modal--show');
+    inputContrasena.value = '';
+    cargarEscuelas().then(() => {
+      selectEscuela.value = escuela;
+      modal.classList.add('modal--show');
+    });
   };
 
   window.abrirModalBorrar = (id) => {
@@ -92,17 +95,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   modalClose.addEventListener('click', () => {
-    modal.classList.remove('modal--show');
+    modal2.classList.remove('modal--show2');
   });
 
   modalClose2.addEventListener('click', () => {
-    modal2.classList.remove('modal--show2');
+    modal.classList.remove('modal--show');
   });
 
   btnEditar.addEventListener('click', async () => {
     const nuevoNombre = inputNombre.value.trim();
     const nuevoCorreo = inputCorreo.value.trim();
     const nuevaEscuela = selectEscuela.value;
+    const nuevaContrasena = inputContrasena.value.trim();
 
     if (!nuevoNombre || !nuevoCorreo || !nuevaEscuela) {
       alertaError.textContent = 'Todos los campos son obligatorios.';
@@ -111,14 +115,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
+      const body = {
+        nom_usuario: nuevoNombre,
+        correo: nuevoCorreo,
+        id_escuela: nuevaEscuela
+      };
+      if (nuevaContrasena) {
+        body.contrasena = nuevaContrasena;
+      }
+
       const res = await fetch(`/api/editarsur/${usuarioSeleccionadoId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nom_usuario: nuevoNombre,
-          correo: nuevoCorreo,
-          id_escuela: nuevaEscuela
-        }),
+        body: JSON.stringify(body)
       });
 
       if (res.ok) {
@@ -138,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnBorrar.addEventListener('click', async () => {
     try {
       const res = await fetch(`/api/editarsur/${usuarioSeleccionadoId}`, {
-        method: 'DELETE',
+        method: 'DELETE'
       });
 
       if (res.ok) {
@@ -155,7 +164,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Función cerrar sesión desde JS
   window.cerrarSesion = async () => {
     try {
       const res = await fetch('/logout', { method: 'POST' });
