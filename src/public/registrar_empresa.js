@@ -9,16 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const alertaErrorRegister = document.querySelector(".alerta-error-register");
   const alertaExitoRegister = document.querySelector(".alerta-exito-register");
 
-  const estadoValidacionCampos = {
-    userName: false,
-    userEmail: false,
-    userPassword: false,
-    confirmar_contrasena: false,
-    userCargo: false,
-    idEscuela: false,
-  };
-
-  // 🔄 Cargar escuelas y excluir ID = 2
+  // Cargar escuelas excluyendo la de ID 2
   fetch("/api/escuelas")
     .then(res => res.json())
     .then(data => {
@@ -46,24 +37,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const userCargo = inputCargo.value || "admin";
     const idEscuela = inputEscuela.value;
 
-    console.log("📤 Enviando datos:", { userName, userEmail, userPassword, confirmar_contrasena, userCargo, idEscuela });
-
-    // Validaciones
+    // Validaciones básicas
     if (!userName || !userEmail || !userPassword || !confirmar_contrasena || !userCargo || !idEscuela) {
-      alertaErrorRegister.textContent = "Todos los campos son obligatorios.";
-      alertaErrorRegister.style.display = "block";
+      if (alertaErrorRegister) {
+        alertaErrorRegister.textContent = "Todos los campos son obligatorios.";
+        alertaErrorRegister.style.display = "block";
+      }
       return;
     }
 
     if (userPassword !== confirmar_contrasena) {
-      alertaErrorRegister.textContent = "Las contraseñas no coinciden.";
-      alertaErrorRegister.style.display = "block";
+      if (alertaErrorRegister) {
+        alertaErrorRegister.textContent = "Las contraseñas no coinciden.";
+        alertaErrorRegister.style.display = "block";
+      }
       return;
     }
 
     if (idEscuela === "2") {
-      alertaErrorRegister.textContent = "No puedes seleccionar esa escuela.";
-      alertaErrorRegister.style.display = "block";
+      if (alertaErrorRegister) {
+        alertaErrorRegister.textContent = "No puedes seleccionar esa escuela.";
+        alertaErrorRegister.style.display = "block";
+      }
       return;
     }
 
@@ -75,21 +70,26 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const result = await response.json();
-      console.log("🟢 Respuesta del servidor:", result);
 
       if (result.success) {
-        alertaExitoRegister.textContent = result.message;
-        alertaExitoRegister.style.display = "block";
-        alertaErrorRegister.style.display = "none";
+        if (alertaExitoRegister) {
+          alertaExitoRegister.textContent = result.message || "Usuario registrado correctamente.";
+          alertaExitoRegister.style.display = "block";
+        }
+        if (alertaErrorRegister) alertaErrorRegister.style.display = "none";
         formRegister.reset();
       } else {
-        alertaErrorRegister.textContent = result.message;
-        alertaErrorRegister.style.display = "block";
+        if (alertaErrorRegister) {
+          alertaErrorRegister.textContent = result.message || "Ocurrió un error al registrar.";
+          alertaErrorRegister.style.display = "block";
+        }
       }
     } catch (err) {
       console.error("❌ Error al registrar:", err);
-      alertaErrorRegister.textContent = "Error al registrar el usuario.";
-      alertaErrorRegister.style.display = "block";
+      if (alertaErrorRegister) {
+        alertaErrorRegister.textContent = "Error de conexión o del servidor.";
+        alertaErrorRegister.style.display = "block";
+      }
     }
   });
 });
