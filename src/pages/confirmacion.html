@@ -3,31 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Confirmación de Registro</title>
     <link rel="stylesheet" href="/css/Login-Register.css">
+   
 </head>
 <body>
-
-    <body>
-        <div class="container-form register">
-            <div class="information">
-                <div class="info-childs">
-                    <h2>Registro Completo</h2>
-                    <p>Tu cuenta ha sido creada correctamente.</p>
-                    <a href="https://prefect-app-production.up.railway.app/pages/login.html"><input class="ini" type="button" value="Iniciar Sesión" id="sign-in"></a>
-                    <br>
-                    <p>¿Ya tienes cuenta? ¡Inicia sesión ahora!</p>
-                </div>
+    <!-- Modal de Términos -->
+    <div class="terms-modal active" id="termsModal">
+        <div class="terms-content">
+            <div class="terms-header">
+                <h2>Términos y Condiciones</h2>
             </div>
-            <div class="form-information">
-                <div class="form-information-childs">
-                    <h2>Gracias por registrarte</h2>
-                    <p>Revisa tu correo electrónico para confirmar tu cuenta.</p>
+            <div class="terms-text">
+               <h3>1. Aceptación de los Términos</h3>
+<p>
+  Al registrarse y utilizar la plataforma PREFECT APP (en adelante, "la Plataforma"), el usuario acepta expresamente cumplir con los presentes Términos y Condiciones. Si el usuario no acepta total o parcialmente estos términos, no deberá utilizar la Plataforma.
+</p>
+
+<h3>2. Definición de Roles</h3>
+<p>
+  PREFECT APP establece dos tipos de usuarios:
+</p>
+<ul>
+  <li><strong>Administrador:</strong> Persona con privilegios de gestión total sobre la Plataforma, incluyendo usuarios, horarios, reportes y configuración general.</li>
+  <li><strong>Prefecto:</strong> Persona con acceso limitado, encargada del registro y control de asistencia, retardos y faltas del personal docente.</li>
+</ul>
+
+<h3>3. Uso Autorizado y Buenas Prácticas</h3>
+<p>
+  La Plataforma está destinada exclusivamente a fines de gestión institucional en entornos educativos. El uso debe estar regido por principios de legalidad, integridad, veracidad y confidencialidad.
+</p>
+
+<h4>3.1 Obligaciones del Usuario</h4>
+<ul>
+  <li>Proporcionar datos verídicos en el registro y uso del sistema.</li>
+  <li>Utilizar el sistema conforme a su propósito funcional.</li>
+  <li>No suplantar la identidad de otros usuarios ni permitir el acceso a terceros con sus credenciales.</li>
+</ul>
+
+<h4>3.2 Prohibiciones</h4>
+<ul>
+  <li>Acceder, modificar o eliminar información sin autorización expresa.</li>
+  <li>Difundir, copiar o reutilizar contenido o datos obtenidos en la Plataforma con fines ajenos a los objetivos institucionales.</li>
+  <li>Realizar actividades que afecten la disponibilidad, seguridad o integridad del sistema.</li>
+</ul>
+
+<h3>4. Protección de Datos Personales</h3>
+<p>
+  PREFECT APP respeta y protege los datos personales de los usuarios, de acuerdo con las leyes locales de protección de datos. La información recopilada será utilizada exclusivamente para fines operativos, estadísticos y de mejora del servicio, y no será compartida con terceros sin el consentimiento del usuario, salvo requerimiento legal.
+</p>
+
+<h3>5. Seguridad de la Información</h3>
+<p>
+  Se han implementado mecanismos técnicos como cifrado de contraseñas, verificación de identidad mediante OTP y gestión segura de sesiones. Es responsabilidad del usuario mantener la confidencialidad de su contraseña y cerrar sesión al terminar el uso.
+</p>
+
+<h3>6. Responsabilidades del Administrador</h3>
+<p>
+  Los administradores se comprometen a:
+</p>
+<ul>
+  <li>Respetar la privacidad de la información registrada por los usuarios.</li>
+  <li>Configurar adecuadamente los permisos de acceso a cada perfil.</li>
+  <li>Auditar el uso del sistema para prevenir acciones indebidas.</li>
+</ul>
+
+<h3>7. Registro y Veracidad de Datos</h3>
+<p>
+  Los prefectos deben registrar con veracidad la asistencia, faltas y retardos de los docentes. Cualquier intento de manipulación, falsificación o alteración intencional de los datos podrá conllevar a la suspensión inmediata del usuario.
+</p>
+
+<h3>8. Disponibilidad del Servicio</h3>
+<p>
+  PREFECT APP trabaja para garantizar el acceso ininterrumpido a la Plataforma. Sin embargo, se reserva el derecho de suspender temporalmente el servicio por razones de mantenimiento, actualizaciones o fuerza mayor, notificando oportunamente a los usuarios.
+</p>
+
+<h3>9. Propiedad Intelectual</h3>
+<p>
+  Todos los derechos sobre la Plataforma, incluyendo su código fuente, diseño, estructura de base de datos y marca PREFECT APP, son propiedad exclusiva de la empresa desarrolladora y están protegidos por las leyes aplicables de propiedad intelectual.
+</p>
+
+<h3>10. Modificaciones</h3>
+<p>
+  La empresa se reserva el derecho de modificar en cualquier momento los presentes Términos y Condiciones. Las modificaciones entrarán en vigor una vez publicadas y notificadas. El uso continuado de la Plataforma implica la aceptación de dichas modificaciones.
+</p>
+
+<h3>11. Terminación del Acceso</h3>
+<p>
+  La empresa podrá suspender o eliminar cuentas de usuarios que incumplan estos Términos y Condiciones o que generen un uso indebido de la Plataforma, sin previo aviso si así lo justifica la gravedad de la infracción.
+</p>
+
+<h3>12. Jurisdicción y Legislación Aplicable</h3>
+<p>
+  Estos Términos y Condiciones se rigen por la legislación local aplicable en el país donde se presta el servicio. Cualquier conflicto que se derive del uso de la Plataforma será resuelto ante los tribunales competentes del mismo territorio.
+</p>
+
+            </div>
+            <div class="terms-footer">
+                <div class="terms-check">
+                    <input type="checkbox" id="acceptTerms">
+                    <label for="acceptTerms">Acepto los términos y condiciones</label>
+                </div>
+                <div class="terms-buttons">
+                    <button id="rejectBtn" class="terms-btn reject">Rechazar</button>
+                    <button id="acceptBtn" class="terms-btn accept" disabled>Aceptar</button>
                 </div>
             </div>
         </div>
-    </body>
-    
-    
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container-form register hidden" id="mainContent">
+        <div class="information">
+            <div class="info-childs">
+                <h2 id="mainTitle">Registro Completo</h2>
+                <p id="mainMessage">Tu cuenta ha sido creada correctamente.</p>
+                <a id="actionLink" href="https://prefect-app-production.up.railway.app/pages/login.html">
+                    <input class="ini" type="button" value="Iniciar Sesión" id="sign-in">
+                </a>
+                <div class="view-terms-btn">
+                    <input class="ini" type="button" value="Ver Términos Nuevamente" id="viewTermsBtn">
+                </div>
+                <br>
+                <p id="secondaryMessage">¿Ya tienes cuenta? ¡Inicia sesión ahora!</p>
+            </div>
+        </div>
+        <div class="form-information">
+            <div class="form-information-childs">
+                <h2 id="sideTitle">Gracias por registrarte</h2>
+                <p id="sideMessage">Revisa tu correo electrónico para confirmar tu cuenta.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const termsModal = document.getElementById('termsModal');
+            const acceptCheck = document.getElementById('acceptTerms');
+            const acceptBtn = document.getElementById('acceptBtn');
+            const rejectBtn = document.getElementById('rejectBtn');
+            const viewTermsBtn = document.getElementById('viewTermsBtn');
+            const mainContent = document.getElementById('mainContent');
+            
+            // Elementos de texto
+            const mainTitle = document.getElementById('mainTitle');
+            const mainMessage = document.getElementById('mainMessage');
+            const secondaryMessage = document.getElementById('secondaryMessage');
+            const sideTitle = document.getElementById('sideTitle');
+            const sideMessage = document.getElementById('sideMessage');
+            const actionLink = document.getElementById('actionLink');
+            const signInBtn = document.getElementById('sign-in');
+
+            // Mostrar modal al cargar con animación lenta
+            setTimeout(() => {
+                termsModal.classList.add('active');
+            }, 200);
+
+            // Habilitar botón de aceptar
+            acceptCheck.addEventListener('change', () => {
+                acceptBtn.disabled = !acceptCheck.checked;
+            });
+
+            // Cerrar modal con animación lenta
+            const closeModal = () => {
+                termsModal.classList.add('closing');
+                setTimeout(() => {
+                    termsModal.classList.remove('active', 'closing');
+                }, 800); // Aumentado a 800ms
+            };
+
+            // Aceptar términos
+            acceptBtn.addEventListener('click', async () => {
+                closeModal();
+                
+                // Configurar mensajes de éxito
+                mainTitle.textContent = '¡Registro Completado!';
+                mainMessage.textContent = 'Has aceptado los términos correctamente.';
+                sideTitle.textContent = 'Bienvenido/a';
+                sideMessage.textContent = 'Tu cuenta ha sido creada con éxito.';
+                
+                // Ocultar botón de ver términos
+                document.querySelector('.view-terms-btn').style.display = 'none';
+                
+                // Mostrar contenido principal con animación lenta
+                setTimeout(() => {
+                    mainContent.classList.remove('hidden');
+                    mainContent.classList.remove('rejected');
+                }, 500);
+                
+                // Enviar aceptación al servidor
+                try {
+                    await fetch('/confirm-registration', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ acceptTerms: true })
+                    });
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
+
+            // Rechazar términos
+            rejectBtn.addEventListener('click', async () => {
+                closeModal();
+                
+                // Configurar mensajes de rechazo
+                mainTitle.textContent = 'Registro Incompleto';
+                mainMessage.textContent = 'Debes aceptar los términos para completar el registro.';
+                sideTitle.textContent = 'Términos Requeridos';
+                sideMessage.textContent = 'Para usar nuestra plataforma es necesario aceptar los términos.';
+                actionLink.href = '/pages/register.html';
+                signInBtn.value = 'Volver a Registrar';
+                
+                // Mostrar contenido principal con animación lenta
+                setTimeout(() => {
+                    mainContent.classList.remove('hidden');
+                    mainContent.classList.add('rejected');
+                }, 500);
+                
+                // Mostrar botón de ver términos
+                document.querySelector('.view-terms-btn').style.display = 'block';
+                
+                // Enviar rechazo al servidor
+            });
+
+            // Ver términos nuevamente (con animación lenta)
+            viewTermsBtn.addEventListener('click', () => {
+                termsModal.classList.remove('closing');
+                termsModal.classList.add('active');
+                document.querySelector('.terms-content').style.transform = 'translateY(0)';
+                
+                // Restablecer el checkbox
+                acceptCheck.checked = false;
+                acceptBtn.disabled = true;
+            });
+        });
+    </script>
 </body>
 </html>

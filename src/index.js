@@ -553,31 +553,52 @@ app.post('/register', async (req, res) => {
 
 
 app.get('/confirm/:token', async (req, res) => {
-    const token = req.params.token;
+    const { token } = req.params;
     const userData = tokenStore.get(token);
 
     if (!userData) {
         return res.status(400).send("Token inválido o expirado.");
     }
 
-    const { userName, userEmail, userCargo, userPassword, idEscuela } = userData;
-
-    try {
-        await query(`
-            INSERT INTO usuario (nom_usuario, correo, cargo, contraseña, id_escuela)
-            VALUES (?, ?, ?, ?, ?)`,
-            [userName, userEmail, userCargo, userPassword, idEscuela]
-        );
-
-        tokenStore.delete(token); // Elimina el token para que no se re-use
-
-        res.sendFile(path.join(__dirname, 'pages', 'confirmacion.html'));  // o puedes hacer un redirect
-    } catch (err) {
-        console.error("Error insertando usuario confirmado:", err);
-        res.status(500).send("Error al registrar usuario.");
-    }
+    // Guarda el token en una cookie (para usarlo después en /confirm-registration)
+    res.cookie('confirmationToken', token, { maxAge: 900000, httpOnly: true });
+    res.sendFile(path.join(__dirname, 'pages', 'confirmacion.html')); // Envía el HTML con el modal
 });
 
+app.post('/confirm-registration', async (req, res) => {
+    const token = req.cookies.confirmationToken;
+    const { acceptTerms } = req.body; // true/false
+
+    const userData = tokenStore.get(token);
+    if (!userData) {
+        return res.json({ success: false, message: "Token inválido o expirado." });
+    }
+
+    try {
+        if (acceptTerms) {
+            // ✅ Insertar usuario en la base de datos
+            const queryInsert = `INSERT INTO usuario (nom_usuario, correo, cargo, contraseña, id_escuela) VALUES (?, ?, ?, ?, ?)`;
+            await query(queryInsert, [
+                userData.userName,
+                userData.userEmail,
+                userData.userCargo,
+                userData.userPassword,
+                userData.idEscuela
+            ]);
+            
+            tokenStore.delete(token);
+            return res.json({ success: true });
+        } else {
+            // ❌ Rechazó los términos - eliminamos el token
+            tokenStore.delete(token);
+            return res.json({ success: false });
+        }
+    } catch (err) {
+        console.error("Error al confirmar usuario:", err);
+        res.status(500).json({ success: false, message: "Error al procesar la confirmación." });
+    }
+});
+// --------------------------------  FIN REGISTRAR  -------------------------
 
 // --------------------------------  FIN CERRAR SEISON  -------------------------
 
