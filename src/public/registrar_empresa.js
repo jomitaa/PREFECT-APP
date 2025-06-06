@@ -1,100 +1,81 @@
-document.addEventListener("DOMContentLoaded", async function () {
-  const formulario = document.getElementById("formularioRegistro");
-  const inputNombre = document.getElementById("userName");
-  const inputCorreo = document.getElementById("userEmail");
-  const inputCargo = document.getElementById("userCargo");
-  const inputContrasena = document.getElementById("userPassword");
-  const inputConfirmarContrasena = document.getElementById("confirmar_contrasena");
-  const selectEscuela = document.getElementById("idEscuela");
+document.addEventListener("DOMContentLoaded", () => {
+  const formRegister = document.querySelector(".form-register");
+  const inputUser = formRegister.querySelector('input[name="userName"]');
+  const inputEmail = formRegister.querySelector('input[name="userEmail"]');
+  const inputCargo = formRegister.querySelector('input[name="userCargo"]') || formRegister.querySelector('select[name="userCargo"]');
+  const inputPass = formRegister.querySelector('input[name="userPassword"]');
+  const inputConfirmar_Contrasena = formRegister.querySelector('input[name="confirmar_contrasena"]');
+  const inputEscuela = formRegister.querySelector('select[name="idEscuela"]');
+  const alertaErrorRegister = document.querySelector(".alerta-error-register");
+  const alertaExitoRegister = document.querySelector(".alerta-exito-register");
 
-  const alertaExito = document.getElementById("alertaExito");
-  const alertaError = document.getElementById("alertaError");
+  const estadoValidacionCampos = {
+    userName: false,
+    userEmail: false,
+    userPassword: false,
+    confirmar_contrasena: false,
+    userCargo: false,
+    idEscuela: false,
+  };
 
-  // Cargar escuelas desde el backend
-  try {
-    const respuesta = await fetch("/api/escuelas");
-    const escuelas = await respuesta.json();
-
-    escuelas.forEach((escuela) => {
-      const opcion = document.createElement("option");
-      opcion.value = escuela.id_escuela;
-      opcion.textContent = escuela.nombre;
-      selectEscuela.appendChild(opcion);
+  // Cargar escuelas en el select
+  fetch("/api/escuelas")
+    .then(res => res.json())
+    .then(data => {
+      console.log("📚 Escuelas recibidas:", data);
+      inputEscuela.innerHTML = '<option value="">Selecciona una escuela</option>';
+      data.forEach(escuela => {
+        const option = document.createElement("option");
+        option.value = escuela.ID_escuela;
+        option.textContent = escuela.nom_escuela;
+        inputEscuela.appendChild(option);
+      });
+    })
+    .catch(error => {
+      console.error("❌ Error cargando escuelas:", error);
     });
 
-    selectEscuela.disabled = false;
-  } catch (error) {
-    console.error("Error al cargar escuelas:", error);
-    mostrarMensaje(alertaError, "No se pudieron cargar las escuelas. Intenta más tarde.", false);
-  }
-
-  formulario.addEventListener("submit", async function (e) {
+  formRegister.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    limpiarErrores();
+    const userName = inputUser.value;
+    const userEmail = inputEmail.value;
+    const userPassword = inputPass.value;
+    const confirmar_contrasena = inputConfirmar_Contrasena.value;
+    const userCargo = inputCargo.value || "admin";
+    const idEscuela = inputEscuela.value;
 
-    const nombre = inputNombre.value.trim();
-    const correo = inputCorreo.value.trim();
-    const cargo = inputCargo.value;
-    const contrasena = inputContrasena.value;
-    const confirmarContrasena = inputConfirmarContrasena.value;
-    const idEscuelaSeleccionada = selectEscuela.value;
+    console.log("📤 Enviando datos:", { userName, userEmail, userPassword, confirmar_contrasena, userCargo, idEscuela });
 
-    // Validaciones
-    if (!nombre || !correo || !cargo || !contrasena || !confirmarContrasena || !idEscuelaSeleccionada) {
-      mostrarMensaje(alertaError, "Todos los campos son obligatorios, incluyendo la escuela.", false);
+    if (!userName || !userEmail || !userPassword || !confirmar_contrasena || !userCargo || !idEscuela) {
+      alertaErrorRegister.textContent = "Todos los campos son obligatorios.";
+      alertaErrorRegister.style.display = "block";
       return;
     }
-
-    if (contrasena !== confirmarContrasena) {
-      mostrarMensaje(alertaError, "Las contraseñas no coinciden.", false);
-      return;
-    }
-
-    const datos = {
-      userName: nombre,
-      userEmail: correo,
-      userCargo: cargo,
-      userPassword: contrasena,
-      confirmar_contrasena: confirmarContrasena,
-      idEscuela: idEscuelaSeleccionada
-    };
-
-    console.log("📨 Enviando datos al backend:", datos);
 
     try {
-      const respuesta = await fetch("/register", {
+      const response = await fetch("/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(datos)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userName, userEmail, userPassword, confirmar_contrasena, userCargo, idEscuela }),
       });
 
-      const resultado = await respuesta.json();
+      const result = await response.json();
+      console.log("🟢 Respuesta del servidor:", result);
 
-      if (resultado.success) {
-        mostrarMensaje(alertaExito, resultado.message, true);
-        formulario.reset();
+      if (result.success) {
+        alertaExitoRegister.textContent = result.message;
+        alertaExitoRegister.style.display = "block";
+        alertaErrorRegister.style.display = "none";
+        formRegister.reset();
       } else {
-        mostrarMensaje(alertaError, resultado.message, false);
+        alertaErrorRegister.textContent = result.message;
+        alertaErrorRegister.style.display = "block";
       }
-    } catch (error) {
-      console.error("Error al registrar usuario:", error);
-      mostrarMensaje(alertaError, "Ocurrió un error al registrar el usuario.", false);
+    } catch (err) {
+      console.error("❌ Error al registrar:", err);
+      alertaErrorRegister.textContent = "Error al registrar el usuario.";
+      alertaErrorRegister.style.display = "block";
     }
   });
-
-  function mostrarMensaje(elemento, mensaje, exito) {
-    elemento.textContent = mensaje;
-    elemento.style.display = "block";
-    elemento.classList.toggle("alert-success", exito);
-    elemento.classList.toggle("alert-danger", !exito);
-  }
-
-  function limpiarErrores() {
-    alertaError.style.display = "none";
-    alertaExito.style.display = "none";
-    selectEscuela.classList.remove("is-invalid");
-  }
 });
