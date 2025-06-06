@@ -6,17 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputPass = formRegister.querySelector('input[name="userPassword"]');
   const inputConfirmar_Contrasena = formRegister.querySelector('input[name="confirmar_contrasena"]');
   const inputEscuela = formRegister.querySelector('select[name="idEscuela"]');
-  const alertaErrorRegister = document.querySelector(".alerta-error-register");
-  const alertaExitoRegister = document.querySelector(".alerta-exito-register");
 
-  const estadoValidacionCampos = {
-    userName: false,
-    userEmail: false,
-    userPassword: false,
-    confirmar_contrasena: false,
-    userCargo: false,
-    idEscuela: false,
-  };
+  const alertaErrorRegister = document.querySelector(".alerta-error");
+  const alertaExitoRegister = document.querySelector(".alerta-exito");
 
   // 🔄 Cargar escuelas y excluir ID = 2
   fetch("/api/escuelas")
@@ -39,10 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
   formRegister.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const userName = inputUser.value;
-    const userEmail = inputEmail.value;
-    const userPassword = inputPass.value;
-    const confirmar_contrasena = inputConfirmar_Contrasena.value;
+    const userName = inputUser.value.trim();
+    const userEmail = inputEmail.value.trim();
+    const userPassword = inputPass.value.trim();
+    const confirmar_contrasena = inputConfirmar_Contrasena.value.trim();
     const userCargo = inputCargo.value || "admin";
     const idEscuela = inputEscuela.value;
 
@@ -52,18 +44,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!userName || !userEmail || !userPassword || !confirmar_contrasena || !userCargo || !idEscuela) {
       alertaErrorRegister.textContent = "Todos los campos son obligatorios.";
       alertaErrorRegister.style.display = "block";
+      alertaExitoRegister.style.display = "none";
       return;
     }
 
     if (userPassword !== confirmar_contrasena) {
       alertaErrorRegister.textContent = "Las contraseñas no coinciden.";
       alertaErrorRegister.style.display = "block";
+      alertaExitoRegister.style.display = "none";
       return;
     }
 
     if (idEscuela === "2") {
       alertaErrorRegister.textContent = "No puedes seleccionar esa escuela.";
       alertaErrorRegister.style.display = "block";
+      alertaExitoRegister.style.display = "none";
       return;
     }
 
@@ -85,11 +80,13 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         alertaErrorRegister.textContent = result.message;
         alertaErrorRegister.style.display = "block";
+        alertaExitoRegister.style.display = "none";
       }
     } catch (err) {
       console.error("❌ Error al registrar:", err);
       alertaErrorRegister.textContent = "Error al registrar el usuario.";
       alertaErrorRegister.style.display = "block";
+      alertaExitoRegister.style.display = "none";
     }
   });
 });

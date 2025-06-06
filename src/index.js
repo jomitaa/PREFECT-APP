@@ -490,14 +490,17 @@ app.post('/register', async (req, res) => {
     idEscuela
   } = req.body;
 
-  // Determina si es empresa o admin quien está registrando
   const tipoUsuario = req.session?.cargo;
   console.log("👤 Tipo de usuario actual:", tipoUsuario);
 
-  // Si es admin, toma su escuela de la sesión
+  // 🎯 Asignar escuela dependiendo del tipo de usuario
   if (tipoUsuario === "admin") {
     idEscuela = req.session.id_escuela;
     console.log("🏫 Escuela asignada desde sesión del admin:", idEscuela);
+  } else if (tipoUsuario === "empresa") {
+    console.log("🏫 Escuela seleccionada por empresa:", idEscuela);
+  } else {
+    console.warn("❗ Tipo de usuario desconocido o sin sesión activa.");
   }
 
   console.log("📥 Datos recibidos en /register:", { userName, userEmail, userCargo, idEscuela });
@@ -550,6 +553,7 @@ app.post('/register', async (req, res) => {
     res.json({ success: false, message: "Ocurrió un error al registrar el usuario." });
   }
 });
+
 
 
 app.get('/confirm/:token', async (req, res) => {
