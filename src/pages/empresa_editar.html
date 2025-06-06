@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Administradores Empresa</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="/css/empresa_editarusuarios.css">
-  <title>Editar Administradores Empresa</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
-
 <body>
 
+<!-- Menú lateral -->
 <section id="sidebar">
   <a href="#" class="brand"><i class="fa-solid fa-building"></i> PREFECT APP</a>
   <ul class="side-menu">
@@ -18,6 +19,7 @@
   </ul>
 </section>
 
+<!-- Contenido principal -->
 <section id="content">
   <nav>
     <i class='bx bx-menu toggle-sidebar'></i>
@@ -34,37 +36,31 @@
     <h1 class="title">Editar Administradores</h1>
     <div class="info-data">
       <section class="joma">
-        <div class="todo" id="contenedor-usuarios"></div>
-      </section>
-
-      <!-- Modal para borrar -->
-      <section class="modal" id="modal-borrar">
-        <div class="modal__container">
-          <h2 class="modal__title">¿Borrar Administrador?</h2>
-          <p class="modal__paragraph">¿Estás seguro de eliminar este administrador?</p>
-          <button class="btnBorrar" id="btnConfirmarBorrar">Borrar</button>
-          <a href="#" class="modal__close">Cancelar</a>
+        <div class="todo" id="contenedor-usuarios">
+          <!-- Usuarios insertados dinámicamente -->
         </div>
       </section>
 
-      <!-- Modal para editar -->
-      <section class="modal2" id="modal-editar">
-        <div class="modal__container2">
+      <!-- Modal de edición -->
+      <section class="modal" id="modal-editar">
+        <div class="modal__container">
           <h2 class="modal__title">Editar Administrador</h2>
           <form class="form form-register" id="formEditarUsuario">
-            <div>
-              <label>
-                <i class='bx bx-user'></i>
-                <input type="text" name="nom_usuario" placeholder="Nombre de Usuario" required>
-              </label>
-            </div>
-            <div>
-              <label>
-                <i class='bx bx-lock'></i>
-                <input type="text" name="contrasena" placeholder="Contraseña" required>
-              </label>
-            </div>
-            <button type="submit" class="btnEditar">Confirmar Edición</button>
+            <label>
+              <i class='bx bx-user'></i>
+              <input type="text" id="nombreEditar" placeholder="Nombre de Usuario" required>
+            </label>
+            <label>
+              <i class='bx bx-envelope'></i>
+              <input type="email" id="correoEditar" placeholder="Correo electrónico" required>
+            </label>
+            <label>
+              <i class='bx bx-buildings'></i>
+              <select id="escuelaEditar" required>
+                <option value="">Selecciona una escuela</option>
+              </select>
+            </label>
+            <button type="button" class="btnEditar">Confirmar Edición</button>
             <div class="alerta-error"></div>
             <div class="alerta-exito"></div>
           </form>
@@ -72,6 +68,15 @@
         </div>
       </section>
 
+      <!-- Modal de borrar -->
+      <section class="modal2" id="modal-borrar">
+        <div class="modal__container2">
+          <h2 class="modal__title">¿Borrar Administrador?</h2>
+          <p class="modal__paragraph">¿Estás seguro de eliminar este administrador?</p>
+          <button class="btnBorrar" id="btnConfirmarBorrar">Borrar</button>
+          <a href="#" class="modal__close">Cancelar</a>
+        </div>
+      </section>
     </div>
   </main>
 </section>

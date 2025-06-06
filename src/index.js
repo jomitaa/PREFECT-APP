@@ -603,6 +603,15 @@ app.post('/confirm-registration', async (req, res) => {
     }
 });
 // --------------------------------  FIN REGISTRAR  -------------------------
+app.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).json({ message: 'Error al cerrar sesión' });
+    }
+    res.clearCookie('connect.sid');
+    return res.sendStatus(200);
+  });
+});
 
 // --------------------------------  FIN CERRAR SEISON  -------------------------
 
