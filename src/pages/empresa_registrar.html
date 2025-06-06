@@ -2,53 +2,75 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registrar Administrador</title>
-  <link rel="stylesheet" href="/css/estilos.css" />
+
+  <!-- Google Fonts y Boxicons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="/css/Login-Register.css" />
 </head>
 <body>
+  <div class="container-form register">
+    <div class="information">
+      <div class="info-childs">
+        <h2>Registrar Administrador</h2>
+        <p>Desde aquí puedes crear cuentas administrativas y asignarles una escuela.</p>
+        <a href="./login.html"><input class="ini" type="button" value="Iniciar Sesión" id="sign-in" /></a>
+      </div>
+    </div>
 
-  <div class="container">
-    <div class="form-container">
-      <h2>Nueva Cuenta Admin</h2>
-      <form class="form-register">
+    <div class="form-information">
+      <div class="form-information-childs">
+        <h2>Nueva Cuenta Admin</h2>
+        <form id="registerForm" autocomplete="off">
+          <div class="input-box">
+            <i class="bx bx-user"></i>
+            <input type="text" id="nombre" placeholder="Nombre Usuario" required />
+          </div>
 
-        <!-- Nombre -->
-        <input type="text" name="userName" placeholder="Nombre Usuario" required />
+          <div class="input-box">
+            <i class="bx bx-envelope"></i>
+            <input type="email" id="correo" placeholder="Correo Electrónico" required />
+          </div>
 
-        <!-- Correo -->
-        <input type="email" name="userEmail" placeholder="Correo Electrónico" required />
+          <div class="input-box">
+            <i class="bx bx-id-card"></i>
+            <input type="text" value="Administrador" disabled />
+          </div>
 
-        <!-- Cargo -->
-        <input type="text" name="userCargo" placeholder="Administrador" value="admin" readonly />
+          <div class="input-box">
+            <i class="bx bx-buildings"></i>
+            <select id="escuela" required>
+              <option value="">Selecciona una escuela</option>
+            </select>
+          </div>
 
-        <!-- Escuela -->
-        <select name="idEscuela" required>
-          <option value="">Selecciona una escuela</option>
-        </select>
+          <div class="input-box">
+            <i class="bx bx-lock-alt"></i>
+            <input type="password" id="contrasena" placeholder="Contraseña" required />
+          </div>
 
-        <!-- Contraseña -->
-        <input type="password" name="userPassword" placeholder="Contraseña" required />
+          <div class="input-box">
+            <i class="bx bx-lock-alt"></i>
+            <input type="password" id="confirmar_contrasena" placeholder="Confirmar Contraseña" required />
+          </div>
 
-        <!-- Confirmar Contraseña -->
-        <input type="password" name="confirmar_contrasena" placeholder="Confirmar Contraseña" required />
+          <div id="mensaje-error" class="mensaje-error"></div>
+          <div id="mensaje-exito" class="mensaje-exito"></div>
 
-        <!-- ALERTAS -->
-        <div class="alerta-exito-register" style="display: none; color: green; margin-top: 10px; font-weight: bold;">
-          ¡Registro exitoso!
-        </div>
-        <div class="alerta-error-register" style="display: none; color: red; margin-top: 10px; font-weight: bold;">
-          Error al registrar usuario.
-        </div>
-
-        <!-- Botón -->
-        <button type="submit">Registrar Administrador</button>
-      </form>
-
-      <a href="/login.html">Iniciar Sesión</a>
+          <button type="submit" id="btnRegister">Registrar Administrador</button>
+        </form>
+      </div>
     </div>
   </div>
 
-  <script src="/js/registrar_empresa.js"></script>
+  <!-- JS -->
+  <script src="/registrar_empresa.js"></script>
 </body>
 </html>
+
