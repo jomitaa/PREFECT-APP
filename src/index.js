@@ -943,31 +943,38 @@ app.get('/api/usuarios/:id', async (req, res) => {
 
 // Ruta para actualizar administrador
 app.put('/api/editarsur/:id', async (req, res) => {
-  const { id } = req.params;
-  const { nom_usuario, correo, id_escuela, contrasena } = req.body;
+  const { userName, userEmail, userCargo, userPassword, confirmar_contrasena } = req.body;
+  const id = req.params.id;
+
+  if (!userName || !userEmail || !userCargo) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios.' });
+  }
 
   try {
-    let query = 'UPDATE usuarios SET nom_usuario = ?, correo = ?, id_escuela = ?';
-    const params = [nom_usuario, correo, id_escuela];
-
-    if (contrasena && contrasena.trim() !== '') {
-      const bcrypt = require('bcryptjs');
-      const hashedPassword = await bcrypt.hash(contrasena, 10);
-      query += ', contrasena = ?';
-      params.push(hashedPassword);
+    if (!userPassword || userPassword.trim() === '') {
+      await conexion.promise().query(`
+        UPDATE usuario
+        SET nom_usuario = ?, correo = ?, id_escuela = ?
+        WHERE ID_usuario = ?
+      `, [userName, userEmail, userCargo, id]);
+    } else {
+      if (userPassword !== confirmar_contrasena) {
+        return res.status(400).json({ error: 'Las contraseñas no coinciden.' });
+      }
+      const hashedPassword = await bcrypt.hash(userPassword, 10);
+      await conexion.promise().query(`
+        UPDATE usuario
+        SET nom_usuario = ?, correo = ?, id_escuela = ?, contraseña = ?
+        WHERE ID_usuario = ?
+      `, [userName, userEmail, userCargo, hashedPassword, id]);
     }
 
-    query += ' WHERE ID_usuario = ?';
-    params.push(id);
-
-    await db.query(query, params);
-    res.sendStatus(200);
+    res.json({ message: 'Usuario actualizado correctamente' });
   } catch (err) {
-    console.error('Error al actualizar usuario:', err);
-    res.status(500).json({ error: 'Error al actualizar usuario' });
+    console.error('Error en actualización:', err);
+    res.status(500).json({ error: 'Error al actualizar el usuario.' });
   }
 });
-
 
 // ------------------------------- RUTA DE MOSTRAR USUARIOS  --------------------------------
 

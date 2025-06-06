@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const selectEscuela = document.querySelector('#escuelaEditar');
   const alertaExito = document.querySelector('.alerta-exito');
   const alertaError = document.querySelector('.alerta-error');
+
   let usuarioSeleccionadoId = null;
 
   async function cargarEscuelas() {
     try {
       const res = await fetch('/api/escuelas');
       const escuelas = await res.json();
-
       selectEscuela.innerHTML = '<option value="">Selecciona una escuela</option>';
       escuelas.forEach(escuela => {
         const option = document.createElement('option');
@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         option.textContent = escuela.nom_escuela;
         selectEscuela.appendChild(option);
       });
-    } catch (error) {
-      console.error('Error al cargar escuelas:', error);
+    } catch (err) {
+      console.error('Error al cargar escuelas:', err);
     }
   }
 
@@ -73,8 +73,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         divList.appendChild(divNavigation);
         contenedor.appendChild(divList);
       });
-    } catch (error) {
-      console.error('Error al cargar usuarios:', error);
+    } catch (err) {
+      console.error('Error al cargar usuarios:', err);
     }
   }
 
@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     inputNombre.value = nombre;
     inputCorreo.value = correo;
     inputContrasena.value = '';
+
     cargarEscuelas().then(() => {
       selectEscuela.value = escuela;
       modal.classList.add('modal--show');
@@ -115,20 +116,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-      const body = {
-        nom_usuario: nuevoNombre,
-        correo: nuevoCorreo,
-        id_escuela: nuevaEscuela
-      };
-      if (nuevaContrasena) {
-        body.contrasena = nuevaContrasena;
-      }
+      alertaError.classList.remove('show');
+      alertaExito.classList.remove('show');
 
       const res = await fetch(`/api/editarsur/${usuarioSeleccionadoId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+          userName: nuevoNombre,
+          userEmail: nuevoCorreo,
+          userCargo: nuevaEscuela,
+          userPassword: nuevaContrasena,
+          confirmar_contrasena: nuevaContrasena
+        })
       });
+
+      const data = await res.json();
 
       if (res.ok) {
         alertaExito.textContent = 'Usuario editado exitosamente.';
@@ -136,13 +139,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.classList.remove('modal--show');
         cargarUsuarios();
       } else {
-        throw new Error('Error al editar usuario');
+        alertaError.textContent = data.error || 'Error inesperado al editar.';
+        alertaError.classList.add('show');
       }
     } catch (error) {
-      alertaError.textContent = 'Ocurrió un error al editar.';
+      alertaError.textContent = 'Error de conexión al editar.';
       alertaError.classList.add('show');
     }
   });
+
 
   btnBorrar.addEventListener('click', async () => {
     try {
@@ -156,10 +161,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal2.classList.remove('modal--show2');
         cargarUsuarios();
       } else {
-        throw new Error('Error al borrar usuario');
+        alertaError.textContent = 'No se pudo eliminar el usuario.';
+        alertaError.classList.add('show');
       }
-    } catch (error) {
-      alertaError.textContent = 'No se pudo borrar el usuario.';
+    } catch (err) {
+      alertaError.textContent = 'Error de conexión al borrar.';
       alertaError.classList.add('show');
     }
   });
@@ -167,9 +173,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.cerrarSesion = async () => {
     try {
       const res = await fetch('/logout', { method: 'POST' });
-      if (res.ok) {
-        window.location.href = '/pages/login.html';
-      }
+      if (res.ok) window.location.href = '/pages/login.html';
     } catch (err) {
       console.error('Error al cerrar sesión:', err);
     }
@@ -177,4 +181,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await cargarEscuelas();
   cargarUsuarios();
+});
+
+document.getElementById('toggleSidebar').addEventListener('click', () => {
+  const sidebar = document.getElementById('sidebar');
+  const content = document.getElementById('content');
+
+  sidebar.classList.toggle('collapsed');
+
+  if (sidebar.classList.contains('collapsed')) {
+    content.style.marginLeft = '0';
+  } else {
+    content.style.marginLeft = '250px';
+  }
 });
