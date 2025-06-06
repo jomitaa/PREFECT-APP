@@ -1,68 +1,81 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const formRegister = document.getElementById("registerForm");
+document.addEventListener("DOMContentLoaded", async () => {
+  const form = document.getElementById("registerForm");
+  const alertaExito = document.querySelector(".alerta-exito-register");
+  const alertaError = document.querySelector(".alerta-error-register");
+  const escuelaSelect = document.querySelector("select[name='idEscuela']");
 
-  formRegister.addEventListener("submit", async (e) => {
+  // Cargar escuelas en el select
+  try {
+    const res = await fetch("/api/escuelas");
+    const escuelas = await res.json();
+    escuelas.forEach(escuela => {
+      const option = document.createElement("option");
+      option.value = escuela.ID_escuela;
+      option.textContent = escuela.nom_escuela;
+      escuelaSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Error al cargar escuelas:", error);
+  }
+
+  // Validación y envío del formulario
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const nombre = document.getElementById("nombre").value;
-    const correo = document.getElementById("correo").value;
-    const contrasena = document.getElementById("contrasena").value;
-    const confirmarContrasena = document.getElementById("confirmar_contrasena").value;
-    const escuelaId = document.getElementById("escuela").value;
+    const nombre = form.userName.value.trim();
+    const correo = form.userEmail.value.trim();
+    const contrasena = form.userPassword.value.trim();
+    const confirmar = form.confirmar_contrasena.value.trim();
+    const idEscuela = form.idEscuela.value;
 
-    const mensajeError = document.getElementById("mensaje-error");
-    const mensajeExito = document.getElementById("mensaje-exito");
+    // Validaciones básicas
+    if (!nombre || !correo || !contrasena || !confirmar || !idEscuela) {
+      alertaError.textContent = "Por favor completa todos los campos.";
+      alertaError.style.display = "block";
+      alertaExito.style.display = "none";
+      return;
+    }
 
-    mensajeError.textContent = "";
-    mensajeExito.textContent = "";
-
-    if (contrasena !== confirmarContrasena) {
-      mensajeError.textContent = "Las contraseñas no coinciden";
+    if (contrasena !== confirmar) {
+      alertaError.textContent = "Las contraseñas no coinciden.";
+      alertaError.style.display = "block";
+      alertaExito.style.display = "none";
       return;
     }
 
     try {
-      const response = await fetch("/api/usuarios/registrar", {
+      const res = await fetch("/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          nombre,
-          correo,
-          contrasena,
-          tipo_usuario: "administrador",
-          ID_escuela: escuelaId,
+          userName: nombre,
+          userEmail: correo,
+          userPassword: contrasena,
+          userCargo: "admin",
+          idEscuela: idEscuela,
         }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
+      console.log("Respuesta del servidor:", data);
 
-      if (response.ok) {
-        mensajeExito.textContent = "Registro exitoso. Revisa tu correo para verificar la cuenta.";
-        formRegister.reset();
+      if (res.ok && data.success) {
+        alertaExito.textContent = data.message || "Registro exitoso.";
+        alertaExito.style.display = "block";
+        alertaError.style.display = "none";
+        form.reset();
       } else {
-        mensajeError.textContent = data.message || "Error al registrar el usuario.";
+        alertaError.textContent = data.message || "Error al registrar usuario.";
+        alertaError.style.display = "block";
+        alertaExito.style.display = "none";
       }
     } catch (error) {
-      console.error("Error al registrar:", error);
-      mensajeError.textContent = "Error al registrar el usuario.";
+      console.error("Error en el registro:", error);
+      alertaError.textContent = "Error en el servidor.";
+      alertaError.style.display = "block";
+      alertaExito.style.display = "none";
     }
   });
-
-  // Cargar escuelas al cargar la página
-  const selectEscuela = document.getElementById("escuela");
-
-  fetch("/api/escuelas")
-    .then((res) => res.json())
-    .then((data) => {
-      data.forEach((escuela) => {
-        const option = document.createElement("option");
-        option.value = escuela.ID_escuela;
-        option.textContent = escuela.nom_escuela;
-        selectEscuela.appendChild(option);
-      });
-    })
-    .catch((err) => {
-      console.error("Error al cargar escuelas:", err);
-    });
 });
-
