@@ -18,18 +18,19 @@ document.addEventListener("DOMContentLoaded", () => {
     idEscuela: false,
   };
 
-  // Cargar escuelas en el select
+  // 🔄 Cargar escuelas y excluir ID = 2
   fetch("/api/escuelas")
     .then(res => res.json())
     .then(data => {
-      console.log("📚 Escuelas recibidas:", data);
       inputEscuela.innerHTML = '<option value="">Selecciona una escuela</option>';
-      data.forEach(escuela => {
-        const option = document.createElement("option");
-        option.value = escuela.ID_escuela;
-        option.textContent = escuela.nom_escuela;
-        inputEscuela.appendChild(option);
-      });
+      data
+        .filter(escuela => escuela.ID_escuela !== 2)
+        .forEach(escuela => {
+          const option = document.createElement("option");
+          option.value = escuela.ID_escuela;
+          option.textContent = escuela.nom_escuela;
+          inputEscuela.appendChild(option);
+        });
     })
     .catch(error => {
       console.error("❌ Error cargando escuelas:", error);
@@ -47,8 +48,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("📤 Enviando datos:", { userName, userEmail, userPassword, confirmar_contrasena, userCargo, idEscuela });
 
+    // Validaciones
     if (!userName || !userEmail || !userPassword || !confirmar_contrasena || !userCargo || !idEscuela) {
       alertaErrorRegister.textContent = "Todos los campos son obligatorios.";
+      alertaErrorRegister.style.display = "block";
+      return;
+    }
+
+    if (userPassword !== confirmar_contrasena) {
+      alertaErrorRegister.textContent = "Las contraseñas no coinciden.";
+      alertaErrorRegister.style.display = "block";
+      return;
+    }
+
+    if (idEscuela === "2") {
+      alertaErrorRegister.textContent = "No puedes seleccionar esa escuela.";
       alertaErrorRegister.style.display = "block";
       return;
     }
