@@ -478,71 +478,75 @@ const transporter = nodemailer.createTransport({
 // --------------------------------  RUTA DE REGISTRO  --------------------------------
 
 app.post('/register', async (req, res) => {
-    console.log('📩 Datos recibidos en el servidor (registro):', req.body);
+  let {
+    userName,
+    userEmail,
+    userCargo,
+    userPassword,
+    confirmar_contrasena,
+    idEscuela
+  } = req.body;
 
-    let {
-        userName,
-        userEmail,
-        userCargo,
-        userPassword,
-        confirmar_contrasena,
-        idEscuela
-    } = req.body;
+  // 👤 Si quien registra es un admin, usamos su escuela automáticamente
+  if (req.session.cargo === 'admin') {
+    idEscuela = req.session.id_escuela;
+    console.log("✅ Escuela tomada desde sesión del admin:", idEscuela);
+  }
 
-    // Si quien registra es un admin, usar su escuela automáticamente
-    if (req.session.cargo === 'admin') {
-        idEscuela = req.session.id_escuela;
+  // 🧪 Verifica qué se está recibiendo
+  console.log("📥 Datos recibidos:", { userName, userEmail, userCargo, idEscuela });
+
+  // 🚨 Validación de campos obligatorios
+  if (!userName || !userEmail || !userCargo || !userPassword || !confirmar_contrasena || !idEscuela) {
+    return res.json({ success: false, message: 'Todos los campos son obligatorios, incluyendo la escuela.' });
+  }
+
+  if (userPassword !== confirmar_contrasena) {
+    return res.json({ success: false, message: 'Las contraseñas no coinciden.' });
+  }
+
+  try {
+    const existingUser = await query("SELECT * FROM usuario WHERE correo = ?", [userEmail]);
+    if (existingUser.length > 0) {
+      return res.json({ success: false, message: 'El correo ya está registrado.' });
     }
 
-    if (!userName || !userEmail || !userCargo || !userPassword || !confirmar_contrasena || !idEscuela) {
-        console.warn('⚠️ Faltan campos en el registro:', { userName, userEmail, userCargo, userPassword, idEscuela });
-        return res.json({ success: false, message: 'Todos los campos son obligatorios, incluyendo escuela.' });
-    }
+    const hashedPassword = await bcrypt.hash(userPassword, saltRounds);
+    const confirmationToken = crypto.randomBytes(32).toString("hex");
 
-    if (userPassword !== confirmar_contrasena) {
-        return res.json({ success: false, message: 'Las contraseñas no coinciden.' });
-    }
+    // Guardamos datos en memoria temporal para confirmar después
+    tokenStore.set(confirmationToken, {
+      userName,
+      userEmail,
+      userCargo,
+      userPassword: hashedPassword,
+      idEscuela
+    });
 
-    try {
-        const existingUser = await query("SELECT * FROM usuario WHERE correo = ?", [userEmail]);
-        if (existingUser.length > 0) {
-            return res.json({ success: false, message: 'El correo ya está registrado.' });
-        }
+    const baseUrl = process.env.NODE_ENV === 'production'
+      ? 'https://prefect-app-production.up.railway.app'
+      : 'http://localhost:3000';
 
-        const hashedPassword = await bcrypt.hash(userPassword, saltRounds);
-        const confirmationToken = crypto.randomBytes(32).toString("hex");
+    const confirmationLink = `${baseUrl}/confirm/${confirmationToken}`;
+    console.log("🔗 Link de confirmación:", confirmationLink);
 
-        tokenStore.set(confirmationToken, {
-            userName,
-            userEmail,
-            userCargo,
-            userPassword: hashedPassword,
-            idEscuela
-        });
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: userEmail,
+      subject: "Confirma tu registro",
+      text: `Hola ${userName}, confirma tu cuenta haciendo clic en este enlace:\n\n${confirmationLink}`
+    };
 
-        const baseUrl = process.env.NODE_ENV === 'production'
-            ? 'https://prefect-app-production.up.railway.app'
-            : 'http://localhost:3000';
+    await transporter.sendMail(mailOptions);
 
-        const confirmationLink = `${baseUrl}/confirm/${confirmationToken}`;
-        console.log("🔗 Link de confirmación generado:", confirmationLink);
+    res.json({ success: true, message: "Registro iniciado. Revisa tu correo para confirmar la cuenta." });
 
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: userEmail,
-            subject: "Confirma tu registro",
-            text: `Hola ${userName}, por favor confirma tu cuenta haciendo clic en el siguiente enlace:\n\n${confirmationLink}`
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        res.json({ success: true, message: "Registro iniciado. Revisa tu email para confirmar la cuenta." });
-
-    } catch (err) {
-        console.error("❌ Error en el proceso de registro:", err);
-        res.json({ success: false, message: "Error al crear la cuenta." });
-    }
+  } catch (err) {
+    console.error("❌ Error en el registro:", err);
+    res.json({ success: false, message: "Ocurrió un error al registrar el usuario." });
+  }
 });
+
 app.get('/confirm/:token', async (req, res) => {
     const token = req.params.token;
     const userData = tokenStore.get(token);
