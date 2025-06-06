@@ -480,7 +480,7 @@ const transporter = nodemailer.createTransport({
 app.post('/register', async (req, res) => {
     console.log('📩 Datos recibidos en el servidor (registro):', req.body);
 
-    const {
+    let {
         userName,
         userEmail,
         userCargo,
@@ -489,9 +489,13 @@ app.post('/register', async (req, res) => {
         idEscuela
     } = req.body;
 
-    // Validación de campos
+    // Si quien registra es un admin, usar su escuela automáticamente
+    if (req.session.cargo === 'admin') {
+        idEscuela = req.session.id_escuela;
+    }
+
     if (!userName || !userEmail || !userCargo || !userPassword || !confirmar_contrasena || !idEscuela) {
-        console.warn('⚠️ Faltan campos en el registro:', req.body);
+        console.warn('⚠️ Faltan campos en el registro:', { userName, userEmail, userCargo, userPassword, idEscuela });
         return res.json({ success: false, message: 'Todos los campos son obligatorios, incluyendo escuela.' });
     }
 
@@ -500,19 +504,14 @@ app.post('/register', async (req, res) => {
     }
 
     try {
-        // Verificar si el correo ya está registrado
         const existingUser = await query("SELECT * FROM usuario WHERE correo = ?", [userEmail]);
         if (existingUser.length > 0) {
             return res.json({ success: false, message: 'El correo ya está registrado.' });
         }
 
-        // Encriptar contraseña
         const hashedPassword = await bcrypt.hash(userPassword, saltRounds);
-
-        // Generar token de confirmación
         const confirmationToken = crypto.randomBytes(32).toString("hex");
 
-        // Guardar temporalmente el registro
         tokenStore.set(confirmationToken, {
             userName,
             userEmail,
@@ -544,31 +543,7 @@ app.post('/register', async (req, res) => {
         res.json({ success: false, message: "Error al crear la cuenta." });
     }
 });
-// --------------------------------  CONFIRMACIÓN DE REGISTRO POR TOKEN  --------------------------------
-app.get('/confirm/:token', async (req, res) => {
-  const { token } = req.params;
 
-  const userData = tokenStore.get(token);
-  if (!userData) {
-    return res.status(400).send("⚠️ Token inválido o expirado.");
-  }
-
-  const { userName, userEmail, userCargo, userPassword, idEscuela } = userData;
-
-  try {
-    await query(`
-      INSERT INTO usuario (nom_usuario, correo, cargo, contraseña, id_escuela)
-      VALUES (?, ?, ?, ?, ?)
-    `, [userName, userEmail, userCargo, userPassword, idEscuela]);
-
-    tokenStore.delete(token);
-
-    return res.send("✅ Usuario registrado correctamente. Ya puedes iniciar sesión.");
-  } catch (error) {
-    console.error("❌ Error insertando usuario confirmado:", error);
-    return res.status(500).send("Error al registrar usuario.");
-  }
-});
 
 // --------------------------------  FIN CERRAR SEISON  -------------------------
 

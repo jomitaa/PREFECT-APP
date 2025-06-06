@@ -68,6 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const idEscuelaSeleccionada = selectEscuela.value;
     console.log("🎓 Escuela seleccionada:", idEscuelaSeleccionada);
+    console.log("🧪 idEscuelaSeleccionada antes de enviar:", idEscuelaSeleccionada);
 
     if (!idEscuelaSeleccionada || idEscuelaSeleccionada === "") {
       mostrarMensaje(alertaError, "Selecciona una escuela válida.", false);
