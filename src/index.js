@@ -410,14 +410,17 @@ app.post('/api/escuelas', async (req, res) => {
 // Traer escuela por ID (para cargar en el modal de edición)
 // Obtener TODAS las escuelas
 app.get('/api/escuelas', async (req, res) => {
-    try {
-      const [rows] = await conexion.promise().query('SELECT ID_escuela, nom_escuela, CCT, telefono_escuela FROM escuela');
-      res.json(rows);
-    } catch (error) {
-      console.error('Error obteniendo escuelas:', error);
-      res.status(500).json({ message: 'Error interno del servidor' });
-    }
-  });
+  try {
+    const [rows] = await conexion.promise().query(
+      'SELECT ID_escuela, nom_escuela FROM escuela WHERE ID_escuela != 2'
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error("Error al obtener escuelas:", err);
+    res.status(500).json({ error: "Error al obtener escuelas" });
+  }
+});
+
   
   // Obtener una escuela por su ID
   app.get('/api/escuelas/:id', async (req, res) => {
