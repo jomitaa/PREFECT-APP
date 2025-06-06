@@ -63,10 +63,18 @@ body {
 
 /* Navbar */
 #content {
-  margin-left: 250px;
   padding: 1rem;
   transition: margin-left 0.3s ease;
 }
+
+#sidebar:not(.collapsed) ~ #content {
+  margin-left: 250px;
+}
+
+#sidebar.collapsed ~ #content {
+  margin-left: 0;
+}
+
 
 nav {
   display: flex;
