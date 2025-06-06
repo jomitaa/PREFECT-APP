@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registrar Administrador</title>
   <link rel="stylesheet" href="/css/Login-Register.css" />
 </head>
@@ -12,62 +12,61 @@
       <div class="info-childs">
         <h2>Registrar Administrador</h2>
         <p>Desde aquí puedes crear cuentas administrativas y asignarles una escuela.</p>
-        <a href="/login.html"><input class="ini" type="button" value="Iniciar Sesión" id="sign-in" /></a>
+        <a href="./login.html"><input class="ini" type="button" value="Iniciar Sesión" id="sign-in" /></a>
       </div>
     </div>
 
     <div class="form-information">
       <div class="form-information-childs">
         <h2>Nueva Cuenta Admin</h2>
-        <form id="registerForm">
+        <form class="form form-register">
+          <!-- Nombre -->
           <div>
-            <label>
-              <i class='bx bx-user'></i>
-              <input type="text" placeholder="Nombre Usuario" name="userName" required />
-            </label>
+            <label><i class='bx bx-user'></i></label>
+            <input type="text" placeholder="Nombre Usuario" name="userName" required />
           </div>
 
+          <!-- Correo -->
           <div>
-            <label>
-              <i class='bx bx-envelope'></i>
-              <input type="email" placeholder="Correo Electrónico" name="userEmail" required />
-            </label>
+            <label><i class='bx bx-envelope'></i></label>
+            <input type="email" placeholder="Correo Electrónico" name="userEmail" required />
           </div>
 
+          <!-- Cargo -->
           <div>
-            <label>
-              <i class='bx bxs-pin'></i>
-              <input type="hidden" name="userCargo" value="admin" />
-              <input type="text" value="Administrador" disabled />
-            </label>
+            <label><i class="bx bxs-pin"></i></label>
+            <input type="hidden" name="userCargo" value="admin" />
+            <input type="text" value="Administrador" disabled />
           </div>
 
+          <!-- Escuela -->
           <div>
-            <label>
-              <i class='bx bx-building-house'></i>
-              <select name="idEscuela" required>
-                <option value="">Selecciona una escuela</option>
-              </select>
-            </label>
+            <label><i class='bx bx-building-house'></i></label>
+            <select name="idEscuela" required>
+              <option value="">Selecciona una escuela</option>
+              <!-- Opciones se llenan desde JS -->
+            </select>
           </div>
 
+          <!-- Contraseña -->
           <div>
-            <label>
-              <i class='bx bx-lock-alt'></i>
-              <input type="password" placeholder="Contraseña" name="userPassword" required />
-            </label>
+            <label><i class='bx bx-lock-alt'></i></label>
+            <input type="password" placeholder="Contraseña" name="userPassword" required />
           </div>
 
+          <!-- Confirmar Contraseña -->
           <div>
-            <label>
-              <i class='bx bx-lock-alt'></i>
-              <input type="password" placeholder="Confirmar Contraseña" name="confirmar_contrasena" required />
-            </label>
+            <label><i class='bx bx-lock-alt'></i></label>
+            <input type="password" placeholder="Confirmar Contraseña" name="confirmar_contrasena" required />
           </div>
 
-          <!-- ALERTAS -->
-          <div class="alerta-exito-register" style="display: none; color: green; margin-top: 10px; font-weight: bold;"></div>
-          <div class="alerta-error-register" style="display: none; color: red; margin-top: 10px; font-weight: bold;"></div>
+          <!-- Mensajes -->
+          <div class="alerta-exito-register" style="display: none; color: green; margin-top: 10px; font-weight: bold;">
+            ¡Se envió el link de confirmación al correo!
+          </div>
+          <div class="alerta-error-register" style="display: none; color: red; margin-top: 10px; font-weight: bold;">
+            Error al registrar usuario.
+          </div>
 
           <!-- Botón -->
           <button type="submit">Registrar Administrador</button>
@@ -76,8 +75,8 @@
     </div>
   </div>
 
+  <!-- Script -->
   <script src="/registrar_empresa.js"></script>
 </body>
 </html>
-
 

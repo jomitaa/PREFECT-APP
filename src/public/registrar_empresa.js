@@ -1,68 +1,70 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const form = document.getElementById("registerForm");
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("form");
   const alertaExito = document.querySelector(".alerta-exito-register");
   const alertaError = document.querySelector(".alerta-error-register");
   const escuelaSelect = document.querySelector("select[name='idEscuela']");
 
-  // Cargar escuelas en el select
-  try {
-    const res = await fetch("/api/escuelas");
-    const escuelas = await res.json();
-    escuelas.forEach(escuela => {
-      const option = document.createElement("option");
-      option.value = escuela.ID_escuela;
-      option.textContent = escuela.nom_escuela;
-      escuelaSelect.appendChild(option);
+  // Cargar escuelas al iniciar
+  fetch("/api/escuelas")
+    .then((res) => res.json())
+    .then((escuelas) => {
+      escuelas.forEach((escuela) => {
+        if (escuela.ID_escuela !== 2) {
+          const option = document.createElement("option");
+          option.value = escuela.ID_escuela;
+          option.textContent = escuela.nom_escuela;
+          escuelaSelect.appendChild(option);
+        }
+      });
+    })
+    .catch((err) => {
+      console.error("Error al cargar escuelas:", err);
     });
-  } catch (error) {
-    console.error("Error al cargar escuelas:", error);
-  }
 
-  // Validación y envío del formulario
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const nombre = form.userName.value.trim();
     const correo = form.userEmail.value.trim();
-    const contrasena = form.userPassword.value.trim();
-    const confirmar = form.confirmar_contrasena.value.trim();
+    const cargo = form.userCargo.value;
     const idEscuela = form.idEscuela.value;
+    const password = form.userPassword.value;
+    const confirmar = form.confirmar_contrasena.value;
 
-    // Validaciones básicas
-    if (!nombre || !correo || !contrasena || !confirmar || !idEscuela) {
-      alertaError.textContent = "Por favor completa todos los campos.";
+    // Validación
+    if (!nombre || !correo || !password || !confirmar || !idEscuela) {
+      alertaError.textContent = "Todos los campos son obligatorios, incluyendo escuela.";
       alertaError.style.display = "block";
       alertaExito.style.display = "none";
       return;
     }
 
-    if (contrasena !== confirmar) {
+    if (password !== confirmar) {
       alertaError.textContent = "Las contraseñas no coinciden.";
       alertaError.style.display = "block";
       alertaExito.style.display = "none";
       return;
     }
 
+    // Enviar datos
     try {
-      const res = await fetch("/register", {
+      const response = await fetch("/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userName: nombre,
           userEmail: correo,
-          userPassword: contrasena,
-          userCargo: "admin",
+          userCargo: cargo,
           idEscuela: idEscuela,
+          userPassword: password,
         }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
       console.log("Respuesta del servidor:", data);
 
-      if (res.ok && data.success) {
-        alertaExito.textContent = data.message || "Registro exitoso.";
+      if (response.ok) {
+        alertaExito.textContent = "¡Se envió el link de confirmación al correo!";
         alertaExito.style.display = "block";
         alertaError.style.display = "none";
         form.reset();
@@ -73,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (error) {
       console.error("Error en el registro:", error);
-      alertaError.textContent = "Error en el servidor.";
+      alertaError.textContent = "Error al registrar usuario.";
       alertaError.style.display = "block";
       alertaExito.style.display = "none";
     }
