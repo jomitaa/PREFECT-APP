@@ -487,18 +487,20 @@ app.post('/register', async (req, res) => {
     idEscuela
   } = req.body;
 
-  // 👤 Si quien registra es un admin, usamos su escuela automáticamente
-  if (req.session.cargo === 'admin') {
+  // Determina si es empresa o admin quien está registrando
+  const tipoUsuario = req.session?.cargo;
+  console.log("👤 Tipo de usuario actual:", tipoUsuario);
+
+  // Si es admin, toma su escuela de la sesión
+  if (tipoUsuario === "admin") {
     idEscuela = req.session.id_escuela;
-    console.log("✅ Escuela tomada desde sesión del admin:", idEscuela);
+    console.log("🏫 Escuela asignada desde sesión del admin:", idEscuela);
   }
 
-  // 🧪 Verifica qué se está recibiendo
-  console.log("📥 Datos recibidos:", { userName, userEmail, userCargo, idEscuela });
+  console.log("📥 Datos recibidos en /register:", { userName, userEmail, userCargo, idEscuela });
 
-  // 🚨 Validación de campos obligatorios
   if (!userName || !userEmail || !userCargo || !userPassword || !confirmar_contrasena || !idEscuela) {
-    return res.json({ success: false, message: 'Todos los campos son obligatorios, incluyendo la escuela.' });
+    return res.json({ success: false, message: 'Todos los campos son obligatorios, incluyendo escuela.' });
   }
 
   if (userPassword !== confirmar_contrasena) {
@@ -514,7 +516,6 @@ app.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(userPassword, saltRounds);
     const confirmationToken = crypto.randomBytes(32).toString("hex");
 
-    // Guardamos datos en memoria temporal para confirmar después
     tokenStore.set(confirmationToken, {
       userName,
       userEmail,
@@ -539,13 +540,14 @@ app.post('/register', async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    res.json({ success: true, message: "Registro iniciado. Revisa tu correo para confirmar la cuenta." });
+    res.json({ success: true, message: "Registro iniciado. Revisa tu correo para confirmar." });
 
   } catch (err) {
     console.error("❌ Error en el registro:", err);
     res.json({ success: false, message: "Ocurrió un error al registrar el usuario." });
   }
 });
+
 
 app.get('/confirm/:token', async (req, res) => {
     const token = req.params.token;
