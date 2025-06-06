@@ -76,17 +76,34 @@ document.addEventListener("DOMContentLoaded", () => {
         alertaExitoRegister.textContent = result.message;
         alertaExitoRegister.style.display = "block";
         alertaErrorRegister.style.display = "none";
+
+        // Limpiar el formulario
         formRegister.reset();
+        inputEscuela.selectedIndex = 0;
+
+        // Ocultar mensaje de éxito después de 5 segundos
+        setTimeout(() => {
+          alertaExitoRegister.style.display = "none";
+        }, 5000);
       } else {
         alertaErrorRegister.textContent = result.message;
         alertaErrorRegister.style.display = "block";
         alertaExitoRegister.style.display = "none";
+
+        // Ocultar mensaje de error después de 5 segundos (opcional)
+        setTimeout(() => {
+          alertaErrorRegister.style.display = "none";
+        }, 5000);
       }
     } catch (err) {
       console.error("❌ Error al registrar:", err);
       alertaErrorRegister.textContent = "Error al registrar el usuario.";
       alertaErrorRegister.style.display = "block";
       alertaExitoRegister.style.display = "none";
+
+      setTimeout(() => {
+        alertaErrorRegister.style.display = "none";
+      }, 5000);
     }
   });
 });
