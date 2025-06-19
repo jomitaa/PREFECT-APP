@@ -23,7 +23,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
   z-index: 100;
 }
 
@@ -61,21 +61,18 @@ body {
   background-color: #1565c0;
 }
 
-/* Navbar */
+/* Content */
 #content {
+  margin-left: 250px;
   padding: 1rem;
   transition: margin-left 0.3s ease;
 }
 
-#sidebar:not(.collapsed) ~ #content {
-  margin-left: 250px;
+body.menu-colapsado #content {
+  margin-left: 0 !important;
 }
 
-#sidebar.collapsed ~ #content {
-  margin-left: 0;
-}
-
-
+/* Navbar */
 nav {
   display: flex;
   justify-content: space-between;
@@ -106,7 +103,7 @@ nav .profile-link {
   box-shadow: 0 2px 5px var(--shadow);
   border-radius: 5px;
   min-width: 180px;
-  z-index: 100;
+  z-index: 200;
 }
 
 nav .profile:hover .profile-link {
@@ -134,17 +131,21 @@ nav .profile:hover .profile-link {
 
 .todo .list {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   background: white;
   padding: 1rem;
-  margin-bottom: 1rem;
   border-radius: 12px;
   box-shadow: 0 2px 4px var(--shadow);
   width: 200px;
   height: 200px;
-  flex-direction: column;
   text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.todo .list:hover {
+  transform: scale(1.03);
 }
 
 .user {
@@ -155,7 +156,7 @@ nav .profile:hover .profile-link {
 }
 
 .imgBx i {
-  font-size: 2rem;
+  font-size: 2.5rem;
   color: var(--blue);
 }
 
@@ -277,15 +278,13 @@ button.btnEditar, button.btnBorrar {
 @media (max-width: 768px) {
   #sidebar {
     transform: translateX(-100%);
-    position: fixed;
-    z-index: 200;
   }
 
-  #sidebar.open {
+  #sidebar.collapsed {
     transform: translateX(0);
   }
 
-  #content {
+  body.menu-colapsado #content {
     margin-left: 0;
   }
 

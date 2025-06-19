@@ -185,13 +185,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 document.getElementById('toggleSidebar').addEventListener('click', () => {
   const sidebar = document.getElementById('sidebar');
-  const content = document.getElementById('content');
+  const body = document.body;
 
   sidebar.classList.toggle('collapsed');
-
-  if (sidebar.classList.contains('collapsed')) {
-    content.style.marginLeft = '0';
-  } else {
-    content.style.marginLeft = '250px';
-  }
+  body.classList.toggle('menu-colapsado');
 });

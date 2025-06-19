@@ -1076,7 +1076,7 @@ app.put('/api/editarsur/:id', async (req, res) => {
 
 app.get('/api/consulta', async (req, res) => {
     let idEscuela = req.session.id_escuela;
-    const query = `
+    const query = 
         SELECT DISTINCT
             p.id_persona,
             CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
@@ -1106,7 +1106,7 @@ app.get('/api/consulta', async (req, res) => {
             persona,
             dia_horario,
             hora_inicio;
-    `;
+    ;
 
     try {
         const [results] = await conexion.promise().query(query, [idEscuela]);
@@ -1281,42 +1281,42 @@ app.put('/actualizarReporte', (req, res) => {
 
 app.get('/obtener-datos-horarios', async (req, res) => {
     try {
-        const [grupos] = await conexion.promise().query(`
+        const [grupos] = await conexion.promise().query(
           SELECT DISTINCT g.id_grupo, g.nom_grupo, g.id_turno 
             FROM grupo h 
             JOIN grupo g ON h.id_grupo = g.id_grupo;
-        `);
+        );
 
-        const [dias] = await conexion.promise().query(`
+        const [dias] = await conexion.promise().query(
             SELECT DISTINCT dia_horario as dia FROM horario
-        `);
+        );
 
-        const [hora_inicio] = await conexion.promise().query(`
+        const [hora_inicio] = await conexion.promise().query(
             SELECT DISTINCT hora_inicio FROM horario
-        `);
+        );
 
-        const [hora_final] = await conexion.promise().query(`
+        const [hora_final] = await conexion.promise().query(
             SELECT DISTINCT hora_final FROM horario
-        `);
+        );
 
-        const [salones] = await conexion.promise().query(`
+        const [salones] = await conexion.promise().query(
             SELECT DISTINCT s.id_salon
             FROM salon h 
             JOIN salon s ON h.id_salon = s.id_salon
-        `);
+        );
 
-        const [materias] = await conexion.promise().query(`
+        const [materias] = await conexion.promise().query(
            SELECT DISTINCT m.id_materia, m.nom_materia 
             FROM materia h 
             JOIN materia m ON h.id_materia = m.id_materia;
-        `);
+        );
 
-        const [profesores] = await conexion.promise().query(`
+        const [profesores] = await conexion.promise().query(
             SELECT DISTINCT p.id_persona, 
                 CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo
             FROM persona h 
             JOIN persona p ON h.id_persona = p.id_persona
-        `);
+        );
 
         res.json({
             grupos,
@@ -1549,7 +1549,7 @@ app.put('/editar-horario/:id', async (req, res) => {
 
 app.get('/api/filtros', async (req, res) => {
     try {
-        const [horarios] = await conexion.promise().query(`
+        const [horarios] = await conexion.promise().query(
              SELECT DISTINCT
     h.id_horario,
     h.dia_horario,
@@ -1577,12 +1577,12 @@ FROM
     LEFT JOIN falta f ON h.id_horario = f.id_horario
     JOIN contenedor c ON h.id_contenedor = c.id_contenedor
     JOIN periodos per ON c.id_periodo = per.id_periodo
-        `);
+        );
 
         
         const salones = [...new Set(horarios.map(h => h.id_salon))];
         const dias = [...new Set(horarios.map(h => h.dia_horario))];
-        const grupos = [...new Set(horarios.map(h => `${h.nom_grupo}`))];
+        const grupos = [...new Set(horarios.map(h => ${h.nom_grupo}))];
         const profesores = [...new Set(horarios.map(h => h.nombre_persona))];
         const materias = [...new Set(horarios.map(h => h.nom_materia))];
         const horasInicio = [...new Set(horarios.map(h => h.hora_inicio))].sort();
