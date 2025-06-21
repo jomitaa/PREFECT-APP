@@ -1076,7 +1076,7 @@ app.put('/api/editarsur/:id', async (req, res) => {
 
 app.get('/api/consulta', async (req, res) => {
     let idEscuela = req.session.id_escuela;
-    const query = 
+    const query = `
         SELECT DISTINCT
             p.id_persona,
             CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
@@ -1106,7 +1106,7 @@ app.get('/api/consulta', async (req, res) => {
             persona,
             dia_horario,
             hora_inicio;
-    ;
+    `;
 
     try {
         const [results] = await conexion.promise().query(query, [idEscuela]);
@@ -1281,42 +1281,42 @@ app.put('/actualizarReporte', (req, res) => {
 
 app.get('/obtener-datos-horarios', async (req, res) => {
     try {
-        const [grupos] = await conexion.promise().query(
+        const [grupos] = await conexion.promise().query(`
           SELECT DISTINCT g.id_grupo, g.nom_grupo, g.id_turno 
             FROM grupo h 
             JOIN grupo g ON h.id_grupo = g.id_grupo;
-        );
+        `);
 
-        const [dias] = await conexion.promise().query(
+        const [dias] = await conexion.promise().query(`
             SELECT DISTINCT dia_horario as dia FROM horario
-        );
+        `);
 
-        const [hora_inicio] = await conexion.promise().query(
+        const [hora_inicio] = await conexion.promise().query(`
             SELECT DISTINCT hora_inicio FROM horario
-        );
+        `);
 
-        const [hora_final] = await conexion.promise().query(
+        const [hora_final] = await conexion.promise().query(`
             SELECT DISTINCT hora_final FROM horario
-        );
+        `);
 
-        const [salones] = await conexion.promise().query(
+        const [salones] = await conexion.promise().query(`
             SELECT DISTINCT s.id_salon
             FROM salon h 
             JOIN salon s ON h.id_salon = s.id_salon
-        );
+        `);
 
-        const [materias] = await conexion.promise().query(
+        const [materias] = await conexion.promise().query(`
            SELECT DISTINCT m.id_materia, m.nom_materia 
             FROM materia h 
             JOIN materia m ON h.id_materia = m.id_materia;
-        );
+        `);
 
-        const [profesores] = await conexion.promise().query(
+        const [profesores] = await conexion.promise().query(`
             SELECT DISTINCT p.id_persona, 
                 CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo
             FROM persona h 
             JOIN persona p ON h.id_persona = p.id_persona
-        );
+        `);
 
         res.json({
             grupos,
@@ -1549,7 +1549,7 @@ app.put('/editar-horario/:id', async (req, res) => {
 
 app.get('/api/filtros', async (req, res) => {
     try {
-        const [horarios] = await conexion.promise().query(
+        const [horarios] = await conexion.promise().query(`
              SELECT DISTINCT
     h.id_horario,
     h.dia_horario,
@@ -1577,12 +1577,12 @@ FROM
     LEFT JOIN falta f ON h.id_horario = f.id_horario
     JOIN contenedor c ON h.id_contenedor = c.id_contenedor
     JOIN periodos per ON c.id_periodo = per.id_periodo
-        );
+        `);
 
         
         const salones = [...new Set(horarios.map(h => h.id_salon))];
         const dias = [...new Set(horarios.map(h => h.dia_horario))];
-        const grupos = [...new Set(horarios.map(h => ${h.nom_grupo}))];
+        const grupos = [...new Set(horarios.map(h => `${h.nom_grupo}`))];
         const profesores = [...new Set(horarios.map(h => h.nombre_persona))];
         const materias = [...new Set(horarios.map(h => h.nom_materia))];
         const horasInicio = [...new Set(horarios.map(h => h.hora_inicio))].sort();
@@ -1780,6 +1780,161 @@ app.get('/perfil/:userName', (req, res) => {
             res.status(404).json({ error: 'Usuario no encontrado' });
         }
     });
+});
+
+// RUTAS DE GRAFIACAS
+app.get('/api/materias/todas', async (req, res) => {
+  try {
+    const [materias] = await db.query(`
+      SELECT id_materia, nombre 
+      FROM materia 
+      WHERE id_escuela = ?
+    `, [req.session.id_escuela]); // Solo materias de su escuela
+
+    res.json(materias);
+  } catch (err) {
+    console.error('Error al obtener todas las materias:', err);
+    res.status(500).json({ error: 'Error al obtener materias' });
+  }
+});
+app.get('/api/materias/:id', async (req, res) => {
+  const idProfesor = req.params.id;
+  try {
+    const [materias] = await db.query(`
+      SELECT m.id_materia, m.nombre 
+      FROM materia m
+      JOIN horario h ON h.id_materia = m.id_materia
+      WHERE h.id_usuario = ? AND m.id_escuela = ?
+      GROUP BY m.id_materia
+    `, [idProfesor, req.session.id_escuela]);
+
+    res.json(materias);
+  } catch (err) {
+    console.error('Error al obtener materias del profesor:', err);
+    res.status(500).json({ error: 'Error al obtener materias del profesor' });
+  }
+});
+
+app.get('/api/reporteGrafica', async (req, res) => {
+  const { profesor, materia, periodo } = req.query;
+  const idEscuela = req.session.id_escuela; // Asegúrate de que esté en la sesión
+
+  let where = `WHERE h.id_escuela = ?`;
+  const params = [idEscuela];
+
+  if (profesor !== "todos") {
+    where += " AND h.id_persona = ?";
+    params.push(profesor);
+  }
+
+  if (materia && materia !== "todas") {
+    where += " AND h.id_materia = ?";
+    params.push(materia);
+  }
+
+  let rangoFecha = "";
+  switch (periodo) {
+    case "dia":     rangoFecha = "AND a.fecha_asistencia >= CURDATE()"; break;
+    case "semana":  rangoFecha = "AND a.fecha_asistencia >= CURDATE() - INTERVAL 7 DAY"; break;
+    case "mes":     rangoFecha = "AND a.fecha_asistencia >= CURDATE() - INTERVAL 1 MONTH"; break;
+    case "6meses":  rangoFecha = "AND a.fecha_asistencia >= CURDATE() - INTERVAL 6 MONTH"; break;
+    case "anio":    rangoFecha = "AND a.fecha_asistencia >= CURDATE() - INTERVAL 1 YEAR"; break;
+  }
+
+  const query = `
+    SELECT 
+      DATE(a.fecha_asistencia) AS fecha,
+      COUNT(*) AS total
+    FROM asistencia a
+    JOIN horario h ON a.id_horario = h.id_horario
+    ${where} ${rangoFecha}
+    GROUP BY fecha
+    ORDER BY fecha;
+  `;
+
+  try {
+    const [rows] = await conexion.promise().query(query, params);
+    res.json(rows);
+  } catch (err) {
+    console.error("Error en reporteGrafica:", err);
+    res.status(500).json({ error: "Error al consultar el reporte" });
+  }
+});
+app.get('/api/materias/profesor/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [materias] = await conexion.promise().query(`
+      SELECT DISTINCT m.id_materia, m.nom_materia
+      FROM materia m
+      JOIN horario h ON m.id_materia = h.id_materia
+      WHERE h.id_persona = ?;
+    `, [id]);
+
+    res.json(materias);
+  } catch (err) {
+    console.error("Error al obtener materias del profesor:", err);
+    res.status(500).json({ error: "Error al consultar materias" });
+  }
+});
+app.get("/api/reportes", async (req, res) => {
+  const { profesor, materia, periodo } = req.query;
+  const id_escuela = req.session.user?.id_escuela;
+
+  if (!id_escuela) {
+    return res.status(401).json({ error: "No autorizado" });
+  }
+
+  try {
+    let query = `
+      SELECT 
+        DATE(a.fecha) AS fecha,
+        SUM(CASE WHEN a.estado = 'asistencia' THEN 1 ELSE 0 END) AS asistencias,
+        SUM(CASE WHEN a.estado = 'falta' THEN 1 ELSE 0 END) AS faltas,
+        SUM(CASE WHEN a.estado = 'retardo' THEN 1 ELSE 0 END) AS retardos
+      FROM asistencia a
+      JOIN horario h ON a.id_horario = h.id_horario
+      WHERE h.id_escuela = ?
+    `;
+
+    const params = [id_escuela];
+
+    if (profesor !== "todos") {
+      query += " AND h.id_usuario = ?";
+      params.push(profesor);
+    }
+
+    if (materia !== "todas") {
+      query += " AND h.id_materia = ?";
+      params.push(materia);
+    }
+
+    const dias = {
+      dia: 1,
+      semana: 7,
+      mes: 30,
+      semestre: 182,
+      año: 365,
+    };
+
+    const diasPeriodo = dias[periodo] || 7;
+    query += ` AND a.fecha >= CURDATE() - INTERVAL ? DAY`;
+    params.push(diasPeriodo);
+
+    query += " GROUP BY DATE(a.fecha) ORDER BY a.fecha ASC";
+
+    const [rows] = await conexion.promise().query(query, params);
+
+    const fechas = rows.map((r) => r.fecha);
+    const asistencias = rows.map((r) => r.asistencias);
+    const faltas = rows.map((r) => r.faltas);
+    const retardos = rows.map((r) => r.retardos);
+
+    res.json({ fechas, asistencias, faltas, retardos });
+  } catch (error) {
+    console.error("Error en /api/reportes:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
 });
 
 // ------------------------------- RUTA DE CADA PERFIL --------------------------------

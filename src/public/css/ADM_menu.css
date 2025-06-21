@@ -562,3 +562,43 @@ main .breadcrumbs li.divider {
 
 /* MAIN */
 /* CONTENT */
+/* --- Reporte Gráfica Asistencias --- */
+.reporte-section {
+  background: var(--light);
+  padding: 20px;
+  border-radius: 15px;
+  margin-top: 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.filtros-reporte {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filtros-reporte label {
+  font-weight: 600;
+  margin-right: 5px;
+}
+
+.filtros-reporte select,
+.filtros-reporte button {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--grey);
+  font-size: 14px;
+}
+
+#btnDescargarPDF {
+  background-color: var(--primary);
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#btnDescargarPDF:hover {
+  background-color: #2e7d32; /* tono más oscuro */
+}
