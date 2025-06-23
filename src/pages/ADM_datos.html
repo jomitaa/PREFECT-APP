@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="/css/ADM_datos.css">
+	<title>Prefect App 1.1</title>
+</head>
+
+<body>
+
+	<section id="sidebar">
+		<a href="#" class="brand"><i class="bx bxs-parking icon"></i> PREFECT APP</a>
+		<ul class="side-menu">
+			<li>
+				<a href="#" class="active"><i class="bx bxs-dashboard icon"></i> ADMINISTRADOR</a>
+			</li>
+			<br />
+
+			<li>
+				<a href="./ADM_menu.html" class=""><i class="bx bx-table icon"></i> Inicio</a>
+			</li>
+
+			<li class="divider" data-text="Horarios"></li>
+			<li>
+				<a href="#"><i class="bx bxs-inbox icon"></i> Editar Asistencia
+					<i class="bx bx-chevron-right icon-right"></i></a>
+				<ul class="side-dropdown">
+					<li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
+					<li><a href="./ADM_2DO_PISO.html">2do Piso</a></li>
+					<li><a href="./ADM_3ER_PISO.html">3er Piso</a></li>
+				</ul>
+			</li>
+			<li>
+				<a href="./ADM_AgregarHorario.html" class="active"><i class="bx bx-table icon"></i> Agregar Horarios</a>
+			</li>
+			<li>
+				<a href="./ADM_EditarHorario.html"><i class="bx bx-table icon"></i> Editar Horarios</a>
+			</li>
+
+			<li class="divider" data-text="maestros"></li>
+			<li>
+				<a href="./ADM_Consulta.html"><i class="bx bx-table icon"></i> Consulta</a>
+			</li>
+
+			<li class="divider" data-text="reportes"></li>
+			<li>
+				<a href="./ADM_Reportes.html"><i class="bx bx-table icon"></i> Consulta</a>
+			</li>
+
+			<li class="divider" data-text="usuarios"></li>
+			<li>
+				<a href="./ADM_Editar_Usuarios.html"><i class="bx bx-table icon"></i> Editar Usuario</a>
+			</li>
+			<li>
+				<a href="./registrar.html"><i class="bx bx-table icon"></i> Registrar Usuario</a>
+			</li>
+		</ul>
+	</section>
+
+
+	<section id="content">
+
+		<nav>
+			<i class='bx bx-menu toggle-sidebar'></i>
+
+			<form action="#">
+				<div class="form-group">
+
+				</div>
+			</form>
+
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+
+
+			<span class="divider"></span>
+			<div class="profile">
+				<img src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png" alt="">
+				<ul class="profile-link">
+					<li><a href="./perfil.html"><i class='bx bxs-user-circle icon'></i> Profile</a></li>
+					<li><a href="#" onclick="cerrarSesion()"><i class='bx bxs-log-out-circle'></i> Cerrar Sesión</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+		<!-- NAVBAR -->
+
+		<!-- MAIN -->
+		<main>
+			<div class="alerta">
+
+			</div>
+
+			<h1 class="title">Prefect APP</h1>
+			<ul class="breadcrumbs">
+				<li><a href="#">P.A</a></li>
+				<li>/</li>
+				<li>Inicio</li>
+
+			</ul>
+
+
+			<div class="filters">
+				<select id="selector-contenedor" class="select-group">
+					<option value="" disabled selected>Seleccione lo que quiere agregar:</option>
+					<option value="profesor">Profesor</option>
+					<option value="materias">Materia</option>
+					<option value="carreras">Carrera</option>
+					<option value="grupos">Grupo</option>
+					<option value="salon">Salón</option>
+					<option value="piso">Piso</option>
+				</select>
+			</div>
+
+			<div class="contenedor-profesores">
+				<div class="blur-overlay top"></div>
+				<div class="profesores-list" id="profesores">
+					<div class="profesor-card">
+						<div class="profesor-header">
+							<span><b>Nombre</b></span>
+							<span><b>Apellido Paterno</b></span>
+							<span><b>Apellido Materno</b></span>
+							<span><b>Correo</b></span>
+						</div>
+						<div class="profesor-content">
+							<span>
+								<input type="text" name="nom_persona" class="input-group" placeholder="Ej. Juan">
+							</span>
+							<span>
+								<input type="text" name="appat_persona" class="input-group" placeholder="Ej. Pérez">
+							</span>
+							<span>
+								<input type="text" name="apmat_persona" class="input-group" placeholder="Ej. López">
+							</span>
+							<span>
+								<input type="email" name="correo" class="input-group"
+									placeholder="Ej. juan@escuela.com">
+							</span>
+							<span class="acciones">
+								<button class="btnEliminar" onclick="eliminarCard(this)">🗑️</button>
+							</span>
+						</div>
+					</div>
+
+				</div>
+				<div class="blur-overlay bottom"></div>
+				
+				<div class="botones-accion">
+					<button class="btnAgregar" id="agregar-profesor">+ Agregar Profesor</button>
+					<button class="btnEnviar" id="guardar-profesores">Guardar Profesores</button>
+				</div>
+			
+			</div>
+
+			<div class="contenedor-materias">
+				<div class="blur-overlay top"></div>
+				<div class="materias-list" id="materias">
+					<!-- Tarjeta de materia (ejemplo) -->
+					<div class="materia-card">
+						<div class="materia-header">
+							<span><b>Nombre de la Materia</b></span>
+							<span><b>Tipo de Materia</b></span>
+						</div>
+						<div class="materia-content">
+							<span>
+								<input type="text" name="nom_materia" class="input-group"
+									placeholder="Ej. Matemáticas">
+							</span>
+							<span>
+								<select name="id_tipom" class="select-group">
+									<option value="">Seleccionar tipo</option>
+									<option value="obligatoria">Obligatoria</option>
+									<option value="optativa">Optativa</option>
+									<option value="taller">Taller</option>
+								</select>
+							</span>
+							<span class="acciones">
+								<button class="btnEliminar" onclick="eliminarCard(this)">🗑️</button>
+							</span>
+						</div>
+					</div>
+					<!-- Más tarjetas se agregarán dinámicamente -->
+				</div>
+				<div class="blur-overlay bottom"></div>
+
+				<!-- Botones de acción -->
+				<div class="botones-accion">
+					<button class="btnAgregar" id="agregar-materia">+ Agregar Materia</button>
+					<button class="btnEnviar" id="guardar-materias">Guardar Materias</button>
+				</div>
+			</div>
+
+			<div class="contenedor-carreras">
+					<div class="blur-overlay top"></div>
+					<div class="carreras-list" id="carreras">
+						<!-- Tarjeta de carrera -->
+						<div class="carrera-card">
+							<div class="carrera-header">
+								<span><b>Nombre de la Carrera</b></span>
+							</div>
+							<div class="carrera-content">
+								<span>
+									<input type="text" name="nom_carrera" class="input-group"
+										placeholder="Ej. Ingeniería en Sistemas">
+								</span>
+								<span class="acciones">
+									<button class="btnEliminar" onclick="eliminarCard(this)">🗑️</button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="blur-overlay bottom"></div>
+
+					<!-- Botones de acción -->
+					<div class="botones-accion">
+						<button class="btnAgregar" id="agregar-carrera">+ Agregar Carrera</button>
+						<button class="btnEnviar" id="guardar-carreras">Guardar Carreras</button>
+					</div>
+			</div>
+
+
+			<div class="contenedor-grupos">
+					<div class="blur-overlay top"></div>
+					<div class="grupos-list" id="grupos">
+						<!-- Tarjeta de grupo -->
+						<div class="grupo-card">
+							<div class="grupo-header">
+								<span><b>Semestre</b></span>
+								<span><b>Nombre del Grupo</b></span>
+								<span><b>Carrera</b></span>
+								<span><b>Turno</b></span>
+							</div>
+							<div class="grupo-content">
+								<span>
+									<select name="sem_grupo" class="select-group">
+										<option value="">Seleccionar</option>
+										<option value="1">1° Semestre</option>
+										<option value="2">2° Semestre</option>
+										<option value="3">3° Semestre</option>
+										<option value="4">4° Semestre</option>
+										<option value="5">5° Semestre</option>
+										<option value="6">6° Semestre</option>
+									</select>
+								</span>
+								<span>
+									<input type="text" name="nom_grupo" class="input-group" placeholder="Ej. A">
+								</span>
+								<span>
+									<select name="id_carrera" class="select-group">
+										<option value="">Seleccionar</option>
+										<!-- Opciones dinámicas desde BD -->
+									</select>
+								</span>
+								<span>
+									<select name="id_turno" class="select-group">
+										<option value="">Seleccionar</option>
+										<option value="1">Matutino</option>
+										<option value="2">Vespertino</option>
+									</select>
+								</span>
+								<span class="acciones">
+									<button class="btnEliminar" onclick="eliminarCard(this)">🗑️</button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="blur-overlay bottom"></div>
+
+					<!-- Botones de acción -->
+					<div class="botones-accion">
+						<button class="btnAgregar" id="agregar-grupo">+ Agregar Grupo</button>
+						<button class="btnEnviar" id="guardar-grupos">Guardar Grupos</button>
+					</div>
+			</div>
+
+			<div class="contenedor-salon">
+					<div class="blur-overlay top"></div>
+					<div class="salon-list" id="salones">
+						<!-- Tarjeta de salón (principal) -->
+						<div class="salon-card">
+							<div class="salon-header">
+								<span><b>Número de Salón / Nombre del Salon</b></span>
+								<span><b>Piso</b></span>
+							</div>
+							<div class="salon-content">
+								<span>
+									<input type="text" name="nom_salon" class="input-group" placeholder="Ej. Laboratorio / 12">
+								</span>
+								<span>
+									<select name="piso_salon" class="select-group">
+										<option value="">Seleccionar</option>
+										<option value="1">1er Piso</option>
+										<option value="2">2do Piso</option>
+										<option value="3">3er Piso</option>
+									</select>
+								</span>
+								<span class="acciones">
+									<button class="btnEliminar" onclick="eliminarCard(this)">🗑️</button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="blur-overlay bottom"></div>
+
+					<!-- Botones de acción -->
+					<div class="botones-accion">
+						<button class="btnAgregar" id="agregar-salon">+ Agregar Salón</button>
+						<button class="btnEnviar" id="guardar-salones">Guardar Salones</button>
+					</div>
+			</div>
+		
+			<div class="contenedor-piso">
+					<div class="blur-overlay top"></div>
+					<div class="piso-list" id="pisos">
+						<!-- Tarjeta de carrera -->
+						<div class="piso-card">
+							<div class="piso-header">
+								<span><b>No. / Nombre del piso</b></span>
+							</div>
+							<div class="piso-content">
+								<span>
+									<input type="text" name="nom_piso" class="input-group"
+										placeholder="Ej. Ingeniería en Sistemas">
+								</span>
+								<span class="acciones">
+									<button class="btnEliminar" onclick="eliminarCard(this)">🗑️</button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="blur-overlay bottom"></div>
+
+					<!-- Botones de acción -->
+					<div class="botones-accion">
+						<button class="btnAgregar" id="agregar-piso">+ Agregar Piso</button>
+						<button class="btnEnviar" id="guardar-piso">Guardar Piso</button>
+					</div>
+			</div>
+
+
+		</main>
+
+	</section>
+
+
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script src="/ADM_datos.js"></script>
+	<script>
+
+
+
+		function cerrarSesion() {
+			// Envía una solicitud al servidor para cerrar la sesión
+			fetch('/logout', {
+				method: 'POST',
+				credentials: 'same-origin' // Incluye las cookies en la solicitud
+			})
+				.then(response => {
+					// Si la solicitud fue exitosa, redirige al usuario a la página de inicio
+					if (response.ok) {
+						window.location.href = '/'; // Cambia esto según la ruta de tu página de inicio
+					} else {
+						console.error('Error al cerrar sesión:', response.statusText);
+					}
+				})
+				.catch(error => {
+					console.error('Error al cerrar sesión:', error);
+				});
+		}
+
+		// SIDEBAR DROPDOWN
+		const allDropdown = document.querySelectorAll('#sidebar .side-dropdown');
+		const sidebar = document.getElementById('sidebar');
+
+		allDropdown.forEach(item => {
+			const a = item.parentElement.querySelector('a:first-child');
+			a.addEventListener('click', function (e) {
+				e.preventDefault();
+
+				if (!this.classList.contains('active')) {
+					allDropdown.forEach(i => {
+						const aLink = i.parentElement.querySelector('a:first-child');
+
+						aLink.classList.remove('active');
+						i.classList.remove('show');
+					})
+				}
+
+				this.classList.toggle('active');
+				item.classList.toggle('show');
+			})
+		})
+
+
+
+
+
+		// SIDEBAR COLLAPSE
+		const toggleSidebar = document.querySelector('nav .toggle-sidebar');
+		const allSideDivider = document.querySelectorAll('#sidebar .divider');
+
+		if (sidebar.classList.contains('hide')) {
+			allSideDivider.forEach(item => {
+				item.textContent = '-'
+			})
+			allDropdown.forEach(item => {
+				const a = item.parentElement.querySelector('a:first-child');
+				a.classList.remove('active');
+				item.classList.remove('show');
+			})
+		} else {
+			allSideDivider.forEach(item => {
+				item.textContent = item.dataset.text;
+			})
+		}
+
+		toggleSidebar.addEventListener('click', function () {
+			sidebar.classList.toggle('hide');
+
+			if (sidebar.classList.contains('hide')) {
+				allSideDivider.forEach(item => {
+					item.textContent = '-'
+				})
+
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+			} else {
+				allSideDivider.forEach(item => {
+					item.textContent = item.dataset.text;
+				})
+			}
+		})
+
+
+
+
+		sidebar.addEventListener('mouseleave', function () {
+			if (this.classList.contains('hide')) {
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+				allSideDivider.forEach(item => {
+					item.textContent = '-'
+				})
+			}
+		})
+
+
+
+		sidebar.addEventListener('mouseenter', function () {
+			if (this.classList.contains('hide')) {
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+				allSideDivider.forEach(item => {
+					item.textContent = item.dataset.text;
+				})
+			}
+		})
+
+
+
+
+		// PROFILE DROPDOWN
+		const profile = document.querySelector('nav .profile');
+		const imgProfile = profile.querySelector('img');
+		const dropdownProfile = profile.querySelector('.profile-link');
+
+		imgProfile.addEventListener('click', function () {
+			dropdownProfile.classList.toggle('show');
+		})
+
+
+
+
+		// MENU
+		const allMenu = document.querySelectorAll('main .content-data .head .menu');
+
+		allMenu.forEach(item => {
+			const icon = item.querySelector('.icon');
+			const menuLink = item.querySelector('.menu-link');
+
+			icon.addEventListener('click', function () {
+				menuLink.classList.toggle('show');
+			})
+		})
+
+
+
+		window.addEventListener('click', function (e) {
+			if (e.target !== imgProfile) {
+				if (e.target !== dropdownProfile) {
+					if (dropdownProfile.classList.contains('show')) {
+						dropdownProfile.classList.remove('show');
+					}
+				}
+			}
+
+			allMenu.forEach(item => {
+				const icon = item.querySelector('.icon');
+				const menuLink = item.querySelector('.menu-link');
+
+				if (e.target !== icon) {
+					if (e.target !== menuLink) {
+						if (menuLink.classList.contains('show')) {
+							menuLink.classList.remove('show')
+						}
+					}
+				}
+			})
+		})
+
+		const switchMode = document.getElementById('switch-mode');
+
+		switchMode.addEventListener('change', function () {
+			if (this.checked) {
+				document.body.classList.add('dark');
+			} else {
+				document.body.classList.remove('dark');
+			}
+		})
+
+
+	</script>
+</body>
+
+</html>

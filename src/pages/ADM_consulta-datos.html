@@ -4,101 +4,83 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-	<link rel="stylesheet" href="/css/ADM_1ER_PISO.css">
+	<link rel="stylesheet" href="/css/ADM_consulta-datos.css">
 	<title>Prefect App 1.1</title>
 </head>
 
 <body>
 
-	<!-- SIDEBAR -->
 	<section id="sidebar">
-		<a href="#" class="brand"
-		  ><i class="bx bxs-parking icon"></i> PREFECT APP</a
-		>
+		<a href="#" class="brand"><i class="bx bxs-parking icon"></i> PREFECT APP</a>
 		<ul class="side-menu">
-		  <li>
-			<a href="#" class="active"
-			  ><i class="bx bxs-dashboard icon"></i> ADMINISTRADOR</a
-			>
-		  </li>
-		  <br />
-  
-		  <li>
-			<a href="./ADM_menu.html" ><i class="bx bx-table icon"></i> Inicio</a>
-		  </li>
-  
-		  <li class="divider" data-text="Horarios"></li>
-		  <li>
-			<a href="#" class="active"><i class="bx bxs-inbox icon"></i> Editar Asistencia
-			  <i class="bx bx-chevron-right icon-right"></i></a>
-			<ul class="side-dropdown">
-			  <li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
-			  <li><a href="./ADM_2DO_PISO.html">2do Piso</a></li>
-			  <li><a href="./ADM_3ER_PISO.html">3er Piso</a></li>
-			</ul>
-		  </li>
-		  <li>
-			<a href="./ADM_AgregarHorario.html"
-			  ><i class="bx bx-table icon"></i> Agregar Horarios</a
-			>
-		  </li>
-		  <li>
-			<a href="./ADM_EditarHorario.html"
-			  ><i class="bx bx-table icon"></i> Editar Horarios</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="maestros"></li>
-		  <li>
-			<a href="./ADM_Consulta.html"
-			  ><i class="bx bx-table icon"></i> Consulta</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="reportes"></li>
-		  <li>
-			<a href="./ADM_Reportes.html"
-			  ><i class="bx bx-table icon"></i> Consulta</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="usuarios"></li>
-		  <li>
-			<a href="./ADM_Editar_Usuarios.html"
-			  ><i class="bx bx-table icon"></i> Editar Usuario</a
-			>
-		  </li>
-		  <li>
-			<a href="./registrar.html"
-			  ><i class="bx bx-table icon"></i> Registrar Usuario</a
-			>
-		  </li>
-		</ul>
-	  </section>
+			<li>
+				<a href="#" class="active"><i class="bx bxs-dashboard icon"></i> ADMINISTRADOR</a>
+			</li>
+			<br />
 
-	<!-- NAVBAR -->
+			<li>
+				<a href="./ADM_menu.html" class=""><i class="bx bx-table icon"></i> Inicio</a>
+			</li>
+
+			<li class="divider" data-text="Horarios"></li>
+			<li>
+				<a href="#"><i class="bx bxs-inbox icon"></i> Editar Asistencia
+					<i class="bx bx-chevron-right icon-right"></i></a>
+				<ul class="side-dropdown">
+					<li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
+					<li><a href="./ADM_2DO_PISO.html">2do Piso</a></li>
+					<li><a href="./ADM_3ER_PISO.html">3er Piso</a></li>
+				</ul>
+			</li>
+			<li>
+				<a href="./ADM_AgregarHorario.html" class="active"><i class="bx bx-table icon"></i> Agregar Horarios</a>
+			</li>
+			<li>
+				<a href="./ADM_EditarHorario.html"><i class="bx bx-table icon"></i> Editar Horarios</a>
+			</li>
+
+			<li class="divider" data-text="maestros"></li>
+			<li>
+				<a href="./ADM_Consulta.html"><i class="bx bx-table icon"></i> Consulta</a>
+			</li>
+
+			<li class="divider" data-text="reportes"></li>
+			<li>
+				<a href="./ADM_Reportes.html"><i class="bx bx-table icon"></i> Consulta</a>
+			</li>
+
+			<li class="divider" data-text="usuarios"></li>
+			<li>
+				<a href="./ADM_Editar_Usuarios.html"><i class="bx bx-table icon"></i> Editar Usuario</a>
+			</li>
+			<li>
+				<a href="./registrar.html"><i class="bx bx-table icon"></i> Registrar Usuario</a>
+			</li>
+		</ul>
+	</section>
+
+
 	<section id="content">
-		<!-- NAVBAR -->
+
 		<nav>
 			<i class='bx bx-menu toggle-sidebar'></i>
 
 			<form action="#">
 				<div class="form-group">
-				
+
 				</div>
 			</form>
 
 			<input type="checkbox" id="switch-mode" hidden>
 			<label for="switch-mode" class="switch-mode"></label>
-			
+
 
 			<span class="divider"></span>
 			<div class="profile">
 				<img src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png" alt="">
 				<ul class="profile-link">
-					<li><a href="#"><i class='bx bxs-user-circle icon'></i> Profile</a></li>
+					<li><a href="./perfil.html"><i class='bx bxs-user-circle icon'></i> Profile</a></li>
 					<li><a href="#" onclick="cerrarSesion()"><i class='bx bxs-log-out-circle'></i> Cerrar Sesión</a>
 					</li>
 				</ul>
@@ -108,130 +90,76 @@
 
 		<!-- MAIN -->
 		<main>
-			<div class="alerta">
+    <div class="alerta"></div>
+    <h1 class="title">Prefect APP - Consulta/Edición</h1>
+    
+    <div class="filters">
+        <select id="selector-consulta" class="select-group">
+            <option value="" disabled selected>Seleccione lo que quiere consultar:</option>
+            <option value="profesor">Profesores</option>
+            <option value="materia">Materias</option>
+            <option value="carrera">Carreras</option>
+            <option value="grupo">Grupos</option>
+            <option value="salon">Salones</option>
+        </select>
+    </div>
 
-			</div>
-			<h1 class="title">Prefect APP</h1>
-			<ul class="breadcrumbs">
-				<li><a href="#">P.A</a></li>
-				<li>/</li>
-				<li>Horarios / 1er Piso</li>
+    <!-- Contenedores para cada tipo de dato (inicialmente ocultos) -->
+    <div class="contenedor-consulta-profesor">
+        <div class="blur-overlay top"></div>
+        <!-- Tabla de profesores se llenará dinámicamente -->
+        <div class="blur-overlay bottom"></div>
 
-			</ul>
-			<div class="filters">
-				<select name="turno" id="" class="filter-btn">
-					<option disabled selected>Seleccione un Turno</option>
-					<option value="1">Matutino</option>
-					<option value="2">Vespertino</option>
-				</select>
-				<button id="selectAttendanceBtn" type="button" class="filter-btn">Seleccionar Asistencias</button>
-				
+    </div>
+    
+    <div class="contenedor-consulta-materia">
+        <div class="blur-overlay top"></div>
+        <!-- Tabla de materias se llenará dinámicamente -->
+        <div class="blur-overlay bottom"></div>
+    </div>
+    
+    <div class="contenedor-consulta-carrera">
+        <div class="blur-overlay top"></div>
+        <!-- Tabla de carreras se llenará dinámicamente -->
+        <div class="blur-overlay bottom"></div>
+    </div>
+    
+    <div class="contenedor-consulta-grupo">
+        <div class="blur-overlay top"></div>
+        <!-- Tabla de grupos se llenará dinámicamente -->
+        <div class="blur-overlay bottom"></div>
+    </div>
+    
+    <div class="contenedor-consulta-salon">
+        <div class="blur-overlay top"></div>
+        <!-- Tabla de salones se llenará dinámicamente -->
+        <div class="blur-overlay bottom"></div>
+    </div>
+    
+    <div id="modal-edicion" class="modal">
+    <div class="modal-contenido">
+        <div class="modal-cerrar">
+            <i class="fa-solid fa-xmark"></i>
+        </div>
+        <h2 class="modal-titulo">Editar Registro</h2>
+        <form id="form-edicion" class="modal-formulario">
+            <!-- Los campos se llenarán dinámicamente -->
+        </form>
+        <div class="modal-botones">
+            <button type="button" class="btn-cancelar">Cancelar</button>
+            <button type="submit" form="form-edicion" class="btn-guardar">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+</main>
 
-				<button class="filter-btn" id="filterBtn">FILTRAR POR:</button>
-				<select id="salon"><option value="">SALÓN</option></select>
-				<select id="grupo"><option value="">GRUPO</option></select>
-				<select id="profesor"><option value="">PROFESOR</option></select>
-				<select id="materia"><option value="">MATERIA</option></select>
-				<select id="horaInicio"><option value="">HORA INICIO</option></select>
-				<select id="horaFin"><option value="">HORA FIN</option></select>
-			</div>
-			<div class="contenedor-horario">
-				<div class="blur-overlay top"></div>
-				<div class="horarios-list" id="horario">
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Salón</b></span>
-						<span><b>Grupo</b></span>
-						<span><b>Profesor</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Hora</b></span>
-						<span><b>Acciones</b></span>
-					</div>
-					<div class="horario-content">
-						<span>1</span>
-						<span>XIV1</span>
-						<span>Profesor</span>
-						<span>Materia</span>
-						<span>00:00 - 01:00</span>
-						<div class="acciones">
-							<label class="container">
-								<input type="checkbox">
-								<div class="checkmark"></div>
-								Asis.
-							  </label>
-	
-							  <label class="container">
-								<input type="checkbox">
-								<div class="checkmark"></div>
-								Retardo
-							  </label>
-	
-							  <label class="container">
-								<input type="checkbox">
-								<div class="checkmark"></div>
-								Falta
-							  </label>
-							
-						   
-						</div>
-					</div>
-				</div>
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Salón</b></span>
-						<span><b>Grupo</b></span>
-						<span><b>Profesor</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Hora</b></span>
-						<span><b>Acciones</b></span>
-					</div>
-					<div class="horario-content">
-						<span>1</span>
-						<span>XIV1</span>
-						<span>Profesor</span>
-						<span>Materia</span>
-						<span>00:00 - 01:00</span>
-						<div class="acciones">
-							<label class="container">
-								<input type="checkbox">
-								<div class="checkmark"></div>
-								Asis.
-							  </label>
-	
-							  <label class="container">
-								<input type="checkbox">
-								<div class="checkmark"></div>
-								Retardo
-							  </label>
-	
-							  <label class="container">
-								<input type="checkbox">
-								<div class="checkmark"></div>
-								Falta
-							  </label>
-						</div>
-					</div>
-				</div>
-				
-			</div>
-
-		</div>
-			<button type="button" class="btnEnviar" id="btnEnviar">enviarrrrrr</button>
-
-		</main>
-		<!-- MAIN -->
 	</section>
-	<!-- NAVBAR -->
-	<script src="/ADM_1ER_PISO.js"></script>
+
+
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script src="/ADM_consulta-datos.js"></script>
 	<script>
 
-document.getElementById('selectAttendanceBtn').addEventListener('click', function() {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"][data-tipo="asistencia"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = true; // Marca el checkbox
-    });
-});
 
 
 		function cerrarSesion() {

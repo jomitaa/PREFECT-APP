@@ -40,6 +40,7 @@ const conexion = mysql.createPool({
 });
 */
 import dotenv from 'dotenv';
+import { isErrored } from 'stream';
 
 dotenv.config();
 
@@ -103,6 +104,8 @@ const protectedRoutesAdmin = [
     '/pages/ADM_Editar_Usuarios.html',
     '/pages/ADM_AgregarHorario.html',
     '/pages/ADM_EditarHorario.html',
+    '/pages/ADM_datos.html',
+    '/pages/ADM_consulta-datos.html',
     '/pages/registrar.html'
 ];
 
@@ -163,6 +166,15 @@ app.get('/pages/ADM_AgregarHorario.html', (req, res) => {
 
 app.get('/pages/ADM_EditarHorario.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'ADM_EditarHorario.html'));
+});
+
+app.get('/pages/ADM_datos.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'ADM_datos.html'));
+}
+);
+
+app.get('/pages/ADM_consulta-datos.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'ADM_consulta-datos.html'));
 });
 
 app.get('/pages/registrar.html', (req, res) => {
@@ -370,6 +382,23 @@ app.get('/validar-sesion', (req, res) => {
 
 // --------------------------------  FIN LOGIN  -------------------------
 
+
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error al cerrar sesión:', err);
+            return res.status(500).json({ mensaje: 'Error al cerrar sesión' });
+        }
+
+        // Opcional: limpiar cookies si usas alguna
+        res.clearCookie('connect.sid'); // El nombre puede variar según tu config de sesión
+
+        res.status(200).json({ mensaje: 'Sesión cerrada correctamente' });
+    });
+});
+
+
+
 app.get('/obtenerUsuario', (req, res) => {
     console.log('Sesión actual en /obtenerUsuario:', req.session); 
 
@@ -490,17 +519,14 @@ app.post('/register', async (req, res) => {
     idEscuela
   } = req.body;
 
+  // Determina si es empresa o admin quien está registrando
   const tipoUsuario = req.session?.cargo;
   console.log("👤 Tipo de usuario actual:", tipoUsuario);
 
-  // 🎯 Asignar escuela dependiendo del tipo de usuario
+  // Si es admin, toma su escuela de la sesión
   if (tipoUsuario === "admin") {
     idEscuela = req.session.id_escuela;
     console.log("🏫 Escuela asignada desde sesión del admin:", idEscuela);
-  } else if (tipoUsuario === "empresa") {
-    console.log("🏫 Escuela seleccionada por empresa:", idEscuela);
-  } else {
-    console.warn("❗ Tipo de usuario desconocido o sin sesión activa.");
   }
 
   console.log("📥 Datos recibidos en /register:", { userName, userEmail, userCargo, idEscuela });
@@ -555,7 +581,6 @@ app.post('/register', async (req, res) => {
 });
 
 
-
 app.get('/confirm/:token', async (req, res) => {
     const { token } = req.params;
     const userData = tokenStore.get(token);
@@ -603,15 +628,6 @@ app.post('/confirm-registration', async (req, res) => {
     }
 });
 // --------------------------------  FIN REGISTRAR  -------------------------
-app.post('/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({ message: 'Error al cerrar sesión' });
-    }
-    res.clearCookie('connect.sid');
-    return res.sendStatus(200);
-  });
-});
 
 // --------------------------------  FIN CERRAR SEISON  -------------------------
 
@@ -942,47 +958,46 @@ app.get('/api/usuarios/:id', async (req, res) => {
 });
 
 // Ruta para actualizar administrador
-app.put('/api/editarsur/:id', async (req, res) => {
-  const { userName, userEmail, userCargo, userPassword, confirmar_contrasena } = req.body;
-  const id = req.params.id;
+app.put('/api/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nom_usuario, contrasena } = req.body;
 
-  if (!userName || !userEmail || !userCargo) {
-    return res.status(400).json({ error: 'Faltan campos obligatorios.' });
-  }
+    try {
+        // Si no envían contraseña nueva
+        if (!contrasena || contrasena.trim() === '') {
+            // Solo actualizar nombre de usuario
+            await conexion.promise().query(`
+                UPDATE usuario
+                SET nom_usuario = ?
+                WHERE ID_usuario = ? AND cargo = 'admin'
+            `, [nom_usuario, id]);
+        } else {
+            // Si envían nueva contraseña, la encriptamos
+            const hashedPassword = await bcrypt.hash(contrasena, 10);
 
-  try {
-    if (!userPassword || userPassword.trim() === '') {
-      await conexion.promise().query(`
-        UPDATE usuario
-        SET nom_usuario = ?, correo = ?, id_escuela = ?
-        WHERE ID_usuario = ?
-      `, [userName, userEmail, userCargo, id]);
-    } else {
-      if (userPassword !== confirmar_contrasena) {
-        return res.status(400).json({ error: 'Las contraseñas no coinciden.' });
-      }
-      const hashedPassword = await bcrypt.hash(userPassword, 10);
-      await conexion.promise().query(`
-        UPDATE usuario
-        SET nom_usuario = ?, correo = ?, id_escuela = ?, contraseña = ?
-        WHERE ID_usuario = ?
-      `, [userName, userEmail, userCargo, hashedPassword, id]);
+            await conexion.promise().query(`
+                UPDATE usuario
+                SET nom_usuario = ?, contraseña = ?
+                WHERE ID_usuario = ? AND cargo = 'admin'
+            `, [nom_usuario, hashedPassword, id]);
+        }
+
+        res.json({ message: 'Administrador actualizado exitosamente.' });
+
+    } catch (error) {
+        console.error('Error actualizando administrador:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
     }
-
-    res.json({ message: 'Usuario actualizado correctamente' });
-  } catch (err) {
-    console.error('Error en actualización:', err);
-    res.status(500).json({ error: 'Error al actualizar el usuario.' });
-  }
 });
 
 // ------------------------------- RUTA DE MOSTRAR USUARIOS  --------------------------------
 
 app.get('/api/editarsur', async (req, res) => {
-    const query = `SELECT * FROM usuario`;
+    let idEscuela = req.session.id_escuela;
+    const query = `SELECT * FROM usuario Where id_escuela = ?`;
 
     try {
-        const [results] = await conexion.promise().query(query);
+        const [results] = await conexion.promise().query(query, [idEscuela]);
         if (results.length === 0) {
             return res.status(404).json({ error: 'Usuarios not found' });
         }
@@ -1280,43 +1295,54 @@ app.put('/actualizarReporte', (req, res) => {
 // ------------------------------- RUTA DE AGREGAR HORARIO --------------------------------
 
 app.get('/obtener-datos-horarios', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
+
     try {
         const [grupos] = await conexion.promise().query(`
-          SELECT DISTINCT g.id_grupo, g.nom_grupo, g.id_turno 
-            FROM grupo h 
-            JOIN grupo g ON h.id_grupo = g.id_grupo;
-        `);
+            SELECT DISTINCT g.id_grupo, g.nom_grupo, g.id_turno 
+            FROM grupo g 
+            WHERE g.id_escuela = ?
+        `, [idEscuela]);
 
         const [dias] = await conexion.promise().query(`
-            SELECT DISTINCT dia_horario as dia FROM horario
+            SELECT DISTINCT h.dia_horario as dia 
+            FROM horario h 
+            JOIN grupo g ON h.id_grupo = g.id_grupo
+            
         `);
 
         const [hora_inicio] = await conexion.promise().query(`
-            SELECT DISTINCT hora_inicio FROM horario
+            SELECT DISTINCT h.hora_inicio 
+            FROM horario h
+            JOIN grupo g ON h.id_grupo = g.id_grupo
+           
         `);
 
         const [hora_final] = await conexion.promise().query(`
-            SELECT DISTINCT hora_final FROM horario
+            SELECT DISTINCT h.hora_final 
+            FROM horario h
+            JOIN grupo g ON h.id_grupo = g.id_grupo
+           
         `);
 
         const [salones] = await conexion.promise().query(`
             SELECT DISTINCT s.id_salon
-            FROM salon h 
-            JOIN salon s ON h.id_salon = s.id_salon
-        `);
+            FROM salon s
+            WHERE s.id_escuela = ?
+        `, [idEscuela]);
 
         const [materias] = await conexion.promise().query(`
-           SELECT DISTINCT m.id_materia, m.nom_materia 
-            FROM materia h 
-            JOIN materia m ON h.id_materia = m.id_materia;
-        `);
+            SELECT DISTINCT m.id_materia, m.nom_materia 
+            FROM materia m 
+            WHERE m.id_escuela = ?
+        `, [idEscuela]);
 
         const [profesores] = await conexion.promise().query(`
             SELECT DISTINCT p.id_persona, 
                 CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo
-            FROM persona h 
-            JOIN persona p ON h.id_persona = p.id_persona
-        `);
+            FROM persona p
+            WHERE p.id_escuela = ?
+        `, [idEscuela]);
 
         res.json({
             grupos,
@@ -1487,6 +1513,7 @@ app.use((req, res, next) => {
 
 app.get('/obtener-horarios/:dia/:idGrupo/:idContenedor', async (req, res) => {
     const { dia, idGrupo, idContenedor } = req.params;
+    let idEscuela = req.session.id_escuela;
 
     try {
         const [horarios] = await conexion.promise().query(`
@@ -1497,8 +1524,8 @@ app.get('/obtener-horarios/:dia/:idGrupo/:idContenedor', async (req, res) => {
             INNER JOIN grupo g ON h.id_grupo = g.id_grupo
             JOIN materia m ON h.id_materia = m.id_materia
             JOIN persona p ON h.id_persona = p.id_persona
-            WHERE h.id_grupo = ? AND h.dia_horario = ? AND h.id_contenedor = ?`,
-            [idGrupo, dia, idContenedor]
+            WHERE h.id_grupo = ? AND h.dia_horario = ? AND h.id_contenedor = ? AND h.id_escuela = ?`,
+            [idGrupo, dia, idContenedor, idEscuela]
         );
 
         if (horarios.length === 0) {
@@ -1548,6 +1575,7 @@ app.put('/editar-horario/:id', async (req, res) => {
 // ----------------------------------- RUTA FILTROS HORARIOS ---------------------------------------------
 
 app.get('/api/filtros', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
     try {
         const [horarios] = await conexion.promise().query(`
              SELECT DISTINCT
@@ -1577,7 +1605,8 @@ FROM
     LEFT JOIN falta f ON h.id_horario = f.id_horario
     JOIN contenedor c ON h.id_contenedor = c.id_contenedor
     JOIN periodos per ON c.id_periodo = per.id_periodo
-        `);
+WHERE h.id_escuela = ?
+        `, [idEscuela]);
 
         
         const salones = [...new Set(horarios.map(h => h.id_salon))];
@@ -1606,6 +1635,7 @@ FROM
 // ----------------------------------- RUTA FILTROS CONSULTAS ---------------------------------------------
 
 app.get('/api/filtrar-consulta', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
     try {
         const [horarios] = await conexion.promise().query(`
             SELECT DISTINCT
@@ -1630,7 +1660,7 @@ app.get('/api/filtrar-consulta', async (req, res) => {
     retardo r ON h.id_horario = r.id_horario
 LEFT JOIN
     falta f ON h.id_horario = f.id_horario
-        `);
+        `, [idEscuela]);
 
         
         const grupos = [...new Set(horarios.map(h => `${h.nom_grupo}`))];
@@ -1659,6 +1689,7 @@ LEFT JOIN
 
 
 app.get('/api/filtrar-reportes', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
     try {
         const [reportes] = await conexion.promise().query(`
             SELECT 
@@ -1670,8 +1701,8 @@ app.get('/api/filtrar-reportes', async (req, res) => {
             t.tipo AS tipo_reporte
         FROM reportes r
         JOIN tiporeportes t ON r.id_tiporeporte = t.id_tiporeporte
-        JOIN usuario u ON r.id_usuario = u.id_usuario
-        `);
+        JOIN usuario u ON r.id_usuario = u.id_usuario WHERE r.id_escuela = ?
+        ` , [idEscuela]);
 
         
         const tipo_reporte = [...new Set(reportes.map(r => `${r.tipo_reporte}`))];
@@ -1738,55 +1769,751 @@ app.get('/api/profes/:id_persona', async (req, res) => {
 
 
 // -------------------------------- RUTA PROFES --------------------------------
-
-app.get('/api/profesores', async (req, res) => {
-    const query = `
-    SELECT id_persona, CONCAT(nom_persona, ' ', appat_persona, ' ', apmat_persona) AS nombre
-    FROM persona
-    WHERE id_rol = '1';
-    `;
+app.post('/agregar-profe', async (req, res) => {
+    const { nom_persona, appat_persona, apmat_persona, correo } = req.body;
+    
+    const id_rol = 1; // Rol fijo para profesores
+    let idEscuela = req.session.id_escuela;
+    
+    console.log('Datos recibidos en /agregar-profesor:', { 
+        nom_persona, 
+        appat_persona, 
+        apmat_persona, 
+        correo,
+        idEscuela
+    });
 
     try {
+        // 1️⃣ Validar campos obligatorios
+        if (!nom_persona || !appat_persona || !correo) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Nombre, apellido paterno y correo son campos obligatorios.' 
+            });
+        }
+
+        // 2️⃣ Validar formato de correo
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(correo)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'El formato del correo electrónico es inválido.' 
+            });
+        }
+
+        // 3️⃣ Verificar si el correo ya existe
+        const [correoExistente] = await conexion.promise().query(
+            'SELECT id_persona FROM persona WHERE correo = ? AND id_escuela = ?',
+            [correo, idEscuela]
+        );
+
+        if (correoExistente.length > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'El correo electrónico ya está registrado en esta escuela.' 
+            });
+        }
+
+        // 4️⃣ Insertar el profesor
+        const [resultado] = await conexion.promise().query(
+            `INSERT INTO persona 
+             (nom_persona, appat_persona, apmat_persona, correo, id_rol, id_escuela) 
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [nom_persona, appat_persona, apmat_persona, correo, id_rol, idEscuela]
+        );
+
+       
+
+        res.json({ 
+            success: true, 
+            message: 'Profesor agregado correctamente',
+            id_persona: resultado.insertId 
+        });
+
+    } catch (error) {
+        console.error('Error al insertar profesor:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error al insertar profesor',
+            error: error.message 
+        });
+    }
+});
+
+// -------------------------------- FIN RUTA PROFES --------------------------------
+
+// -------------------------------- RUTA PARA OBTENER TIPO MATERIAS --------------------------------
+
+app.get('/api/tipomaterias', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
+    const query = `
+    SELECT id_tipomateria, nom_tipomateria
+    FROM tipomateria
+    `;
+    try {
         const [results] = await conexion.promise().query(query);
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'No se encontraron carreras para esta escuela' });
+        }
         res.json(results);
     } catch (err) {
-        console.error('Error fetching professors:', err);
+        console.error('Error fetching careers:', err);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
 
-// -------------------------------- FIN RUTA PROFES --------------------------------
 
+// -------------------------------- FIN RUTA PARA OBTENER TIPO MATERIAS --------------------------------
 
+// -------------------------------- RUTA PARA AGREGAR MATERIAS --------------------------------
 
+app.post('/agregar-materia', async (req, res) => {
+    const { nom_materia, id_tipomateria } = req.body;
+    let idEscuela = req.session.id_escuela;
+    console.log('Datos recibidos en /agregar-materia:', { nom_materia, id_tipomateria });
 
-
-// ------------------------------- RUTA DE CADA PERFIL --------------------------------
-
-app.get('/perfil/:userName', (req, res) => {
-    const userName = req.params.userName;
-
-    // Consulta a la base de datos para obtener los datos del usuario
-    conexion.promise().query('SELECT userName, userEmail, userCargo FROM usuarios WHERE userName = ?', [userName], (error, results) => {
-        if (error) {
-            console.error('Error al obtener datos del usuario:', error);
-            return res.status(500).json({ error: 'Error al obtener los datos del usuario' });
+    try {
+        // 1️⃣ Validar campos obligatorios
+        if (!nom_materia || !id_tipomateria) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nombre de la materia y tipo de materia son campos obligatorios.'
+            });
         }
-
-        if (results.length > 0) {
-            res.json(results[0]); // Enviar los datos del usuario como respuesta JSON
-        } else {
-            res.status(404).json({ error: 'Usuario no encontrado' });
+        // 2️⃣ Verificar si la materia ya existe
+        const [materiaExistente] = await conexion.promise().query(
+            'SELECT id_materia FROM materia WHERE nom_materia = ? AND id_escuela = ?',
+            [nom_materia, idEscuela]
+        );  
+        if (materiaExistente.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'La materia ya está registrada en esta escuela.'
+            });
         }
-    });
+        // 3️⃣ Insertar la materia
+        const [resultado] = await conexion.promise().query(
+            `INSERT INTO materia (nom_materia, id_tipomateria, id_escuela   )
+             VALUES (?, ?, ?)`,
+            [nom_materia, id_tipomateria, idEscuela]
+        );
+        res.json({
+            success: true,
+            message: 'Materia agregada correctamente',
+            id_materia: resultado.insertId
+        });
+    } catch (error) {
+        console.error('Error al insertar materia:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al insertar materia',
+            error: error.message
+        });
+    }
 });
 
+// -------------------------------- FIN RUTA PARA AGREGAR MATERIAS --------------------------------
+
+// -------------------------------- RUTA PARA AGREGAR CARREAS  --------------------------------
+
+app.post('/agregar-carrera', async (req, res) => {
+    const { nom_carrera } = req.body;
+    let idEscuela = req.session.id_escuela;
+    console.log('Datos recibidos en /agregar-carrera:', { nom_carrera });   
+
+    try {
+        // 1️⃣ Validar campos obligatorios
+        if (!nom_carrera) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nombre de la carrera y tipo de carrera son campos obligatorios.'
+            });
+        }
+        // 2️⃣ Verificar si la carrera ya existe
+        const [carreraExistente] = await conexion.promise().query(
+            'SELECT id_carrera FROM carrera WHERE nom_carrera = ? AND id_escuela = ?',
+            [nom_carrera, idEscuela]
+        );
+        if (carreraExistente.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'La carrera ya está registrada en esta escuela.'   
+            });
+        }
+        // 3️⃣ Insertar la carrera
+        const [resultado] = await conexion.promise().query(
+            `INSERT INTO carrera (nom_carrera, id_escuela)
+             VALUES (?, ?)`,
+            [nom_carrera, idEscuela]
+        );  
+        res.json({
+            success: true,
+            message: 'Carrera agregada correctamente',
+            id_carrera: resultado.insertId
+        });
+    } catch (error) {
+        console.error('Error al insertar carrera:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al insertar carrera',
+            error: error.message
+        });
+    }
+});
+
+// -------------------------------- FIN RUTA PARA AGREGAR CARRERAS  --------------------------------
+
+// -------------------------------- RUTA PARA OBTENER CARRERAS --------------------------------
+
+app.get('/api/carreras', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
+    const query = `
+    SELECT id_carrera, nom_carrera
+    FROM carrera
+    WHERE id_escuela = ?;
+    `;
+    try {
+        const [results] = await conexion.promise().query(query, [idEscuela]);
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'No se encontraron carreras para esta escuela' });
+        }
+        res.json(results);
+    } catch (err) {
+        console.error('Error fetching careers:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// -------------------------------- FIN RUTA PARA OBTENER CARRERAS --------------------------------
+
+// -------------------------------- RUTA PARA AGREGAR GRUPOS --------------------------------
+
+app.post('/agregar-grupo', async (req, res) => {
+    const { nom_grupo, sem_grupo, id_carrera, id_turno } = req.body;
+    let idEscuela = req.session.id_escuela;
+    console.log('Datos recibidos en /agregar-grupo:', { nom_grupo, sem_grupo, id_carrera, id_turno });
+
+    try {
+        // 1️⃣ Validar campos obligatorios
+        if (!nom_grupo || !sem_grupo || !id_carrera || !id_turno) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nombre del grupo, semestre y carrera son campos obligatorios.'
+            });
+        }
+        // 2️⃣ Verificar si el grupo ya existe
+        const [grupoExistente] = await conexion.promise().query(
+            'SELECT id_grupo FROM grupo WHERE nom_grupo = ? AND sem_grupo = ? AND id_carrera = ? AND id_turno = ? AND id_escuela = ?',
+            [nom_grupo, sem_grupo, id_carrera, id_turno, idEscuela]
+        );
+        if (grupoExistente.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'El grupo ya está registrado en esta escuela.'
+            });
+        }
+        // 3️⃣ Insertar el grupo
+        const [resultado] = await conexion.promise().query(
+            `INSERT INTO grupo (nom_grupo, sem_grupo, id_carrera, id_turno, id_escuela)
+             VALUES (?, ?, ?, ?, ?)`,
+            [nom_grupo, sem_grupo, id_carrera, id_turno, idEscuela]
+        );
+        res.json({
+            success: true,
+            message: 'Grupo agregado correctamente',
+            id_grupo: resultado.insertId
+        });
+    } catch (error) {
+        console.error('Error al insertar grupo:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al insertar grupo',
+            error: error.message
+        });
+    }
+});
+
+// -------------------------------- FIN RUTA PARA AGREGAR GRUPOS --------------------------------
+
+// -------------------------------- RUTA PARA AGREGAR PISOS --------------------------------
+
+app.post('/agregar-piso', async (req, res) => {
+    const { nom_piso } = req.body;
+    let idEscuela = req.session.id_escuela;
+    console.log('Datos recibidos en /agregar-piso:', { nom_piso });
+
+    try {
+        // 1️⃣ Validar campos obligatorios
+        if (!nom_piso) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nombre del piso es un campo obligatorio.'
+            });
+        }
+        // 2️⃣ Verificar si el piso ya existe
+        const [pisoExistente] = await conexion.promise().query(
+            'SELECT piso_salon FROM piso WHERE nom_piso = ? AND id_escuela = ?',
+            [nom_piso, idEscuela]
+        );
+        if (pisoExistente.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'El piso ya está registrado en esta escuela.'
+            });
+        }
+        // 3️⃣ Insertar el piso
+        const [resultado] = await conexion.promise().query(
+            `INSERT INTO piso (nom_piso, id_escuela)
+             VALUES (?, ?)`,
+            [nom_piso, idEscuela]
+        );
+        res.json({
+            success: true,
+            message: 'Piso agregado correctamente',
+            piso_salon: resultado.insertId
+        });
+    } catch (error) {
+        console.error('Error al insertar piso:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al insertar piso',
+            error: error.message
+        });
+    }
+});
+
+// -------------------------------- FIN RUTA PARA AGREGAR PISOS --------------------------------
+
+// -------------------------------- RUTA PARA OBTENER PISOS --------------------------------
+
+app.get('/api/pisos', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
+    const query = `
+    SELECT piso_salon, nom_piso
+    FROM piso
+    WHERE id_escuela = ?;
+    `;
+    try {
+        const [results] = await conexion.promise().query(query, [idEscuela]);
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'No se encontraron pisos para esta escuela' });
+        }
+        res.json(results);
+    } catch (err) {
+        console.error('Error fetching floors:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// -------------------------------- FIN RUTA PARA OBTENER PISOS --------------------------------
+
+// -------------------------------- RUTA PARA AGREGAR SALONES --------------------------------
+
+app.post('/agregar-salon', async (req, res) => {
+    const { nom_salon, piso_salon } = req.body;
+    let idEscuela = req.session.id_escuela;
+    console.log('Datos recibidos en /agregar-salon:', { nom_salon, piso_salon });
+
+    try {
+        // 1️⃣ Validar campos obligatorios
+        if (!nom_salon || !piso_salon) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nombre del salón y piso son campos obligatorios.'
+            });
+        }
+        // 2️⃣ Verificar si el salón ya existe
+        const [salonExistente] = await conexion.promise().query(
+            'SELECT id_salon FROM salon WHERE nom_salon = ? AND piso_salon = ? AND id_escuela = ?',
+            [nom_salon, piso_salon, idEscuela]
+        );
+        if (salonExistente.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'El salón ya está registrado en esta escuela.'
+            });
+        }
+        // 3️⃣ Insertar el salón
+        const [resultado] = await conexion.promise().query(
+            `INSERT INTO salon (nom_salon, piso_salon, id_escuela)
+             VALUES (?, ?, ?)`,
+            [nom_salon, piso_salon, idEscuela]
+        );
+        res.json({
+            success: true,
+            message: 'Salón agregado correctamente',
+            id_salon: resultado.insertId
+        });
+    } catch (error) {
+        console.error('Error al insertar salón:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al insertar salón',
+            error: error.message
+        });
+    }
+});
+
+// -------------------------------- FIN RUTA PARA AGREGAR SALONES --------------------------------
+
+
+// -------------------------------- RUTAS PARA CONSULTA --------------------------------
+
+app.get('/api/consulta-profesor', async (req, res) => {
+    try {
+        const [profesores] = await conexion.promise().query(`
+            SELECT p.id_persona, p.nom_persona, p.appat_persona, p.apmat_persona, p.correo 
+            FROM persona p 
+            WHERE p.id_rol = 1 AND p.id_escuela = ?
+        `, [req.session.id_escuela]);
+        
+        res.json(profesores);
+    } catch (error) {
+        console.error('Error al consultar profesores:', error);
+        res.status(500).json({ message: 'Error al consultar profesores' });
+    }
+});
+
+app.get('/api/consulta-materia', async (req, res) => {
+    try {
+        const [materias] = await conexion.promise().query(`
+            SELECT m.id_materia, m.nom_materia, t.nom_tipomateria 
+            FROM materia m
+            JOIN tipomateria t ON m.id_tipomateria = t.id_tipomateria
+            WHERE m.id_escuela = ?
+        `, [req.session.id_escuela]);
+        
+        res.json(materias);
+    } catch (error) {
+        console.error('Error al consultar materias:', error);
+        res.status(500).json({ message: 'Error al consultar materias' });
+    }
+});
+
+app.get('/api/consulta-carrera', async (req, res) => {
+    try {
+        const [carreras] = await conexion.promise().query(`
+            SELECT id_carrera, nom_carrera 
+            FROM carrera 
+            WHERE id_escuela = ?
+        `, [req.session.id_escuela]);
+        
+        res.json(carreras);
+    } catch (error) {
+        console.error('Error al consultar carreras:', error);
+        res.status(500).json({ message: 'Error al consultar carreras' });
+    }
+});
+
+app.get('/api/consulta-grupo', async (req, res) => {
+    try {
+        const [grupos] = await conexion.promise().query(`
+            SELECT g.id_grupo, g.nom_grupo, g.sem_grupo, c.nom_carrera, t.nom_turno 
+            FROM grupo g
+            JOIN carrera c ON g.id_carrera = c.id_carrera
+            join turno t on g.id_turno = t.id_turno
+            WHERE g.id_escuela = ?
+        `, [req.session.id_escuela]);
+        
+        res.json(grupos);
+    } catch (error) {
+        console.error('Error al consultar grupos:', error);
+        res.status(500).json({ message: 'Error al consultar grupos' });
+    }
+});
+
+app.get('/api/consulta-salon', async (req, res) => {
+    try {
+        const [salones] = await conexion.promise().query(`
+            SELECT s.id_salon, s.nom_salon, p.nom_piso
+            FROM salon s
+            join piso p ON s.piso_salon = p.piso_salon
+            WHERE s.id_escuela = ?
+        `, [req.session.id_escuela]);
+        
+        res.json(salones);
+    } catch (error) {
+        console.error('Error al consultar salones:', error);
+        res.status(500).json({ message: 'Error al consultar salones' });
+    }
+});
+
+// -------------------------------- FIN RUTAS PARA CONSULTA --------------------------------
+
+
+// -------------------------------- RUTA PARA EDITAR DATOS --------------------------------
+
+// ==================== PROFESORES ====================
+app.get('/api/obtener-profesor/:id', async (req, res) => {
+    try {
+        const [profesor] = await conexion.promise().query(
+            'SELECT * FROM persona WHERE id_persona = ? AND id_escuela = ?', 
+            [req.params.id, req.session.id_escuela]
+        );
+        
+        if (profesor.length === 0) {
+            return res.status(404).json({ message: 'Profesor no encontrado' });
+        }
+        
+        res.json(profesor[0]);
+    } catch (error) {
+        console.error('Error al obtener profesor:', error);
+        res.status(500).json({ message: 'Error al obtener profesor' });
+    }
+});
+
+app.put('/api/actualizar-profesor/:id', async (req, res) => {
+    const { nom_persona, appat_persona, apmat_persona, correo } = req.body;
+    
+    try {
+        await conexion.promise().query(
+            `UPDATE persona SET 
+                nom_persona = ?, 
+                appat_persona = ?, 
+                apmat_persona = ?, 
+                correo = ? 
+             WHERE id_persona = ? AND id_escuela = ?`,
+            [nom_persona, appat_persona, apmat_persona, correo, req.params.id, req.session.id_escuela]
+        );
+        
+        res.json({ success: true, message: 'Profesor actualizado correctamente' });
+    } catch (error) {
+        console.error('Error al actualizar profesor:', error);
+        res.status(500).json({ success: false, message: 'Error al actualizar profesor' });
+    }
+});
+
+// ==================== MATERIAS ====================
+app.get('/api/obtener-materia/:id', async (req, res) => {
+    try {
+        const [materia] = await conexion.promise().query(
+            'SELECT * FROM materia WHERE id_materia = ? AND id_escuela = ?', 
+            [req.params.id, req.session.id_escuela]
+        );
+        
+        if (materia.length === 0) {
+            return res.status(404).json({ message: 'Materia no encontrada' });
+        }
+        
+        res.json(materia[0]);
+    } catch (error) {
+        console.error('Error al obtener materia:', error);
+        res.status(500).json({ message: 'Error al obtener materia' });
+    }
+});
+
+app.put('/api/actualizar-materia/:id', async (req, res) => {
+    const { nom_materia, id_tipomateria } = req.body;
+    
+    try {
+        await conexion.promise().query(
+            `UPDATE materia SET 
+                nom_materia = ?, 
+                id_tipomateria = ? 
+             WHERE id_materia = ? AND id_escuela = ?`,
+            [nom_materia, id_tipomateria, req.params.id, req.session.id_escuela]
+        );
+        
+        res.json({ success: true, message: 'Materia actualizada correctamente' });
+    } catch (error) {
+        console.error('Error al actualizar materia:', error);
+        res.status(500).json({ success: false, message: 'Error al actualizar materia' });
+    }
+});
+
+// ==================== CARRERAS ====================
+app.get('/api/obtener-carrera/:id', async (req, res) => {
+    try {
+        const [carrera] = await conexion.promise().query(
+            'SELECT * FROM carrera WHERE id_carrera = ? AND id_escuela = ?', 
+            [req.params.id, req.session.id_escuela]
+        );
+        
+        if (carrera.length === 0) {
+            return res.status(404).json({ message: 'Carrera no encontrada' });
+        }
+        
+        res.json(carrera[0]);
+    } catch (error) {
+        console.error('Error al obtener carrera:', error);
+        res.status(500).json({ message: 'Error al obtener carrera' });
+    }
+});
+
+app.put('/api/actualizar-carrera/:id', async (req, res) => {
+    const { nom_carrera } = req.body;
+    
+    try {
+        await conexion.promise().query(
+            `UPDATE carrera SET 
+                nom_carrera = ? 
+             WHERE id_carrera = ? AND id_escuela = ?`,
+            [nom_carrera, req.params.id, req.session.id_escuela]
+        );
+        
+        res.json({ success: true, message: 'Carrera actualizada correctamente' });
+    } catch (error) {
+        console.error('Error al actualizar carrera:', error);
+        res.status(500).json({ success: false, message: 'Error al actualizar carrera' });
+    }
+});
+
+// ==================== GRUPOS ====================
+app.get('/api/obtener-grupo/:id', async (req, res) => {
+    try {
+        const [grupo] = await conexion.promise().query(`
+            SELECT g.*, c.nom_carrera, t.nom_turno 
+            FROM grupo g
+            LEFT JOIN carrera c ON g.id_carrera = c.id_carrera
+            LEFT JOIN turno t ON g.id_turno = t.id_turno
+            WHERE g.id_grupo = ? AND g.id_escuela = ?
+        `, [req.params.id, req.session.id_escuela]);
+        
+        if (grupo.length === 0) {
+            return res.status(404).json({ message: 'Grupo no encontrado' });
+        }
+        
+        res.json(grupo[0]);
+    } catch (error) {
+        console.error('Error al obtener grupo:', error);
+        res.status(500).json({ message: 'Error al obtener grupo' });
+    }
+});
+
+app.put('/api/actualizar-grupo/:id', async (req, res) => {
+    const { nom_grupo, sem_grupo, id_carrera, id_turno } = req.body;
+    
+    try {
+        await conexion.promise().query(
+            `UPDATE grupo SET 
+                nom_grupo = ?, 
+                sem_grupo = ?, 
+                id_carrera = ?, 
+                id_turno = ? 
+             WHERE id_grupo = ? AND id_escuela = ?`,
+            [nom_grupo, sem_grupo, id_carrera, id_turno, req.params.id, req.session.id_escuela]
+        );
+        
+        res.json({ success: true, message: 'Grupo actualizado correctamente' });
+    } catch (error) {
+        console.error('Error al actualizar grupo:', error);
+        res.status(500).json({ success: false, message: 'Error al actualizar grupo' });
+    }
+});
+
+// ==================== SALONES ====================
+app.get('/api/obtener-salon/:id', async (req, res) => {
+    try {
+        const [salon] = await conexion.promise().query(`
+            SELECT s.*, p.nom_piso 
+            FROM salon s
+            LEFT JOIN piso p ON s.piso_salon = p.piso_salon
+            WHERE s.id_salon = ? AND s.id_escuela = ?
+        `, [req.params.id, req.session.id_escuela]);
+        
+        if (salon.length === 0) {
+            return res.status(404).json({ message: 'Salón no encontrado' });
+        }
+        
+        res.json(salon[0]);
+    } catch (error) {
+        console.error('Error al obtener salón:', error);
+        res.status(500).json({ message: 'Error al obtener salón' });
+    }
+});
+
+app.put('/api/actualizar-salon/:id', async (req, res) => {
+    const { nom_salon, piso_salon } = req.body;
+
+    console.log('Datos recibidos en /actualizar-salon:', { nom_salon, piso_salon });
+    
+    try {
+        await conexion.promise().query(
+            `UPDATE salon SET 
+                nom_salon = ?, 
+                piso_salon = ? 
+             WHERE id_salon = ? AND id_escuela = ?`,
+            [nom_salon, piso_salon, req.params.id, req.session.id_escuela]
+        );
+        
+        res.json({ success: true, message: 'Salón actualizado correctamente' });
+    } catch (error) {
+        console.error('Error al actualizar salón:', error);
+        res.status(500).json({ success: false, message: 'Error al actualizar salón' });
+    }
+});
+
+// ==================== DATOS PARA SELECTS ====================
+app.get('/api/consulta-tipomateria', async (req, res) => {
+    try {
+        const [tipos] = await conexion.promise().query('SELECT * FROM tipomateria');
+        res.json(tipos);
+    } catch (error) {
+        console.error('Error al obtener tipos de materia:', error);
+        res.status(500).json({ message: 'Error al obtener tipos de materia' });
+    }
+});
+
+app.get('/api/consulta-carrera', async (req, res) => {
+    try {
+        const [carreras] = await conexion.promise().query(
+            'SELECT * FROM carrera WHERE id_escuela = ?',
+            [req.session.id_escuela]
+        );
+        res.json(carreras);
+    } catch (error) {
+        console.error('Error al obtener carreras:', error);
+        res.status(500).json({ message: 'Error al obtener carreras' });
+    }
+});
+
+app.get('/api/consulta-turno', async (req, res) => {
+    try {
+        const [turnos] = await conexion.promise().query('SELECT * FROM turno');
+        res.json(turnos);
+    } catch (error) {
+        console.error('Error al obtener turnos:', error);
+        res.status(500).json({ message: 'Error al obtener turnos' });
+    }
+});
+
+app.get('/api/consulta-piso', async (req, res) => {
+    try {
+        const [pisos] = await conexion.promise().query('SELECT * FROM piso Where id_escuela = ?', [req.session.id_escuela]);
+        res.json(pisos);
+    } catch (error) {
+        console.error('Error al obtener pisos:', error);
+        res.status(500).json({ message: 'Error al obtener pisos' });
+    }
+});
+
+// -------------------------------- FIN RUTA PARA EDITAR DATOS --------------------------------
+
+// -------------------------------- RUTAS DE GRAFICAS --------------------------------
+
 // RUTAS DE GRAFIACAS
+
+app.get('/api/profes', async (req, res) => {
+  try {
+    const [profesores] = await conexion.promise().query(`
+      SELECT id_persona, CONCAT(nom_persona, ' ', appat_persona, ' ', apmat_persona) AS nombre_completo 
+      FROM persona 
+      WHERE id_rol = 1 AND id_escuela = ?
+      ORDER BY nom_persona, appat_persona, apmat_persona
+    `, [req.session.id_escuela]); // Solo profesores de su escuela
+    res.json(profesores);
+  } catch (err) {
+    console.error('Error al obtener profesores:', err);
+    res.status(500).json({ error: 'Error al obtener profesores' });
+  }
+});
+
+
 app.get('/api/materias/todas', async (req, res) => {
   try {
-    const [materias] = await db.query(`
-      SELECT id_materia, nombre 
+    const [materias] = await conexion.promise().query(`
+      SELECT id_materia, nom_materia 
       FROM materia 
       WHERE id_escuela = ?
     `, [req.session.id_escuela]); // Solo materias de su escuela
@@ -1800,11 +2527,11 @@ app.get('/api/materias/todas', async (req, res) => {
 app.get('/api/materias/:id', async (req, res) => {
   const idProfesor = req.params.id;
   try {
-    const [materias] = await db.query(`
-      SELECT m.id_materia, m.nombre 
+    const [materias] = await conexion.promise().query(`
+      SELECT m.id_materia, m.nom_materia 
       FROM materia m
       JOIN horario h ON h.id_materia = m.id_materia
-      WHERE h.id_usuario = ? AND m.id_escuela = ?
+      WHERE h.id_persona = ? AND m.id_escuela = ?
       GROUP BY m.id_materia
     `, [idProfesor, req.session.id_escuela]);
 
@@ -1817,49 +2544,113 @@ app.get('/api/materias/:id', async (req, res) => {
 
 app.get('/api/reporteGrafica', async (req, res) => {
   const { profesor, materia, periodo } = req.query;
-  const idEscuela = req.session.id_escuela; // Asegúrate de que esté en la sesión
-
-  let where = `WHERE h.id_escuela = ?`;
-  const params = [idEscuela];
-
-  if (profesor !== "todos") {
-    where += " AND h.id_persona = ?";
-    params.push(profesor);
-  }
-
-  if (materia && materia !== "todas") {
-    where += " AND h.id_materia = ?";
-    params.push(materia);
-  }
-
-  let rangoFecha = "";
-  switch (periodo) {
-    case "dia":     rangoFecha = "AND a.fecha_asistencia >= CURDATE()"; break;
-    case "semana":  rangoFecha = "AND a.fecha_asistencia >= CURDATE() - INTERVAL 7 DAY"; break;
-    case "mes":     rangoFecha = "AND a.fecha_asistencia >= CURDATE() - INTERVAL 1 MONTH"; break;
-    case "6meses":  rangoFecha = "AND a.fecha_asistencia >= CURDATE() - INTERVAL 6 MONTH"; break;
-    case "anio":    rangoFecha = "AND a.fecha_asistencia >= CURDATE() - INTERVAL 1 YEAR"; break;
-  }
-
-  const query = `
-    SELECT 
-      DATE(a.fecha_asistencia) AS fecha,
-      COUNT(*) AS total
-    FROM asistencia a
-    JOIN horario h ON a.id_horario = h.id_horario
-    ${where} ${rangoFecha}
-    GROUP BY fecha
-    ORDER BY fecha;
-  `;
+  const idEscuela = req.session.id_escuela;
 
   try {
+    // Definir el rango de fechas según el período seleccionado
+    let rangoFecha = '';
+    const periodos = {
+      dia: '1 DAY',
+      semana: '7 DAY',
+      mes: '1 MONTH',
+      '6meses': '6 MONTH',
+      anio: '1 YEAR'
+    };
+
+    if (periodos[periodo]) {
+      rangoFecha = `AND fecha >= CURDATE() - INTERVAL ${periodos[periodo]}`;
+    }
+
+    // Consulta optimizada que considera los campos de validación
+    const query = `
+      SELECT 
+        fecha,
+        SUM(asistencias) AS asistencias,
+        SUM(faltas) AS faltas,
+        SUM(retardos) AS retardos
+      FROM (
+        -- Asistencias (solo contar donde validacion_asistencia = 1)
+        SELECT 
+          DATE(a.fecha_asistencia) AS fecha,
+          SUM(a.validacion_asistencia) AS asistencias,
+          0 AS faltas,
+          0 AS retardos
+        FROM asistencia a
+        JOIN horario h ON a.id_horario = h.id_horario
+        JOIN persona p ON h.id_persona = p.id_persona
+        WHERE h.id_escuela = ?
+        ${profesor !== 'todos' ? 'AND h.id_persona = ?' : ''}
+        ${materia && materia !== 'todas' ? 'AND h.id_materia = ?' : ''}
+        ${rangoFecha.replace('fecha', 'a.fecha_asistencia')}
+        GROUP BY DATE(a.fecha_asistencia)
+        
+        UNION ALL
+        
+        -- Faltas (solo contar donde validación_falta = 1)
+        SELECT 
+          DATE(f.fecha_falta) AS fecha,
+          0 AS asistencias,
+          SUM(f.validacion_falta) AS faltas,
+          0 AS retardos
+        FROM falta f
+        JOIN horario h ON f.id_horario = h.id_horario
+        JOIN persona p ON h.id_persona = p.id_persona
+        WHERE h.id_escuela = ?
+        ${profesor !== 'todos' ? 'AND h.id_persona = ?' : ''}
+        ${materia && materia !== 'todas' ? 'AND h.id_materia = ?' : ''}
+        ${rangoFecha.replace('fecha', 'f.fecha_falta')}
+        GROUP BY DATE(f.fecha_falta)
+        
+        UNION ALL
+        
+        -- Retardos (solo contar donde validación_retardo = 1)
+        SELECT 
+          DATE(r.fecha_retardo) AS fecha,
+          0 AS asistencias,
+          0 AS faltas,
+          SUM(r.validacion_retardo) AS retardos
+        FROM retardo r
+        JOIN horario h ON r.id_horario = h.id_horario
+        JOIN persona p ON h.id_persona = p.id_persona
+        WHERE h.id_escuela = ?
+        ${profesor !== 'todos' ? 'AND h.id_persona = ?' : ''}
+        ${materia && materia !== 'todas' ? 'AND h.id_materia = ?' : ''}
+        ${rangoFecha.replace('fecha', 'r.fecha_retardo')}
+        GROUP BY DATE(r.fecha_retardo)
+      ) AS combined_data
+      GROUP BY fecha
+      ORDER BY fecha ASC
+    `;
+
+    // Preparar parámetros
+    const params = [idEscuela];
+    if (profesor !== 'todos') params.push(profesor);
+    if (materia && materia !== 'todas') params.push(materia);
+    
+    // Repetir parámetros para cada parte de la consulta UNION
+    params.push(...params.slice(0));
+    params.push(...params.slice(0));
+
     const [rows] = await conexion.promise().query(query, params);
-    res.json(rows);
+
+    // Formatear la respuesta
+    const result = {
+      fechas: rows.map(row => row.fecha),
+      asistencias: rows.map(row => row.asistencias),
+      faltas: rows.map(row => row.faltas),
+      retardos: rows.map(row => row.retardos)
+    };
+
+    res.json(result);
   } catch (err) {
     console.error("Error en reporteGrafica:", err);
-    res.status(500).json({ error: "Error al consultar el reporte" });
+    res.status(500).json({ 
+      error: "Error al consultar el reporte",
+      details: err.message 
+    });
   }
 });
+
 app.get('/api/materias/profesor/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -1937,7 +2728,6 @@ app.get("/api/reportes", async (req, res) => {
   }
 });
 
-// ------------------------------- RUTA DE CADA PERFIL --------------------------------
 
 
 app.listen(app.get("port"), () => {

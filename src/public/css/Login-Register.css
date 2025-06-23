@@ -162,7 +162,6 @@ body {
   background-color: #7a7a9a;
 }
 
-/*PERSONALIZACION DE MIS ALERTAS Y MENSAJES */
 .form div .alerta {
   width: 290px;
   text-align: left;
@@ -582,7 +581,7 @@ button:hover {
             cursor: not-allowed;
         }
         
-        /* Contenido principal */
+   
         .container-form {
             transition: all 0.4s ease-out;
         }
@@ -592,7 +591,6 @@ button:hover {
             transform: translateY(20px);
         }
         
-        /* Estado de rechazo */
         .rejected .information {
             background: linear-gradient(135deg, #dc3545 0%, #e35d6a 100%);
         }
