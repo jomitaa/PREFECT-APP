@@ -807,3 +807,99 @@ main .breadcrumbs li.divider {
     --color: #f2a74c;
  }
  
+
+ /* Estilos para el modal OTP */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  animation: modalopen 0.3s;
+}
+
+@keyframes modalopen {
+  from {opacity: 0; transform: translateY(-50px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+.close-modal {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  color: #333;
+}
+
+.otp-input-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.otp-input {
+  width: 40px;
+  height: 50px;
+  text-align: center;
+  font-size: 20px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  transition: all 0.3s;
+}
+
+.otp-input:focus {
+  border-color: var(--blue);
+  outline: none;
+  box-shadow: 0 0 5px var(--dark-blue)
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-cancelar {
+  padding: 8px 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-confirmar {
+  padding: 8px 16px;
+  background-color: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancelar:hover {
+  background-color: #d32f2f;
+}
+
+.btn-confirmar:hover {
+  background-color: var(--dark-blue);
+}

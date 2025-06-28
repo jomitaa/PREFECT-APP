@@ -102,40 +102,42 @@ function createToast(type, icon, title, text) {
 }
 
 
-  function checkboxesHandler(event) {
+function checkboxesHandler(event) {
     const checkbox = event.target;
     const id_horario = checkbox.dataset.id;
     const tipo = checkbox.dataset.tipo;
 
     console.log(
-      `Checkbox con id_horario: ${id_horario} y tipo: ${tipo} ha sido activado.`
+        `Checkbox con id_horario: ${id_horario} y tipo: ${tipo} ha sido activado.`
     );
 
     // Manejo de bloqueo de checkboxes
     if (checkbox.checked) {
-      // Bloquear todos los checkboxes de la misma fila
-      document
-        .querySelectorAll(`input[data-id="${id_horario}"]`)
-        .forEach((cb) => {
-          if (cb !== checkbox) {
-            cb.disabled = true;
-          }
+        // Si es una falta, abrimos el modal de OTP
+        if (tipo === 'falta') {
+            openOTPModal(checkbox);
+            return; // No bloqueamos otros checkboxes todavía
+        }
+        
+        // Bloquear todos los checkboxes de la misma fila
+        document.querySelectorAll(`input[data-id="${id_horario}"]`).forEach((cb) => {
+            if (cb !== checkbox) {
+                cb.disabled = true;
+            }
         });
     } else {
-      // Desbloquear todos los checkboxes de la misma fila si ninguno está marcado
-      const anyChecked = Array.from(
-        document.querySelectorAll(`input[data-id="${id_horario}"]`)
-      ).some((cb) => cb.checked);
+        // Desbloquear todos los checkboxes de la misma fila si ninguno está marcado
+        const anyChecked = Array.from(
+            document.querySelectorAll(`input[data-id="${id_horario}"]`)
+        ).some((cb) => cb.checked);
 
-      if (!anyChecked) {
-        document
-          .querySelectorAll(`input[data-id="${id_horario}"]`)
-          .forEach((cb) => {
-            cb.disabled = false;
-          });
-      }
+        if (!anyChecked) {
+            document.querySelectorAll(`input[data-id="${id_horario}"]`).forEach((cb) => {
+                cb.disabled = false;
+            });
+        }
     }
-  }
+}
 
   const limpiarCheckboxes = () => {
     const lastReset = localStorage.getItem("lastReset");
@@ -148,79 +150,83 @@ function createToast(type, icon, title, text) {
 
   limpiarCheckboxes(); // Limpia las checkboxes al cargar la página
 
-  function checkAndSubmit(event) {
-    event.preventDefault(); // Evitar el envío del formulario
+async function checkAndSubmit(event) {
+    event.preventDefault();
 
     const checkboxes = document.querySelectorAll(".checkbox");
-    checkboxes.forEach((checkbox) => {
-      const id_horario = checkbox.dataset.id;
-      if (checkbox.checked && !localStorage.getItem(`checkbox_${id_horario}`)) {
-        // Guardar en localStorage para no enviarlo de nuevo
-        localStorage.setItem(`checkbox_${id_horario}`, "true");
-        checkbox.disabled = true; // Desactivar el checkbox después de enviar
-
-        // Obtener valores de asistencia, retardo y falta
-        const validacion_asistencia = document.getElementById(
-          `validacion_asistencia_${id_horario}`
-        ).checked;
-        const validacion_retardo = document.getElementById(
-          `validacion_retardo_${id_horario}`
-        ).checked;
-        const validacion_falta = document.getElementById(
-          `validacion_falta_${id_horario}`
-        ).checked;
-
-        // Enviar datos al servidor
-        fetch("/actualizarDatos", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            validacion_asistencia,
-            validacion_retardo,
-            validacion_falta,
-            id_horario,
-          }),
-        })
-          .then((response) => {
-            if (response.ok) {
-              createToast(
-                "Correcto",
-                "fa-solid fa-circle-check",
-                "Actualización exitosa",
-                `Se actualizó correctamente el horario ID: ${id_horario}`
-              );
-            } else {
-              createToast(
-                "error",
-                "fa-solid fa-circle-exclamation",
-                "Error",
-                `Hubo un problema al actualizar el horario ID: ${id_horario}`
-              );
+    
+    for (const checkbox of checkboxes) {
+        const id_horario = checkbox.dataset.id;
+        const tipo = checkbox.dataset.tipo;
+        
+        // Solo procesamos si no es una falta y está marcado
+        if (checkbox.checked && tipo !== 'falta' && !localStorage.getItem(`checkbox_${id_horario}`)) {
+            try {
+                // Enviar datos al servidor
+                const response = await fetch("/actualizarDatos", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        validacion_asistencia: document.getElementById(`validacion_asistencia_${id_horario}`).checked,
+                        validacion_retardo: document.getElementById(`validacion_retardo_${id_horario}`).checked,
+                        validacion_falta: false, // Las faltas se manejan aparte
+                        id_horario: id_horario
+                    }),
+                });
+                
+                if (response.ok) {
+                    // Guardar en localStorage para no enviarlo de nuevo
+                    localStorage.setItem(`checkbox_${id_horario}`, "true");
+                    checkbox.disabled = true;
+                    
+                    createToast(
+                        "Correcto",
+                        "fa-solid fa-circle-check",
+                        "Actualización exitosa",
+                        `Se actualizó correctamente el horario ID: ${id_horario}`
+                    );
+                } else {
+                    createToast(
+                        "error",
+                        "fa-solid fa-circle-exclamation",
+                        "Error",
+                        `Hubo un problema al actualizar el horario ID: ${id_horario}`
+                    );
+                }
+            } catch (error) {
+                console.error("Error al enviar los datos:", error);
             }
-          })
-          .catch((error) => {
-            console.error("Error al enviar los datos:", error);
-          });
-      }
-    });
-  }
+        }
+    }
+}
 
   // Cargar estado de los checkboxes al iniciar la página
-  function inicializarCheckboxes() {
+function inicializarCheckboxes() {
     const checkboxes = document.querySelectorAll(".checkbox");
     checkboxes.forEach((checkbox) => {
-      const id_horario = checkbox.dataset.id;
-      if (localStorage.getItem(`checkbox_${id_horario}`) === "true") {
-        checkbox.checked = true;
-        checkbox.disabled = true;
-      }
+        const id_horario = checkbox.dataset.id;
+        const isChecked = localStorage.getItem(`checkbox_${id_horario}`) === "true";
+        
+        checkbox.checked = isChecked;
+        checkbox.disabled = isChecked;
+        
+        // Si un checkbox está marcado, deshabilitar los otros de la misma fila
+        if (isChecked) {
+            document.querySelectorAll(`input[data-id="${id_horario}"]`).forEach((cb) => {
+                if (cb !== checkbox) {
+                    cb.disabled = true;
+                }
+            });
+        }
     });
 
     const submitButton = document.getElementById("btnEnviar");
-    submitButton.addEventListener("click", checkAndSubmit);
-  }
+    if (submitButton) {
+        submitButton.addEventListener("click", checkAndSubmit);
+    }
+}
 
   window.onload = function () {
     inicializarCheckboxes();
@@ -480,152 +486,202 @@ function filtrarPorTurno(turnoId) {
 
   //------------------------------------------------------------ FIN CODIGO HORARIO -----------------------------------
 
-  // ---------------------------------------------------------------  CODIGO DE BUSCADOR  -------------------------------
 
-  const search = document.querySelector(".input-group input"),
-    table_rows = document.getElementsByName("joma"),
-    table_headings = document.querySelectorAll("thead th");
+  // Obtener el modal
+const otpModal = document.getElementById('otpModal');
+const closeModal = document.querySelector('.btn-cancelar');
 
-  // 1. BUSCAR EN LA TABLA
-  search.addEventListener("input", searchTable);
-
-  function searchTable() {
-    table_rows.forEach((row, i) => {
-      let table_data = row.textContent.toLowerCase(),
-        search_data = search.value.toLowerCase();
-
-      row.classList.toggle("hide", table_data.indexOf(search_data) < 0);
-      row.style.setProperty("--delay", i / 25 + "s");
+// Función para abrir el modal
+// Función para abrir el modal y solicitar OTP al servidor
+async function openOTPModal(checkbox) {
+    const id_horario = checkbox.dataset.id;
+    
+    // Mostrar el modal
+    otpModal.style.display = 'block';
+    otpModal.currentCheckbox = checkbox;
+    
+    // Limpiar los inputs del OTP
+    document.querySelectorAll('.otp-input').forEach(input => {
+        input.value = '';
     });
-
-    document
-      .querySelectorAll("tbody tr:not(.hide)")
-      .forEach((visible_row, i) => {
-        visible_row.style.backgroundColor =
-          i % 2 == 0 ? "transparent" : "#0000000b";
-      });
-  }
-
-  // 2. ORDENAR TABLA
-
-  table_headings.forEach((head, i) => {
-    let sort_asc = true;
-    head.onclick = () => {
-      table_headings.forEach((head) => head.classList.remove("active"));
-      head.classList.add("active");
-
-      document
-        .querySelectorAll("td")
-        .forEach((td) => td.classList.remove("active"));
-      table_rows.forEach((row) => {
-        row.querySelectorAll("td")[i].classList.add("active");
-      });
-
-      head.classList.toggle("asc", sort_asc);
-      sort_asc = head.classList.contains("asc") ? false : true;
-
-      sortTable(i, sort_asc);
-    };
-  });
-
-  function sortTable(column, sort_asc) {
-    [...table_rows]
-      .sort((a, b) => {
-        let first_row = a
-            .querySelectorAll("td")
-            [column].textContent.toLowerCase(),
-          second_row = b
-            .querySelectorAll("td")
-            [column].textContent.toLowerCase();
-
-        return sort_asc
-          ? first_row < second_row
-            ? 1
-            : -1
-          : first_row < second_row
-          ? -1
-          : 1;
-      })
-      .map((sorted_row) =>
-        document.querySelector("tbody").appendChild(sorted_row)
-      );
-  }
-
-  // 3. PDF
-
-  const pdf_btn = document.querySelector("#toPDF");
-  const customers_table = document.querySelector("#customers_table");
-
-  const toPDF = function (customers_table) {
-    const html_code = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-        <link rel="stylesheet" type="text/css" href="../public/css/PRF_1ER_PISO.css">
-    </head>
-    <body>
-        <main class="table" id="customers_table">${customers_table.innerHTML}</main>
-    </body>
-    </html>`;
-
-    const new_window = window.open();
-    new_window.document.write(html_code);
-
-    setTimeout(() => {
-      new_window.print();
-      new_window.close();
-    }, 1000);
-  };
-
-  pdf_btn.onclick = () => {
-    toPDF(customers_table);
-  };
-
-  // 4. JSON
-
-  const json_btn = document.querySelector("#toJSON");
-
-  const toJSON = function (table) {
-    let table_data = [],
-      t_head = [],
-      t_headings = table.querySelectorAll("th"),
-      t_rows = table.querySelectorAll("tbody tr");
-
-    for (let t_heading of t_headings) {
-      let actual_head = t_heading.textContent.trim().split(" ");
-
-      t_head.push(
-        actual_head
-          .splice(0, actual_head.length - 1)
-          .join(" ")
-          .toLowerCase()
-      );
-    }
-
-    t_rows.forEach((row) => {
-      const row_object = {},
-        t_cells = row.querySelectorAll("td");
-
-      t_cells.forEach((t_cell, cell_index) => {
-        const img = t_cell.querySelector("img");
-        if (img) {
-          row_object["customer image"] = decodeURIComponent(img.src);
+    
+    // Enfocar el primer input
+    document.querySelector('.otp-input[data-index="0"]').focus();
+    
+    try {
+        // Enviar solicitud al servidor para generar OTP
+        const response = await fetch('/generate-falta-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                validacion_falta: true,
+                id_horario: id_horario
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            createToast(
+                "error",
+                "fa-solid fa-circle-exclamation",
+                "Error",
+                data.message || "Error al generar código de verificación."
+            );
+            closeOTPModal();
+        } else {
+            createToast(
+                "Correcto",
+                "fa-solid fa-circle-check",
+                "Código enviado",
+                "Se ha enviado un código de verificación a tu correo."
+            );
         }
-        row_object[t_head[cell_index]] = t_cell.textContent.trim();
-      });
-      table_data.push(row_object);
+    } catch (error) {
+        console.error('Error al solicitar OTP:', error);
+        createToast(
+            "error",
+            "fa-solid fa-circle-exclamation",
+            "Error",
+            "Hubo un problema al solicitar el código de verificación."
+        );
+        closeOTPModal();
+    }
+}
+
+// Función para verificar el OTP con el servidor
+async function verifyOTP() {
+    // Construir el código ingresado
+    let enteredOTP = '';
+    document.querySelectorAll('.otp-input').forEach(input => {
+        enteredOTP += input.value;
     });
+    
+    if (enteredOTP.length !== 6) {
+        createToast(
+            "error",
+            "fa-solid fa-circle-exclamation",
+            "Error",
+            "El código debe tener 6 dígitos."
+        );
+        return { success: false };
+    }
+    
+    try {
+        const response = await fetch('/verify-falta-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                otpCode: enteredOTP
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!data.success) {
+            createToast(
+                "error",
+                "fa-solid fa-circle-exclamation",
+                "Error",
+                data.message || "El código OTP ingresado no es válido."
+            );
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Error al verificar OTP:', error);
+        createToast(
+            "error",
+            "fa-solid fa-circle-exclamation",
+            "Error",
+            "Hubo un problema al verificar el código."
+        );
+        return { success: false };
+    }
+}
 
-    return JSON.stringify(table_data, null, 4);
-  };
+// Modificar el evento del botón Confirmar
+document.getElementById('confirmarFalta').addEventListener('click', async function() {
+    const verificationResult = await verifyOTP();
+    
+    if (verificationResult.success) {
+        const checkbox = otpModal.currentCheckbox;
+        const id_horario = checkbox.dataset.id;
+        
+        // Marcar el checkbox como seleccionado y deshabilitado
+        checkbox.checked = true;
+        checkbox.disabled = true;
+        
+        // Bloquear todos los checkboxes de esta fila
+        document.querySelectorAll(`input[data-id="${id_horario}"]`).forEach((cb) => {
+            if (cb !== checkbox) {
+                cb.disabled = true;
+            }
+        });
+        
+        // Guardar en localStorage para persistencia
+        localStorage.setItem(`checkbox_${id_horario}`, "true");
+        
+        // Cerrar el modal
+        closeOTPModal();
+        
+        // Mostrar mensaje de éxito
+        createToast(
+            "Correcto",
+            "fa-solid fa-circle-check",
+            "Falta confirmada",
+            "La falta ha sido registrada correctamente."
+        );
+        
+        // Forzar la actualización del estado en el frontend
+        inicializarCheckboxes();
+    } else {
+        // Si el OTP es incorrecto, desmarcar el checkbox
+        if (otpModal.currentCheckbox) {
+            otpModal.currentCheckbox.checked = false;
+        }
+    }
+});
 
-  json_btn.onclick = () => {
-    const json = toJSON(customers_table);
-    downloadFile(json, "json");
-  };
+function closeOTPModal() {
+    otpModal.style.display = 'none';
+    // Solo desmarcar si no se confirmó exitosamente
+    if (otpModal.currentCheckbox && !otpModal.currentCheckbox.disabled) {
+        otpModal.currentCheckbox.checked = false;
+    }
+}
 
-  // --------------------------------------------------------------- FIN CODIGO DE BUSCADOR  -------------------------------
+// Evento para cerrar al hacer clic en la X
+closeModal.addEventListener('click', closeOTPModal);
 
+// Evento para cerrar al hacer clic fuera del modal
+window.addEventListener('click', (event) => {
+    if (event.target === otpModal) {
+        closeOTPModal();
+    }
+});
+
+// Manejar la entrada del OTP
+document.querySelectorAll('.otp-input').forEach(input => {
+    input.addEventListener('input', function() {
+        const index = parseInt(this.dataset.index);
+        
+        // Si se ingresó un carácter, pasar al siguiente input
+        if (this.value.length === 1 && index < 5) {
+            document.querySelector(`.otp-input[data-index="${index + 1}"]`).focus();
+        }
+    });
+    
+    // Manejar la tecla de retroceso
+    input.addEventListener('keydown', function(e) {
+        const index = parseInt(this.dataset.index);
+        
+        if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+            document.querySelector(`.otp-input[data-index="${index - 1}"]`).focus();
+        }
+    });
+});

@@ -754,9 +754,94 @@ app.get('/api/horarios/:id', async (req, res) => {
 });
 // --------------------------------  FIN RUTA HORARIOS POR ID  -------------------------
 
+// ----------------------------- RUTAS PARA MANEJO DE FALTAS CON OTP -----------------------------
+
+// Generar y enviar OTP para falta
+app.post('/generate-falta-otp', async (req, res) => {
+    if (!req.session.loggedin) {
+        return res.status(401).json({ success: false, message: 'No autorizado' });
+    }
+
+    try {
+        // Generar código OTP de 6 dígitos
+        const otpCode = Math.floor(100000 + Math.random() * 900000);
+        req.session.faltaOTP = otpCode;
+        req.session.faltaData = req.body; // Guardamos los datos de la falta temporalmente
+
+        console.log("Código OTP para falta generado en la sesión:", req.session.faltaOTP);
+
+        // Obtener el correo del usuario (prefecto) desde la sesión o base de datos
+        const userResults = await query('SELECT correo FROM usuario WHERE ID_usuario = ?', [req.session.userId]);
+        const user = userResults[0];
+
+        if (!user || !user.correo) {
+            return res.json({ success: false, message: 'No se encontró el correo del usuario.' });
+        }
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: user.correo,
+            subject: "Código de verificación para registrar falta",
+            text: `Tu código de verificación para registrar la falta es: ${otpCode}`
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.json({ 
+            success: true, 
+            message: "Se ha enviado un código de verificación a tu correo.",
+            requiresOTP: true
+        });
+    } catch (err) {
+        console.error('Error al generar OTP para falta:', err);
+        return res.status(500).json({ success: false, message: 'Error al generar código de verificación.' });
+    }
+});
+
+// Verificar OTP para falta
+app.post('/verify-falta-otp', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
+    if (!req.session.loggedin) {
+        return res.status(401).json({ success: false, message: 'No autorizado' });
+    }
+
+    const { otpCode } = req.body;
+
+    console.log("OTP recibido para falta:", otpCode);
+    console.log("OTP almacenado en la sesión:", req.session.faltaOTP);
+
+    if (!req.session.faltaOTP || req.session.faltaOTP != otpCode) {
+        return res.json({ success: false, message: "Código incorrecto." });
+    }
+
+    try {
+        // Si el OTP es correcto, procedemos a registrar la falta
+        const { validacion_falta, id_horario } = req.session.faltaData;
+
+        // Insertar datos en la tabla falta
+        await insertarFalta(validacion_falta, id_horario, idEscuela);
+
+        // Limpiar la sesión
+        delete req.session.faltaOTP;
+        delete req.session.faltaData;
+
+        res.json({ 
+            success: true, 
+            message: "Falta registrada correctamente."
+        });
+    } catch (error) {
+        console.error('Error al registrar falta después de OTP:', error);
+        return res.status(500).json({ success: false, message: 'Error al registrar la falta.' });
+    }
+});
+
+// --------------------------------  FIN RUTAS FALTAS CON OTP  -------------------------
+
+
 
 // ------------------------------- RUTA DE ASISTENCIA, RETARDO Y FALTA  --------------------------------
 app.post('/actualizarDatos', async function (req, res) {
+    let idEscuela = req.session.id_escuela;
     console.log('Datos recibidos en el servidor:', req.body);
 
     const { validacion_asistencia, validacion_retardo, validacion_falta, id_horario } = req.body;
@@ -765,13 +850,13 @@ app.post('/actualizarDatos', async function (req, res) {
 
     try {
         // Insertar datos en la tabla asistencia
-        await insertarAsistencia(validacion_asistencia, id_horario);
+        await insertarAsistencia(validacion_asistencia, id_horario, idEscuela);
 
         // Insertar datos en la tabla retardo
-        await insertarRetardo(validacion_retardo, id_horario);
+        await insertarRetardo(validacion_retardo, id_horario , idEscuela);
 
         // Insertar datos en la tabla falta
-        await insertarFalta(validacion_falta, id_horario);
+        await insertarFalta(validacion_falta, id_horario , idEscuela);
 
         res.send("Datos actualizados correctamente");
     } catch (error) {
@@ -781,10 +866,10 @@ app.post('/actualizarDatos', async function (req, res) {
 });
 
 
-async function insertarAsistencia(validacion_asistencia, id_horario) {
+async function insertarAsistencia(validacion_asistencia, id_horario, idEscuela) {
     return new Promise((resolve, reject) => {
-        conexion.query('INSERT INTO asistencia (validacion_asistencia, fecha_asistencia, id_horario) VALUES (?, NOW(), ?)',
-            [validacion_asistencia, id_horario],
+        conexion.query('INSERT INTO asistencia (validacion_asistencia, fecha_asistencia, id_horario, id_escuela) VALUES (?, NOW(), ?, ?)',
+            [validacion_asistencia, id_horario, idEscuela],
             (error, results) => {
                 if (error) {
                     console.error('Error insertando asistencia:', error);
@@ -797,10 +882,10 @@ async function insertarAsistencia(validacion_asistencia, id_horario) {
     });
 }
 
-async function insertarRetardo(validacion_retardo, id_horario) {
+async function insertarRetardo(validacion_retardo, id_horario, idEscuela) {
     return new Promise((resolve, reject) => {
-        conexion.query('INSERT INTO retardo (validacion_retardo, fecha_retardo, id_horario) VALUES (?, NOW(), ?)',
-            [validacion_retardo, id_horario],
+        conexion.query('INSERT INTO retardo (validacion_retardo, fecha_retardo, id_horario, id_escuela) VALUES (?, NOW(), ?, ?)',
+            [validacion_retardo, id_horario, idEscuela],
             (error, results) => {
                 if (error) {
                     console.error('Error insertando retardo:', error);
@@ -813,10 +898,10 @@ async function insertarRetardo(validacion_retardo, id_horario) {
     });
 }
 
-async function insertarFalta(validacion_falta, id_horario) {
+async function insertarFalta(validacion_falta, id_horario, idEscuela) {
     return new Promise((resolve, reject) => {
-        conexion.query('INSERT INTO falta (validacion_falta, fecha_falta, id_horario) VALUES (?, NOW(), ?)',
-            [validacion_falta, id_horario],
+        conexion.query('INSERT INTO falta (validacion_falta, fecha_falta, id_horario, id_escuela) VALUES (?, NOW(), ?, ?)',
+            [validacion_falta, id_horario, idEscuela],
             (error, results) => {
                 if (error) {
                     console.error('Error insertando falta:', error);
