@@ -1,11 +1,311 @@
+let periodoSeleccc = "dia"; 
+let profesorSeleccc = "todos";
+let materiaSeleccc = "todas";
+
+const contenedorPeriodo = document.querySelector('.contenedor-select');
+const contenedorProfesor = document.querySelector('.contenedor-select[data-type="profesor"]');
+const contenedorMateria = document.querySelector('.contenedor-select[data-type="materia"]');
+
+
+
+// --------------------------- selec periodos ---------------------------
+
+function seleccionarPeriodo(opcion) {
+            // Animación
+            opcion.style.transform = 'scale(0.98)';
+            setTimeout(() => opcion.style.transform = '', 150);
+            
+            // Actualizar variable y UI
+            periodoSeleccc = opcion.dataset.value;
+            contenedorPeriodo.querySelector('.boton-select span').textContent = opcion.textContent;
+            
+            // Marcar como seleccionado
+            contenedorPeriodo.querySelectorAll('.opciones li').forEach(li => {
+                li.classList.remove('seleccionado');
+            });
+            opcion.classList.add('seleccionado');
+            
+            // Cerrar select
+            cerrarSelect(contenedorPeriodo);
+
+             const event = new Event('change');
+    contenedorPeriodo.dispatchEvent(event);
+            
+        }
+
+        function inicializarEventosPeriodo() {
+    const botonSelect = contenedorPeriodo.querySelector('.boton-select');
+    const contenidoSelect = contenedorPeriodo.querySelector('.contenido-select');
+    
+    // Evento para abrir/cerrar el select
+    botonSelect.addEventListener("click", (e) => {
+        e.stopPropagation();
+        contenedorPeriodo.classList.toggle("activo");
+    });
+    
+    // Asegúrate que las opciones tienen el evento onclick correcto
+    const opcionesPeriodo = contenedorPeriodo.querySelectorAll('.opciones li');
+    opcionesPeriodo.forEach(opcion => {
+        opcion.onclick = function() {
+            seleccionarPeriodo(this);
+        };
+    });
+}
+// --------------------------- fin selec periodo ---------------------------
+
+// --------------------------- selec profesor ---------------------------
+function seleccionarProfesor(opcion) {
+    // Animación
+    opcion.style.transform = 'scale(0.98)';
+    setTimeout(() => opcion.style.transform = '', 150);
+    
+    // Actualizar variable y UI
+     profesorSeleccc = {
+        id: opcion.dataset.value,
+        nombre: opcion.textContent
+    };
+    contenedorProfesor.querySelector('.boton-select span').textContent = opcion.textContent;
+    
+    // Marcar como seleccionado
+    contenedorProfesor.querySelectorAll('.opciones li').forEach(li => {
+        li.classList.remove('seleccionado');
+    });
+    opcion.classList.add('seleccionado');
+    
+    // Cerrar select
+    cerrarSelect(contenedorProfesor);
+    
+    // Cargar materias correspondientes al profesor seleccionado
+    cargarMateriasPersonalizado(profesorSeleccc.id);
+    
+    // Disparar evento change
+    const event = new Event('change');
+    contenedorProfesor.dispatchEvent(event);
+}
+
+function inicializarEventosProfesor() {
+    const botonSelect = contenedorProfesor.querySelector('.boton-select');
+    const contenidoSelect = contenedorProfesor.querySelector('.contenido-select');
+    const inputBusqueda = contenedorProfesor.querySelector('.buscador input');
+                        const opciones = contenedorProfesor.querySelector('.opciones');
+
+
+    
+    // Evento para abrir/cerrar el select
+    botonSelect.addEventListener("click", (e) => {
+        e.stopPropagation();
+        contenedorProfesor.classList.toggle("activo");
+
+         if (contenedorProfesor.classList.contains('activo') && inputBusqueda) {
+                        inputBusqueda.focus();
+                    }
+    });
+
+      if (inputBusqueda) {
+                    inputBusqueda.addEventListener('input', () => {
+                        const busqueda = inputBusqueda.value.toLowerCase();
+                        const items = opciones.querySelectorAll('li');
+                        
+                        items.forEach(item => {
+                            const texto = item.textContent.toLowerCase();
+                            item.style.display = texto.includes(busqueda) ? 'flex' : 'none';
+                        });
+                    });
+                }
+    
+    // Asignar evento a las opciones
+    const opcionesProfesor = contenedorProfesor.querySelectorAll('.opciones li');
+    opcionesProfesor.forEach(opcion => {
+        opcion.onclick = function() {
+            seleccionarProfesor(this);
+        };
+    });
+
+    
+}
+
+// --------------------------- selec materia ---------------------------
+function seleccionarMateria(opcion) {
+    // Animación
+    opcion.style.transform = 'scale(0.98)';
+    setTimeout(() => opcion.style.transform = '', 150);
+    
+    // Actualizar variable y UI
+     materiaSeleccc = {
+        id: opcion.dataset.value,
+        nombre: opcion.textContent
+    };
+    contenedorMateria.querySelector('.boton-select span').textContent = opcion.textContent;
+    
+    // Marcar como seleccionado
+    contenedorMateria.querySelectorAll('.opciones li').forEach(li => {
+        li.classList.remove('seleccionado');
+    });
+    opcion.classList.add('seleccionado');
+    
+    // Cerrar select
+    cerrarSelect(contenedorMateria);
+    
+    // Disparar evento change
+    const event = new Event('change');
+    contenedorMateria.dispatchEvent(event);
+}
+
+function inicializarEventosMateria() {
+    const botonSelect = contenedorMateria.querySelector('.boton-select');
+    const contenidoSelect = contenedorMateria.querySelector('.contenido-select');
+    const inputBusqueda = contenedorMateria.querySelector('.buscador input');
+                    const opciones = contenedorMateria.querySelector('.opciones');
+
+
+    
+    // Evento para abrir/cerrar el select
+    botonSelect.addEventListener("click", (e) => {
+        e.stopPropagation();
+        contenedorMateria.classList.toggle("activo");
+
+         if (contenedorMateria.classList.contains('activo') && inputBusqueda) {
+                        inputBusqueda.focus();
+                    }
+    });
+
+      if (inputBusqueda) {
+                    inputBusqueda.addEventListener('input', () => {
+                        const busqueda = inputBusqueda.value.toLowerCase();
+                        const items = opciones.querySelectorAll('li');
+                        
+                        items.forEach(item => {
+                            const texto = item.textContent.toLowerCase();
+                            item.style.display = texto.includes(busqueda) ? 'flex' : 'none';
+                        });
+                    });
+                }
+    
+    // Asignar evento a las opciones
+    const opcionesMateria = contenedorMateria.querySelectorAll('.opciones li');
+    opcionesMateria.forEach(opcion => {
+        opcion.onclick = function() {
+            seleccionarMateria(this);
+        };
+    });
+}
+
+// --------------------------- fin selec materia ---------------------------
+
+
+function cerrarSelect(contenedor) {
+            if (!contenedor) return;
+            
+            const contenidoSelect = contenedor.querySelector('.contenido-select');
+            if (!contenidoSelect) return;
+            
+            contenidoSelect.style.opacity = '0';
+            contenidoSelect.style.transform = 'translateY(-15px)';
+            
+            setTimeout(() => {
+                contenedor.classList.remove("activo");
+                contenidoSelect.style.opacity = '';
+                contenidoSelect.style.transform = '';
+            }, 300);
+        }
+
+
+
+         // ---------- llenar los select custom -----------------
+
+  async function cargarProfesoresPersonalizado() {
+    try {
+        const res = await fetch("/api/profes");
+        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+        
+        const profesores = await res.json();
+        const opciones = contenedorProfesor.querySelector('.opciones');
+        opciones.innerHTML = '';
+        
+        // Opción "Todos"
+        const todosLi = document.createElement('li');
+        todosLi.textContent = 'Todos';
+        todosLi.setAttribute('data-value', 'todos');
+        todosLi.onclick = function() {
+            seleccionarProfesor(this);
+        };
+        opciones.appendChild(todosLi);
+        
+        // Opciones de profesores
+        profesores.forEach(prof => {
+            const li = document.createElement('li');
+            li.textContent = prof.nombre_completo;
+            li.setAttribute('data-value', prof.id_persona);
+            li.onclick = function() {
+                seleccionarProfesor(this);
+            };
+            opciones.appendChild(li);
+        });
+        
+    } catch (err) {
+        console.error("Error al cargar profesores:", err);
+        mostrarError("Error al cargar la lista de profesores");
+    }
+}
+
+async function cargarMateriasPersonalizado(idProfesor) {
+    try {
+        const endpoint = idProfesor === "todos" 
+            ? "/api/materias/todas" 
+            : `/api/materias/${idProfesor}`;
+        
+        const res = await fetch(endpoint);
+        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+        
+        const materias = await res.json();
+        const opciones = contenedorMateria.querySelector('.opciones');
+        opciones.innerHTML = '';
+        
+        // Opción "Todas"
+        const todasLi = document.createElement('li');
+        todasLi.textContent = 'Todas';
+        todasLi.setAttribute('data-value', 'todas');
+        todasLi.onclick = function() {
+            seleccionarMateria(this);
+        };
+        opciones.appendChild(todasLi);
+        
+        // Opciones de materias
+        materias.forEach(mat => {
+            const li = document.createElement('li');
+            li.textContent = mat.nom_materia;
+            li.setAttribute('data-value', mat.id_materia);
+            li.onclick = function() {
+                seleccionarMateria(this);
+            };
+            opciones.appendChild(li);
+        });
+        
+    } catch (err) {
+        console.error("Error al cargar materias:", err);
+        mostrarError("Error al cargar la lista de materias");
+    }
+}
+
+// ------------------- fin llenar selec custom ---------------------
 
 
 
 document.addEventListener("DOMContentLoaded", async () => {
+    
+    inicializarEventosPeriodo();
+    inicializarEventosProfesor();
+    inicializarEventosMateria();
+     await cargarProfesoresPersonalizado();
+    await cargarMateriasPersonalizado('todos');
+
+
+   
+    
+
   const profesorSelect = document.getElementById("profesor");
   const materiaContainer = document.getElementById("materia-container");
   const materiaSelect = document.getElementById("materia");
-  const periodoSelect = document.getElementById("periodo");
   const chartContainer = document.getElementById("chart-container");
   const btnPDF = document.getElementById("btnDescargarPDF");
   const CambiarGrafica = document.getElementById("btnCambiarGrafica");
@@ -40,6 +340,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         option.textContent = prof.nombre_completo;
         profesorSelect.appendChild(option);
       });
+
+
     } catch (err) {
       console.error("Error al cargar profesores:", err);
       mostrarError("Error al cargar la lista de profesores");
@@ -73,6 +375,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+ 
   // Función para mostrar errores
   function mostrarError(mensaje) {
     const errorElement = document.createElement("div");
@@ -415,9 +718,9 @@ function generarGraficaLineas(data) {
 
   // Función para obtener datos del servidor
   async function obtenerDatos() {
-  const idProfesor = profesorSelect.value;
-  const idMateria = materiaSelect?.value || "todas";
-  const periodo = periodoSelect.value;
+  const idProfesor = profesorSeleccc.id || "todos";
+  const idMateria = materiaSeleccc.id || "todas";
+  const periodo = periodoSeleccc;
   
   console.log(`Parámetros: profesor=${idProfesor}, materia=${idMateria}, periodo=${periodo}`);
   
@@ -451,40 +754,249 @@ function generarGraficaLineas(data) {
     }
   }
 
-  // Evento para descargar PDF
-  btnPDF.addEventListener("click", async () => {
+ // Evento para descargar PDF
+btnPDF.addEventListener("click", async () => {
     try {
-      const canvas = await html2canvas(chartContainer);
-      const imgData = canvas.toDataURL("image/png");
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const fecha = new Date().toLocaleDateString();
-      
-      doc.text("Reporte de Asistencias - " + fecha, 10, 10);
-      doc.addImage(imgData, "PNG", 10, 20, 180, 100);
-      doc.save(`Reporte_Asistencias_${fecha}.pdf`);
+        // Obtener información del profesor/materia seleccionada
+        const profesorSeleccionado = profesorSeleccc.id === "todos" 
+            ? "General" 
+            : profesorSeleccc.nombre;
+        
+        const materiaSeleccionada = materiaSeleccc.id === "todas" || !materiaSelect
+            ? "Todas las materias" 
+            : materiaSeleccc.nombre;
+        
+        const periodoSeleccionado = periodoSeleccc;
+
+        // Crear tabla oculta con los datos
+        const tablaOculta = crearTablaOculta();
+        document.body.appendChild(tablaOculta);
+        
+        // Obtener datos para la tabla (usamos la misma función que para la gráfica)
+        const datosTabla = await obtenerDatosParaTabla();
+        
+        // Llenar la tabla con los datos
+        llenarTablaOculta(tablaOculta, datosTabla);
+        
+        // Capturar ambos elementos (gráfico y tabla)
+        const elementos = [
+            { element: chartContainer, type: 'chart' },
+            { element: tablaOculta, type: 'table' }
+        ];
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const fecha = new Date().toLocaleDateString();
+        
+        // Agregar título personalizado
+        let titulo = `Reporte de Asistencias - ${fecha}\n`;
+        titulo += `Profesor: ${profesorSeleccionado}\n`;
+        titulo += `Materia: ${materiaSeleccionada}\n`;
+        titulo += `Período: ${periodoSeleccionado}`;
+        
+        // Dividir el título en líneas
+        const tituloLineas = doc.splitTextToSize(titulo, 180);
+        let yPos = 10;
+        
+        // Agregar cada línea del título
+        tituloLineas.forEach(linea => {
+            doc.text(linea, 10, yPos);
+            yPos += 7; // Espacio entre líneas
+        });
+        
+        // Ajustar posición después del título
+        yPos += 5;
+        
+        // Procesar cada elemento
+        for (const item of elementos) {
+            const canvas = await html2canvas(item.element, {
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                backgroundColor: '#FFFFFF'
+            });
+            
+            const imgData = canvas.toDataURL("image/png");
+            const imgProps = doc.getImageProperties(imgData);
+            const pdfWidth = doc.internal.pageSize.getWidth() - 20;
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            
+            // Verificar si hay espacio en la página actual
+            if (yPos + pdfHeight > doc.internal.pageSize.getHeight() - 20) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            // Agregar imagen al PDF
+            doc.addImage(imgData, "PNG", 10, yPos, pdfWidth, pdfHeight);
+            yPos += pdfHeight + 10;
+        }
+        
+        // Generar nombre del archivo
+        const nombreArchivo = `Reporte_${profesorSeleccionado.replace(/\s+/g, '_')}_${materiaSeleccionada.replace(/\s+/g, '_')}_${fecha.replace(/\//g, '-')}.pdf`;
+        
+        // Guardar y limpiar
+        doc.save(nombreArchivo);
+        document.body.removeChild(tablaOculta);
+        
     } catch (err) {
-      console.error("Error al generar PDF:", err);
-      mostrarError("Error al generar el PDF");
+        console.error("Error al generar PDF:", err);
+        mostrarError("Error al generar el PDF");
     }
-  });
+});
+
+// Función para obtener datos detallados para la tabla
+async function obtenerDatosParaTabla() {
+    const idProfesor = profesorSeleccc.id || "todos";
+    const idMateria = materiaSeleccc.id || "todas";
+    const periodo = periodoSeleccc;
+    
+    try {
+        // Usamos el mismo endpoint que para la gráfica pero podrías crear uno específico
+        const res = await fetch(`/api/reporteGrafica?profesor=${idProfesor}&materia=${idMateria}&periodo=${periodo}`);
+        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+        
+        const response = await res.json();
+        
+        // Verificar que los datos tengan la estructura correcta
+        if (!response || !response.fechas || !Array.isArray(response.fechas)) {
+            throw new Error("Formato de datos incorrecto");
+        }
+        
+        // Asegurarnos de que todos los arrays tengan la misma longitud
+        const maxLength = response.fechas.length;
+        const asistencias = response.asistencias || Array(maxLength).fill(0);
+        const faltas = response.faltas || Array(maxLength).fill(0);
+        const retardos = response.retardos || Array(maxLength).fill(0);
+        
+        return {
+            fechas: response.fechas,
+            asistencias: asistencias.slice(0, maxLength),
+            faltas: faltas.slice(0, maxLength),
+            retardos: retardos.slice(0, maxLength)
+        };
+        
+    } catch (err) {
+        console.error("Error al obtener datos para tabla:", err);
+        return { 
+            fechas: [], 
+            asistencias: [], 
+            faltas: [], 
+            retardos: [] 
+        };
+    }
+}
+
+// Función para crear la tabla oculta (mejorada)
+function crearTablaOculta() {
+    const div = document.createElement('div');
+    div.id = 'tabla-oculta-pdf';
+    div.style.position = 'absolute';
+    div.style.left = '-9999px';
+    div.style.width = '800px';
+    div.style.backgroundColor = '#FFFFFF'; // Fondo blanco para el PDF
+    
+    div.innerHTML = `
+        <table border="1" style="width:100%; border-collapse: collapse; margin-top: 20px; font-family: Arial, sans-serif;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 8px; text-align: left;">Fecha</th>
+                    <th style="padding: 8px; text-align: center;">Asistencias</th>
+                    <th style="padding: 8px; text-align: center;">Faltas</th>
+                    <th style="padding: 8px; text-align: center;">Retardos</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-oculta-body" style="font-size: 12px;">
+                <!-- Datos se llenarán dinámicamente -->
+            </tbody>
+        </table>
+    `;
+    
+    return div;
+}
+
+// Función para llenar la tabla oculta (mejorada)
+function llenarTablaOculta(tablaOculta, datos) {
+    const tbody = tablaOculta.querySelector('#tabla-oculta-body');
+    tbody.innerHTML = '';
+    
+    // Verificar si hay datos
+    if (datos.fechas.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td colspan="4" style="padding: 8px; text-align: center;">No hay datos disponibles para el período seleccionado</td>
+        `;
+        tbody.appendChild(row);
+        return;
+    }
+    
+    // Agregar filas con datos
+    datos.fechas.forEach((fecha, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="padding: 6px; border: 1px solid #ddd;">${new Date(fecha).toLocaleDateString()}</td>
+            <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${datos.asistencias[index] || 0}</td>
+            <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${datos.faltas[index] || 0}</td>
+            <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${datos.retardos[index] || 0}</td>
+        `;
+        tbody.appendChild(row);
+    });
+    
+    // Agregar fila de totales
+    const totalAsistencias = datos.asistencias.reduce((a, b) => a + b, 0);
+    const totalFaltas = datos.faltas.reduce((a, b) => a + b, 0);
+    const totalRetardos = datos.retardos.reduce((a, b) => a + b, 0);
+    
+    const totalRow = document.createElement('tr');
+    totalRow.style.fontWeight = 'bold';
+    totalRow.style.backgroundColor = '#f9f9f9';
+    totalRow.innerHTML = `
+        <td style="padding: 6px; border: 1px solid #ddd;">Total</td>
+        <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${totalAsistencias}</td>
+        <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${totalFaltas}</td>
+        <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${totalRetardos}</td>
+    `;
+    tbody.appendChild(totalRow);
+}
 
   // Event listeners
-  profesorSelect.addEventListener("change", (e) => {
-    cargarMaterias(e.target.value);
+contenedorProfesor.addEventListener("change", function() {
+    console.log("profe seleccionado:", profesorSeleccc); 
     obtenerDatos();
-  });
+});
 
-  periodoSelect.addEventListener("change", obtenerDatos);
-  materiaSelect?.addEventListener("change", obtenerDatos);
-
+contenedorPeriodo.addEventListener("change", function() {
+    console.log("Periodo seleccionado:", periodoSeleccc); 
+    obtenerDatos();
+});
+contenedorMateria.addEventListener("change", function() {
+    console.log("materia seleccionado:", materiaSeleccc); 
+    obtenerDatos();
+});
   // Inicialización
   try {
     await cargarProfesores();
     await cargarMaterias("todos");
+    await cargarProfesoresPersonalizado();
+    await cargarMateriasPersonalizado('todos');
     await obtenerDatos();
   } catch (err) {
     console.error("Error en inicialización:", err);
     mostrarError("Error al cargar los datos iniciales");
   }
+
+
+  try {
+    response = await fetch("/datos-usuario");
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    const usuario = await response.json();
+    document.getElementById("usuario").textContent = `Usuario: ${usuario.nom_usuario}`;
+    document.getElementById("cargo").textContent = `Cargo: ${usuario.cargo}`;
+    document.getElementById("escuela").textContent = `${usuario.nom_escuela}`;
+  } catch (err) {
+    console.error("Error al obtener datos del usuario:", err);
+    mostrarError("Error al cargar los datos del usuario");
+  }
+
 });
+

@@ -12,67 +12,80 @@
 <body>
 
 	<section id="sidebar">
-		<a href="#" class="brand"><i class="bx bxs-parking icon"></i> PREFECT APP</a>
-		<ul class="side-menu">
-		  <li>
-			<a href="#" class="active"><i class="bx bxs-dashboard icon"></i> ADMINISTRADOR</a>
-		  </li>
-		  <br/>
-  
-		  <li>
-			<a href="./ADM_menu.html" class=""><i class="bx bx-table icon"></i> Inicio</a>
-		  </li>
-  
-		  <li class="divider" data-text="Horarios"></li>
-		  <li>
-			<a href="#"
-			  ><i class="bx bxs-inbox icon"></i> Editar Asistencia
-			  <i class="bx bx-chevron-right icon-right"></i
-			></a>
-			<ul class="side-dropdown">
-			  <li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
-			  <li><a href="./ADM_2DO_PISO.html">2do Piso</a></li>
-			  <li><a href="./ADM_3ER_PISO.html">3er Piso</a></li>
-			</ul>
-		  </li>
-		  <li>
-			<a href="./ADM_AgregarHorario.html"
-			  ><i class="bx bx-table icon"></i> Agregar Horarios</a
-			>
-		  </li>
-		  <li>
-			<a href="./ADM_EditarHorario.html"
-			  ><i class="bx bx-table icon"></i> Editar Horarios</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="maestros"></li>
-		  <li>
-			<a href="./ADM_Consulta.html"
-			  ><i class="bx bx-table icon"></i> Consulta</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="reportes"></li>
-		  <li>
-			<a href="./ADM_Reportes.html" class="active"
-			  ><i class="bx bx-table icon"></i> Consulta</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="usuarios"></li>
-		  <li>
-			<a href="./ADM_Editar_Usuarios.html"
-			  ><i class="bx bx-table icon"></i> Editar Usuario</a
-			>
-		  </li>
-		  <li>
-			<a href="./registrar.html"
-			  ><i class="bx bx-table icon"></i> Registrar Usuario</a
-			>
-		  </li>
-		</ul>
-	  </section>
+      <a href="#" class="brand"
+        ><i class="bx bxs-parking icon"></i> PREFECT APP</a
+      >
+      <ul class="side-menu">
+        <li>
+          <a href="#" class="active"
+            ><i class="bx bxs-dashboard icon"></i> ADMINISTRADOR</a
+          >
+        </li>
+        <br />
+
+        <li>
+          <a href="./ADM_menu.html" class=""><i class="bx bx-table icon"></i> Inicio</a>
+        </li>
+
+        <li class="divider" data-text="Horarios"></li>
+        <li>
+          <a href="#" class=""
+            ><i class="bx bxs-inbox icon"></i> Editar Asistencia
+            <i class="bx bx-chevron-right icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
+            <li><a href="./ADM_2DO_PISO.html">2do Piso</a></li>
+            <li><a href="./ADM_3ER_PISO.html">3er Piso</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="./ADM_AgregarHorario.html"
+            ><i class="bx bx-table icon"></i> Agregar Horarios</a
+          >
+        </li>
+        <li>
+          <a href="./ADM_EditarHorario.html"
+            ><i class="bx bx-table icon"></i> Editar Horarios</a
+          >
+        </li>
+        <li>
+          <a href="./ADM_datos.html"
+            ><i class="bx bx-table icon"></i> Agregar Datos/Horario</a
+          >
+        </li>
+        <a href="./ADM_consulta-datos.html"
+            ><i class="bx bx-table icon"></i> Consulta Datos/Horario</a
+          >
+        </li>
+
+        <li class="divider" data-text="maestros"></li>
+        <li>
+          <a href="./ADM_Consulta.html"
+            ><i class="bx bx-table icon"></i> Consulta</a
+          >
+        </li>
+
+        <li class="divider" data-text="reportes"></li>
+        <li>
+          <a href="./ADM_Reportes.html" class="active"
+            ><i class="bx bx-table icon"></i> Consulta</a
+          >
+        </li>
+
+        <li class="divider" data-text="usuarios"></li>
+        <li>
+          <a href="./ADM_Editar_Usuarios.html"
+            ><i class="bx bx-table icon"></i> Editar Usuario</a
+          >
+        </li>
+        <li>
+          <a href="./registrar.html"
+            ><i class="bx bx-table icon"></i> Registrar Usuario</a
+          >
+        </li>
+      </ul>
+    </section>
 
 	<!-- NAVBAR -->
 	<section id="content">
@@ -117,8 +130,32 @@
 
 			<div class="filters">
 				<button class="filter-btn" id="filterBtn">FILTRAR POR:</button>
-				<select id="tipo_reporte">Tipo Reporte</select>
-				<select id="nom_usuario">Usuarios</select>
+				<div class="contenedor-select" data-type="tipo_reporte">
+  <div class="boton-select">
+    <span>Seleccione el Tipo de Reporte</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar tipo...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+				<div class="contenedor-select" data-type="nom_usuario">
+  <div class="boton-select">
+    <span>Seleccione un Usuario</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar usuario...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
 				<input type="date" id="fecha_reporte" placeholder="FECHA">
 				<button id="resetFiltersButton" class="filter-btn">Restablecer Filtros</button>
 

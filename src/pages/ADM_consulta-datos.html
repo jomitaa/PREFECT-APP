@@ -25,7 +25,7 @@
 
 			<li class="divider" data-text="Horarios"></li>
 			<li>
-				<a href="#"><i class="bx bxs-inbox icon"></i> Editar Asistencia
+				<a href="#" class=""><i class="bx bxs-inbox icon"></i> Editar Asistencia
 					<i class="bx bx-chevron-right icon-right"></i></a>
 				<ul class="side-dropdown">
 					<li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
@@ -34,10 +34,16 @@
 				</ul>
 			</li>
 			<li>
-				<a href="./ADM_AgregarHorario.html" class="active"><i class="bx bx-table icon"></i> Agregar Horarios</a>
+				<a href="./ADM_AgregarHorario.html"><i class="bx bx-table icon"></i> Agregar Horarios</a>
 			</li>
 			<li>
 				<a href="./ADM_EditarHorario.html"><i class="bx bx-table icon"></i> Editar Horarios</a>
+			</li>
+			<li>
+				<a href="./ADM_datos.html"><i class="bx bx-table icon"></i> Agregar Datos/Horario</a>
+			</li>
+			<a href="./ADM_consulta-datos.html" class="active"><i class="bx bx-table icon"></i> Consulta
+				Datos/Horario</a>
 			</li>
 
 			<li class="divider" data-text="maestros"></li>
@@ -59,6 +65,7 @@
 			</li>
 		</ul>
 	</section>
+
 
 
 	<section id="content">
@@ -90,68 +97,259 @@
 
 		<!-- MAIN -->
 		<main>
-    <div class="alerta"></div>
-    <h1 class="title">Prefect APP - Consulta/Edición</h1>
-    
-    <div class="filters">
-        <select id="selector-consulta" class="select-group">
-            <option value="" disabled selected>Seleccione lo que quiere consultar:</option>
-            <option value="profesor">Profesores</option>
-            <option value="materia">Materias</option>
-            <option value="carrera">Carreras</option>
-            <option value="grupo">Grupos</option>
-            <option value="salon">Salones</option>
-        </select>
-    </div>
+			<div class="alerta"></div>
+			<h1 class="title">Prefect APP</h1>
+			<ul class="breadcrumbs">
+          <li><a href="#">P.A</a></li>
+          <li>/</li>
+          <li>Inicio</li>
+        </ul>
 
-    <!-- Contenedores para cada tipo de dato (inicialmente ocultos) -->
-    <div class="contenedor-consulta-profesor">
-        <div class="blur-overlay top"></div>
-        <!-- Tabla de profesores se llenará dinámicamente -->
-        <div class="blur-overlay bottom"></div>
+			<div class="filters">
 
-    </div>
-    
-    <div class="contenedor-consulta-materia">
-        <div class="blur-overlay top"></div>
-        <!-- Tabla de materias se llenará dinámicamente -->
-        <div class="blur-overlay bottom"></div>
-    </div>
-    
-    <div class="contenedor-consulta-carrera">
-        <div class="blur-overlay top"></div>
-        <!-- Tabla de carreras se llenará dinámicamente -->
-        <div class="blur-overlay bottom"></div>
-    </div>
-    
-    <div class="contenedor-consulta-grupo">
-        <div class="blur-overlay top"></div>
-        <!-- Tabla de grupos se llenará dinámicamente -->
-        <div class="blur-overlay bottom"></div>
-    </div>
-    
-    <div class="contenedor-consulta-salon">
-        <div class="blur-overlay top"></div>
-        <!-- Tabla de salones se llenará dinámicamente -->
-        <div class="blur-overlay bottom"></div>
-    </div>
-    
-    <div id="modal-edicion" class="modal">
-    <div class="modal-contenido">
-        <div class="modal-cerrar">
-            <i class="fa-solid fa-xmark"></i>
-        </div>
-        <h2 class="modal-titulo">Editar Registro</h2>
-        <form id="form-edicion" class="modal-formulario">
-            <!-- Los campos se llenarán dinámicamente -->
-        </form>
-        <div class="modal-botones">
-            <button type="button" class="btn-cancelar">Cancelar</button>
-            <button type="submit" form="form-edicion" class="btn-guardar">Guardar Cambios</button>
-        </div>
-    </div>
-</div>
-</main>
+				<div class="contenedor-select turno">
+					<div class="boton-select">
+						<span>Seleccione lo que quiere consultar</span>
+						<i class="uil uil-angle-down"></i>
+					</div>
+					<div class="contenido-select">
+						<ul class="opciones">
+							<li onclick="seleccionarOpcion(this)" data-value="profesor">Profesores</li>
+							<li onclick="seleccionarOpcion(this)" data-value="materia">Materias</li>
+							<li onclick="seleccionarOpcion(this)" data-value="carrera">Carreras</li>
+							<li onclick="seleccionarOpcion(this)" data-value="grupo">Grupos</li>
+							<li onclick="seleccionarOpcion(this)" data-value="salon">Salones</li>
+						</ul>
+					</div>
+				</div>
+				
+
+
+				<div class="filtros-profesor" style="display: none;">
+
+					<div class="contenedor-select" data-type="profe-nombre">
+						<div class="boton-select">
+							<span>Filtrar por nombre:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Nombre...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+					<div class="contenedor-select" data-type="profe-correo">
+						<div class="boton-select">
+							<span>Filtrar por correo:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Correo...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+					
+				</div>
+
+				<div class="filtros-materia" style="display: none;">
+
+					<div class="contenedor-select" data-type="materia-nombre">
+						<div class="boton-select">
+							<span>Filtrar por Materia:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Materia...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+					<div class="contenedor-select" data-type="materia-tipo">
+						<div class="boton-select">
+							<span>Filtrar por Tipo:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Tipo...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="filtros-carrera" style="display: none;">
+
+					<div class="contenedor-select" data-type="carrera-nombre">
+						<div class="boton-select">
+							<span>Filtrar por Carrera:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Carrera...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="filtros-grupo" style="display: none;">
+
+					<div class="contenedor-select" data-type="grupo-nombre">
+						<div class="boton-select">
+							<span>Filtrar por Nombre:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Nombre...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+					<div class="contenedor-select" data-type="grupo-semestre">
+						<div class="boton-select">
+							<span>Filtrar por Semestre:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Semestre...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+					<div class="contenedor-select" data-type="grupo-carrera">
+						<div class="boton-select">
+							<span>Filtrar por Carrera:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Carrera...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+					<div class="contenedor-select" data-type="grupo-turno">
+						<div class="boton-select">
+							<span>Filtrar por Turno:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Turno...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="filtros-salon" style="display: none;">
+
+					<div class="contenedor-select" data-type="salon-nombre">
+						<div class="boton-select">
+							<span>Filtrar por Nombre/Numero:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Nombre/No....">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+					<div class="contenedor-select" data-type="salon-piso">
+						<div class="boton-select">
+							<span>Filtrar por Piso:</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Piso...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+				</div>
+					
+
+			</div>
+
+			<!-- Contenedores para cada tipo de dato (inicialmente ocultos) -->
+			<div class="contenedor-consulta-profesor">
+				<div class="blur-overlay top"></div>
+				<!-- Tabla de profesores se llenará dinámicamente -->
+				<div class="blur-overlay bottom"></div>
+
+			</div>
+
+			<div class="contenedor-consulta-materia">
+				<div class="blur-overlay top"></div>
+				<!-- Tabla de materias se llenará dinámicamente -->
+				<div class="blur-overlay bottom"></div>
+			</div>
+
+			<div class="contenedor-consulta-carrera">
+				<div class="blur-overlay top"></div>
+				<!-- Tabla de carreras se llenará dinámicamente -->
+				<div class="blur-overlay bottom"></div>
+			</div>
+
+			<div class="contenedor-consulta-grupo">
+				<div class="blur-overlay top"></div>
+				<!-- Tabla de grupos se llenará dinámicamente -->
+				<div class="blur-overlay bottom"></div>
+			</div>
+
+			<div class="contenedor-consulta-salon">
+				<div class="blur-overlay top"></div>
+				<!-- Tabla de salones se llenará dinámicamente -->
+				<div class="blur-overlay bottom"></div>
+			</div>
+
+			<div id="modal-edicion" class="modal">
+				<div class="modal-contenido">
+					<div class="modal-cerrar">
+						<i class="fa-solid fa-xmark"></i>
+					</div>
+					<h2 class="modal-titulo">Editar Registro</h2>
+					<form id="form-edicion" class="modal-formulario">
+						<!-- Los campos se llenarán dinámicamente -->
+					</form>
+					<div class="modal-botones">
+						<button type="button" class="btn-cancelar">Cancelar</button>
+						<button type="submit" form="form-edicion" class="btn-guardar">Guardar Cambios</button>
+					</div>
+				</div>
+			</div>
+		</main>
 
 	</section>
 

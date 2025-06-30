@@ -19,6 +19,12 @@ function createToast(type, icon, title, text) {
     newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
 }
 
+let tipoSeleccionado = '';
+let nomUsuarioSeleccionado = '';
+
+const contenedortipoReporte = document.querySelector(".contenedor-select[data-type='tipo_reporte']");
+const contenedorUsuario = document.querySelector(".contenedor-select[data-type='nom_usuario']");
+
 document.addEventListener('DOMContentLoaded', async () => {
 
     try {
@@ -39,6 +45,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         llenarSelect('tipo_reporte', data.tipo_reporte);
         llenarSelect('nom_usuario', data.nom_usuario);
       
+                        inicializarEventosFiltros();
+
 
     } catch (error) {
         createToast(
@@ -55,38 +63,163 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 // ✅ Función para llenar selects
-function llenarSelect(id, datos) {
-    const select = document.getElementById(id);
-    if (!select) {
-        console.error(`No se encontró el select con ID: ${id}`);
-        return;
+ function llenarSelect(tipo, datos) {
+            const contenedor = document.querySelector(`.contenedor-select[data-type="${tipo}"]`);
+            if (!contenedor) {
+                console.error(`No se encontró el select con tipo: ${tipo}`);
+                return;
+            }
+        
+            const opciones = contenedor.querySelector('.opciones');
+            opciones.innerHTML = '';
+
+              if (tipo !== 'turno') {
+        const limpiarLi = document.createElement('li');
+        limpiarLi.className = 'limpiar-seleccion';
+        limpiarLi.innerHTML = '<i class="fas fa-times-circle"></i> Limpiar selección';
+        limpiarLi.onclick = function() {
+            limpiarFiltro(tipo, contenedor);
+        };
+        opciones.appendChild(limpiarLi);
+    }
+        
+            datos.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                li.setAttribute('data-value', item);
+                li.onclick = function() {
+                    seleccionarOpcionFiltro(this, tipo);
+                };
+                opciones.appendChild(li);
+            });
+        }
+        
+        function seleccionarOpcionFiltro(opcion, tipo) {
+            // Animación
+            opcion.style.transform = 'scale(0.98)';
+            setTimeout(() => opcion.style.transform = '', 150);
+            
+            // Actualizar variable correspondiente
+            switch(tipo) {
+                case 'tipo_reporte': tipoSeleccionado = opcion.dataset.value; break;
+                case 'nom_usuario': nomUsuarioSeleccionado = opcion.dataset.value; break;
+               
+            }
+            
+            // Actualizar UI
+            const contenedor = opcion.closest('.contenedor-select');
+            contenedor.querySelector('.boton-select span').textContent = opcion.textContent;
+            
+            // Marcar como seleccionado
+            contenedor.querySelectorAll('.opciones li').forEach(li => {
+                li.classList.remove('seleccionado');
+            });
+            opcion.classList.add('seleccionado');
+            contenedor.classList.add('filtro-activo');
+            
+            // Cerrar select
+            cerrarSelect(contenedor);
+        }
+
+         function limpiarFiltro(tipo, contenedor) {
+    const defaultText = `Seleccione ${tipo === 'tipo_reporte' ? 'Tipo de Reporte' : 
+                      tipo === 'nom_usuario' ? 'Nombre de Usuario' : ''
+                    
+                      }`;
+    
+    // Actualizar UI
+    contenedor.querySelector('.boton-select span').textContent = defaultText;
+    
+    // Limpiar variable
+    switch(tipo) {
+        case 'tipo_reporte': tipoSeleccionado = ''; break;
+        case 'nom_usuario': nomUsuarioSeleccionado = ''; break;
+       
     }
 
-    // Aquí cambiamos el texto que aparece en la opción por defecto
-    let label = '';
-    switch (id) {
-        case 'tipo_reporte':
-            label = 'Seleccione un TIPO DE REPORTE';
-            break;
-        case 'nom_usuario':
-            label = 'Seleccione un USUARIO';
-            break;
-        default:
-            label = 'Seleccione una opción';
-            break;
-    }
-
-    // Agregamos la opción por defecto con el texto correcto
-    select.innerHTML = `<option value="">${label}</option>`;
-
-    // Llenamos el select con las opciones recibidas
-    datos.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item;
-        option.textContent = item;
-        select.appendChild(option);
+    // Limpiar selección visual
+    contenedor.querySelectorAll('.opciones li').forEach(li => {
+        li.classList.remove('seleccionado');
     });
+    contenedor.classList.remove('filtro-activo');
+    
+    // Cerrar el select
+    cerrarSelect(contenedor);
+    
+    // Opcional: volver a filtrar automáticamente
+    if (turnoSeleccionado) {
+        filtrarHorarios();
+    }
 }
+        // Función para inicializar eventos de los filtros
+        function inicializarEventosFiltros() {
+            const contenedores = [
+                contenedorUsuario, contenedortipoReporte
+            ];
+        
+            contenedores.forEach(contenedor => {
+                if (!contenedor) return;
+        
+                const botonSelect = contenedor.querySelector('.boton-select');
+                const inputBusqueda = contenedor.querySelector('.buscador input');
+                const opciones = contenedor.querySelector('.opciones');
+                const tipo = contenedor.dataset.type;
+        
+                // Abrir/cerrar select
+                botonSelect.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    contenedor.classList.toggle('activo');
+                    
+                    if (contenedor.classList.contains('activo') && inputBusqueda) {
+                        inputBusqueda.focus();
+                    }
+                });
+        
+                // Búsqueda
+                if (inputBusqueda) {
+                    inputBusqueda.addEventListener('input', () => {
+                        const busqueda = inputBusqueda.value.toLowerCase();
+                        const items = opciones.querySelectorAll('li');
+                        
+                        items.forEach(item => {
+                            const texto = item.textContent.toLowerCase();
+                            item.style.display = texto.includes(busqueda) ? 'flex' : 'none';
+                        });
+                    });
+                }
+        
+                // Limpiar selección (doble clic)
+               
+            });
+        
+            // Cerrar selects al hacer clic fuera
+            document.addEventListener('click', (e) => {
+    contenedores.forEach(contenedor => {
+        if (contenedor && !contenedor.contains(e.target)) {
+            cerrarSelect(contenedor);
+        }
+    });
+});
+            
+            // Evento para filtrar
+        }
+        
+        // Función para cerrar select
+        function cerrarSelect(contenedor) {
+            if (!contenedor) return;
+            
+            const contenidoSelect = contenedor.querySelector('.contenido-select');
+            if (!contenidoSelect) return;
+            
+            contenidoSelect.style.opacity = '0';
+            contenidoSelect.style.transform = 'translateY(-15px)';
+            
+            setTimeout(() => {
+                contenedor.classList.remove("activo");
+                contenidoSelect.style.opacity = '';
+                contenidoSelect.style.transform = '';
+            }, 300);
+        }
 
 
 
@@ -185,25 +318,9 @@ function cargarReportes() {
      document.getElementById("filterBtn").replaceWith(document.getElementById("filterBtn").cloneNode(true));
  document.getElementById("filterBtn").addEventListener("click", filtrarHorarios);
 
- const filtros = [
-     "nom_usuario",
-     "tipo_reporte"
-   ];
- 
-   filtros.forEach((id) => {
-     const select = document.getElementById(id);
-     select.addEventListener("change", () => {
-       if (select.value !== "") {
-         select.classList.add("filtro-activo");
-       } else {
-         select.classList.remove("filtro-activo");
-       }
-     });
-   });
  
  async function filtrarHorarios() {
-     const nom_usuario = document.getElementById("nom_usuario").value;
-     const tipo_reporte = document.getElementById("tipo_reporte").value;
+    
      const fecha = document.getElementById("fecha_reporte").value;
 
      try {
@@ -226,8 +343,8 @@ function cargarReportes() {
              console.log("Fecha convertida:", fechaUsuario);
 
              return (
-                (!nom_usuario || consulta.nom_usuario === nom_usuario) &&
-                (!tipo_reporte || consulta.tipo_reporte === tipo_reporte) &&
+                (nomUsuarioSeleccionado === '' || consulta.nom_usuario === nomUsuarioSeleccionado) &&
+                (tipoSeleccionado === '' || consulta.tipo_reporte === tipoSeleccionado) &&
                  (!fecha || fechaReporte === fechaUsuario) 
 
              );
@@ -259,17 +376,37 @@ function cargarReportes() {
  }
 
  document.getElementById("resetFiltersButton").addEventListener("click", function() {
-     // Restablece todos los filtros a su estado inicial
-     document.getElementById("nom_usuario").value = "";
-     document.getElementById("tipo_reporte").value = "";
-     document.getElementById("fecha_reporte").value = "";
-
-     filtros.forEach((id) => {
-         const select = document.getElementById(id);
-         select.classList.remove("filtro-activo");
-       });
-
-
+   anioSeleccionado = '';
+    periodoSeleccionado = '';
+    grupoSeleccionado = '';
+    profesorSeleccionado = '';
+    materiaSeleccionada = '';
+    horaInicioSeleccionada = '';
+    horaFinSeleccionada = '';
+    diaSeleccionado = '';
+    registroAsistenciaSeleccionado = '';
+    
+    // Limpiar UI de todos los filtros
+    const tipos = ['tipo_reporte', 'nom_usuario'];
+    tipos.forEach(tipo => {
+        const contenedor = document.querySelector(`.contenedor-select[data-type="${tipo}"]`);
+        if (contenedor) {
+            const defaultText = `Seleccione ${tipo === 'tipo_reporte' ? 'Tipo de Reporte' : 
+                               tipo === 'nom_usuario' ? 'Nombre de Usuario' : ''
+                               
+                               
+                              }`;
+            
+            const span = contenedor.querySelector('.boton-select span');
+            if (span) span.textContent = defaultText;
+            
+            contenedor.querySelectorAll('.opciones li').forEach(li => {
+                li.classList.remove('seleccionado');
+            });
+            contenedor.classList.remove('filtro-activo');
+        }
+    });
+   
      filtrarHorarios();
 
  });

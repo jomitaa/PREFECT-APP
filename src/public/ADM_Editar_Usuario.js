@@ -305,7 +305,6 @@ const estadoValidacionCampos = {
                     <div class="navigation">
                        <span class="edit-user" data-id="${usuario.ID_usuario}"><i class="fa-solid fa-user-pen"></i></span>
                         <span class="delete-user" data-id="${usuario.ID_usuario}"><i class="fa-solid fa-user-xmark"></i></span>
-                        <span class="confirm-user"><i class="fa-solid fa-check"></i></span>
                     </div>
                 </div>
             `;

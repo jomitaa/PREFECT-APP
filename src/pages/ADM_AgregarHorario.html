@@ -1,566 +1,1030 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
+    />
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-	<link rel="stylesheet" href="/css/ADM_AgregarHorario.css">
-	<title>Prefect App 1.1</title>
-</head>
+    <link rel="stylesheet" href="/css/ADM_AgregarHorario.css" />
+    <title>Prefect App 1.1</title>
+  </head>
 
-<body>
+  <body>
+    <section id="sidebar">
+      <a href="#" class="brand"
+        ><i class="bx bxs-parking icon"></i> PREFECT APP</a
+      >
+      <ul class="side-menu">
+        <li>
+          <a href="#" class="active"
+            ><i class="bx bxs-dashboard icon"></i> ADMINISTRADOR</a
+          >
+        </li>
+        <br />
 
-	<section id="sidebar">
-		<a href="#" class="brand"><i class="bx bxs-parking icon"></i> PREFECT APP</a>
-		<ul class="side-menu">
-		  <li>
-			<a href="#" class="active"><i class="bx bxs-dashboard icon"></i> ADMINISTRADOR</a>
-		  </li>
-		  <br/>
-  
-		  <li>
-			<a href="./ADM_menu.html" class=""><i class="bx bx-table icon"></i> Inicio</a>
-		  </li>
-  
-		  <li class="divider" data-text="Horarios"></li>
-		  <li>
-			<a href="#"
-			  ><i class="bx bxs-inbox icon"></i> Editar Asistencia
-			  <i class="bx bx-chevron-right icon-right"></i
-			></a>
-			<ul class="side-dropdown">
-			  <li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
-			  <li><a href="./ADM_2DO_PISO.html">2do Piso</a></li>
-			  <li><a href="./ADM_3ER_PISO.html">3er Piso</a></li>
-			</ul>
-		  </li>
-		  <li>
-			<a href="./ADM_AgregarHorario.html" class="active"
-			  ><i class="bx bx-table icon"></i> Agregar Horarios</a
-			>
-		  </li>
-		  <li>
-			<a href="./ADM_EditarHorario.html"
-			  ><i class="bx bx-table icon"></i> Editar Horarios</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="maestros"></li>
-		  <li>
-			<a href="./ADM_Consulta.html"
-			  ><i class="bx bx-table icon"></i> Consulta</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="reportes"></li>
-		  <li>
-			<a href="./ADM_Reportes.html"
-			  ><i class="bx bx-table icon"></i> Consulta</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="usuarios"></li>
-		  <li>
-			<a href="./ADM_Editar_Usuarios.html"
-			  ><i class="bx bx-table icon"></i> Editar Usuario</a
-			>
-		  </li>
-		  <li>
-			<a href="./registrar.html"
-			  ><i class="bx bx-table icon"></i> Registrar Usuario</a
-			>
-		  </li>
-		</ul>
-	  </section>
+        <li>
+          <a href="./ADM_menu.html" class=""><i class="bx bx-table icon"></i> Inicio</a>
+        </li>
 
-	<!-- NAVBAR -->
-	<section id="content">
-		<!-- NAVBAR -->
-		<nav>
-			<i class='bx bx-menu toggle-sidebar'></i>
+        <li class="divider" data-text="Horarios"></li>
+        <li>
+          <a href="#" class=""
+            ><i class="bx bxs-inbox icon"></i> Editar Asistencia
+            <i class="bx bx-chevron-right icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
+            <li><a href="./ADM_2DO_PISO.html">2do Piso</a></li>
+            <li><a href="./ADM_3ER_PISO.html">3er Piso</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="./ADM_AgregarHorario.html" class="active"
+            ><i class="bx bx-table icon"></i> Agregar Horarios</a
+          >
+        </li>
+        <li>
+          <a href="./ADM_EditarHorario.html"
+            ><i class="bx bx-table icon"></i> Editar Horarios</a
+          >
+        </li>
+        <li>
+          <a href="./ADM_datos.html"
+            ><i class="bx bx-table icon"></i> Agregar Datos/Horario</a
+          >
+        </li>
+        <a href="./ADM_consulta-datos.html"
+            ><i class="bx bx-table icon"></i> Consulta Datos/Horario</a
+          >
+        </li>
 
-			<form action="#">
-				<div class="form-group">
-				
-				</div>
-			</form>
+        <li class="divider" data-text="maestros"></li>
+        <li>
+          <a href="./ADM_Consulta.html"
+            ><i class="bx bx-table icon"></i> Consulta</a
+          >
+        </li>
 
-			<input type="checkbox" id="switch-mode" hidden>
-			<label for="switch-mode" class="switch-mode"></label>
-			
+        <li class="divider" data-text="reportes"></li>
+        <li>
+          <a href="./ADM_Reportes.html"
+            ><i class="bx bx-table icon"></i> Consulta</a
+          >
+        </li>
 
-			<span class="divider"></span>
-			<div class="profile">
-				<img src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png" alt="">
-				<ul class="profile-link">
-					<li><a href="./perfil.html"><i class='bx bxs-user-circle icon'></i> Profile</a></li>
-					<li><a href="#" onclick="cerrarSesion()"><i class='bx bxs-log-out-circle'></i> Cerrar Sesión</a>
-					</li>
-				</ul>
-			</div>
-		</nav>
-		<!-- NAVBAR -->
+        <li class="divider" data-text="usuarios"></li>
+        <li>
+          <a href="./ADM_Editar_Usuarios.html"
+            ><i class="bx bx-table icon"></i> Editar Usuario</a
+          >
+        </li>
+        <li>
+          <a href="./registrar.html"
+            ><i class="bx bx-table icon"></i> Registrar Usuario</a
+          >
+        </li>
+      </ul>
+    </section>
 
-		<!-- MAIN -->
-		<main>
-			<div class="alerta">
-				
-			</div>
+    <!-- NAVBAR -->
+    <section id="content">
+      <!-- NAVBAR -->
+      <nav>
+        <i class="bx bx-menu toggle-sidebar"></i>
 
-			<h1 class="title">Prefect APP</h1>
-			<ul class="breadcrumbs">
-				<li><a href="#">P.A</a></li>
-				<li>/</li>
-				<li>Inicio</li>
+        <form action="#">
+          <div class="form-group"></div>
+        </form>
 
-			</ul>
-			
-			
-			<div class="filters">
-				<select name="turno" placeholder="Turno" id="selectTurno">
-					<option disabled selected>Seleccione el Turno:</option>
-					<option value="2">Vespertino</option>
-					<option value="1">Matutino</option>
-				</select>
-				<select name="grupo" placeholder="Grupo" id="selectGrupo">
-					<option disabled selected>Seleccione primero el turno por favor</option>
-					
-				</select>
-				<select name="dia" placeholder="Dia" id="">
-					<option disabled selected>Seleccione el Dia:</option>
-					<option value="Lunes">Lunes</option>
-				</select>
-			</div>
+        <input type="checkbox" id="switch-mode" hidden />
+        <label for="switch-mode" class="switch-mode"></label>
 
-			<div class="contenedor-horario">
-				<div class="blur-overlay top"></div>
-				<div class="horarios-list" id="horario">
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Hora Inicio</b></span>
-						<span><b>Hora Final</b></span>
-						<span><b>Salon</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Profesor</b></span>
-						
-					</div>
-					<div class="horario-content">
-						<span name="hora_inicio" id="" class="select-group">
-							Selecciona Truno
-						
-						</span>
-						<span name="hora_final" id="" class="select-group">
-                                 Selecciona Turno
-							
-						</span>
-						<span><select name="salon" id="" class="select-group">
-                                           
-						</select></span>
-						<span><select name="materia" id="" class="select-group">
-                                           
-						</select></span>
-						<span><select name="persona" id="" class="select-group">
-                                            
-						</select></span>
-						
-					</div>
-				</div>
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Hora Inicio</b></span>
-						<span><b>Hora Final</b></span>
-						<span><b>Salon</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Profesor</b></span>
-						
-					</div>
-					<div class="horario-content">
-						<span name="hora_inicio" id="" class="select-group">
-							Selecciona Turno						
-						</span>
-						<span name="hora_final" id="" class="select-group">
-							Selecciona Turno							
-						</span>
-						<span><select name="salon" id="" class="select-group">
-                                           
-						</select></span>
-						<span><select name="materia" id="" class="select-group">
-                                           
-						</select></span>
-						<span><select name="persona" id="" class="select-group">
-                                            
-						</select></span>
-						
-					</div>
-				</div>
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Hora Inicio</b></span>
-						<span><b>Hora Final</b></span>
-						<span><b>Salon</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Profesor</b></span>
-						
-					</div>
-					<div class="horario-content">
-						<span name="hora_inicio" id="" class="select-group">
-							Selecciona Turno						
-						</span>
-						<span name="hora_final" id="" class="select-group">
-							Selecciona Turno							
-						</span>
-						<span><select name="salon" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="materia" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="persona" id="" class="select-group">
-											
-						</select></span>
-						
-					</div>
-				</div>
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Hora Inicio</b></span>
-						<span><b>Hora Final</b></span>
-						<span><b>Salon</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Profesor</b></span>
-						
-					</div>
-					<div class="horario-content">
-						<span name="hora_inicio" id="" class="select-group">
-							Selecciona Turno						
-						</span>
-						<span name="hora_final" id="" class="select-group">
-							Selecciona Turno							
-						</span>
-						<span><select name="salon" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="materia" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="persona" id="" class="select-group">
-											
-						</select></span>
-						
-					</div>
-				</div>
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Hora Inicio</b></span>
-						<span><b>Hora Final</b></span>
-						<span><b>Salon</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Profesor</b></span>
-						
-					</div>
-					<div class="horario-content">
-						<span name="hora_inicio" id="" class="select-group">
-							Selecciona Turno						
-						</span>
-						<span name="hora_final" id="" class="select-group">
-							Selecciona Turno							
-						</span>
-						<span><select name="salon" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="materia" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="persona" id="" class="select-group">
-											
-						</select></span>
-						
-					</div>
-				</div>
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Hora Inicio</b></span>
-						<span><b>Hora Final</b></span>
-						<span><b>Salon</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Profesor</b></span>
-						
-					</div>
-					<div class="horario-content">
-						<span name="hora_inicio" id="" class="select-group">
-							Selecciona Turno						
-						</span>
-						<span name="hora_final" id="" class="select-group">
-							Selecciona Turno							
-						</span>
-						<span><select name="salon" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="materia" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="persona" id="" class="select-group">
-											
-						</select></span>
-						
-					</div>
-				</div>
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Hora Inicio</b></span>
-						<span><b>Hora Final</b></span>
-						<span><b>Salon</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Profesor</b></span>
-						
-					</div>
-					<div class="horario-content">
-						<span name="hora_inicio" id="" class="select-group">
-							Selecciona Turno						
-						</span>
-						<span name="hora_final" id="" class="select-group">
-							Selecciona Turno							
-						</span>
-						<span><select name="salon" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="materia" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="persona" id="" class="select-group">
-											
-						</select></span>
-						
-					</div>
-				</div>
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Hora Inicio</b></span>
-						<span><b>Hora Final</b></span>
-						<span><b>Salon</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Profesor</b></span>
-						
-					</div>
-					<div class="horario-content">
-						<span name="hora_inicio" id="" class="select-group">
-							Selecciona Turno						
-						</span>
-						<span name="hora_final" id="" class="select-group">
-							Selecciona Turno							
-						</span>
-						<span><select name="salon" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="materia" id="" class="select-group">
-										   
-						</select></span>
-						<span><select name="persona" id="" class="select-group">
-											
-						</select></span>
-						
-					</div>
-				</div>						
+        <span class="divider"></span>
+        <div class="profile">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png"
+            alt=""
+          />
+          <ul class="profile-link">
+            <li>
+              <a href="./perfil.html"
+                ><i class="bx bxs-user-circle icon"></i> Profile</a
+              >
+            </li>
+            <li>
+              <a href="#" onclick="cerrarSesion()"
+                ><i class="bx bxs-log-out-circle"></i> Cerrar Sesión</a
+              >
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <!-- NAVBAR -->
 
-			</div>
-			<div class="blur-overlay bottom"></div>
-		</div>
-			<button type="button" class="btnEnviar" id="btnEnviar">enviarrrrrr</button>
+      <!-- MAIN -->
+      <main>
+        <div class="alerta"></div>
 
-			
+        <h1 class="title">Prefect APP</h1>
+        <ul class="breadcrumbs">
+          <li><a href="#">P.A</a></li>
+          <li>/</li>
+          <li>Inicio</li>
+        </ul>
 
-		</main>
-		<!-- MAIN -->
-	</section>
-	<!-- NAVBAR -->
+       <div class="filters">
+  <!-- Select de Turno -->
+  <div class="contenedor-select-persona">
+    <div class="contenedor-select" data-name="turno" id="selectTurno">
+      <div class="boton-select">
+        <span>Seleccione el Turno</span>
+        <i class="uil uil-angle-down"></i>
+      </div>
+      <div class="contenido-select">
+        <div class="buscador">
+          <i class="uil uil-search"></i>
+          <input spellcheck="false" type="text" placeholder="Buscar turno...">
+        </div>
+        <ul class="opciones">
+          <li data-value="2">Vespertino</li>
+          <li data-value="1">Matutino</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <!-- Select de Grupo -->
+  <div class="contenedor-select-persona">
+    <div class="contenedor-select" data-name="grupo" id="selectGrupo">
+      <div class="boton-select">
+        <span>Seleccione primero el turno</span>
+        <i class="uil uil-angle-down"></i>
+      </div>
+      <div class="contenido-select">
+        <div class="buscador">
+          <i class="uil uil-search"></i>
+          <input spellcheck="false" type="text" placeholder="Buscar grupo..." disabled>
+        </div>
+        <ul class="opciones"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Select de Día -->
+  <div class="contenedor-select-persona">
+    <div class="contenedor-select" data-name="dia">
+      <div class="boton-select">
+        <span>Seleccione el Día</span>
+        <i class="uil uil-angle-down"></i>
+      </div>
+      <div class="contenido-select">
+        <div class="buscador">
+          <i class="uil uil-search"></i>
+          <input spellcheck="false" type="text" placeholder="Buscar día...">
+        </div>
+        <ul class="opciones">
+          <li data-value="Lunes">Lunes</li>
+          <!-- Agrega más días según sea necesario -->
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <div class="contenedor-horario">
+          <div class="blur-overlay top"></div>
+          <div class="horarios-list" id="horario">
+            <div class="horario-card">
+              <div class="horario-header">
+                <span><b>Hora Inicio</b></span>
+                <span><b>Hora Final</b></span>
+                <span><b>Salon</b></span>
+                <span><b>Materia</b></span>
+                <span><b>Profesor</b></span>
+              </div>
+              <div class="horario-content">
+                <!-- Turno (mantenemos spans como están) -->
+                <span name="hora_inicio" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+                <span name="hora_final" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+
+                <!-- Select de Salón -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="salon">
+                    <div class="boton-select">
+                      <span>Selecciona un salón</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar salón..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Materia -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="materia">
+                    <div class="boton-select">
+                      <span>Selecciona una materia</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar materia..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Profesor -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="persona">
+                    <div class="boton-select">
+                      <span>Selecciona un profesor</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar profesor..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+            <div class="horario-card">
+              <div class="horario-header">
+                <span><b>Hora Inicio</b></span>
+                <span><b>Hora Final</b></span>
+                <span><b>Salon</b></span>
+                <span><b>Materia</b></span>
+                <span><b>Profesor</b></span>
+              </div>
+              <div class="horario-content">
+                <!-- Turno (mantenemos spans como están) -->
+                <span name="hora_inicio" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+                <span name="hora_final" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+
+                <!-- Select de Salón -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="salon">
+                    <div class="boton-select">
+                      <span>Selecciona un salón</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar salón..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Materia -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="materia">
+                    <div class="boton-select">
+                      <span>Selecciona una materia</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar materia..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Profesor -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="persona">
+                    <div class="boton-select">
+                      <span>Selecciona un profesor</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar profesor..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+            <div class="horario-card">
+              <div class="horario-header">
+                <span><b>Hora Inicio</b></span>
+                <span><b>Hora Final</b></span>
+                <span><b>Salon</b></span>
+                <span><b>Materia</b></span>
+                <span><b>Profesor</b></span>
+              </div>
+              <div class="horario-content">
+                <!-- Turno (mantenemos spans como están) -->
+                <span name="hora_inicio" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+                <span name="hora_final" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+
+                <!-- Select de Salón -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="salon">
+                    <div class="boton-select">
+                      <span>Selecciona un salón</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar salón..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Materia -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="materia">
+                    <div class="boton-select">
+                      <span>Selecciona una materia</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar materia..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Profesor -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="persona">
+                    <div class="boton-select">
+                      <span>Selecciona un profesor</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar profesor..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+            <div class="horario-card">
+              <div class="horario-header">
+                <span><b>Hora Inicio</b></span>
+                <span><b>Hora Final</b></span>
+                <span><b>Salon</b></span>
+                <span><b>Materia</b></span>
+                <span><b>Profesor</b></span>
+              </div>
+              <div class="horario-content">
+                <!-- Turno (mantenemos spans como están) -->
+                <span name="hora_inicio" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+                <span name="hora_final" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+
+                <!-- Select de Salón -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="salon">
+                    <div class="boton-select">
+                      <span>Selecciona un salón</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar salón..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Materia -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="materia">
+                    <div class="boton-select">
+                      <span>Selecciona una materia</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar materia..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Profesor -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="persona">
+                    <div class="boton-select">
+                      <span>Selecciona un profesor</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar profesor..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+            <div class="horario-card">
+              <div class="horario-header">
+                <span><b>Hora Inicio</b></span>
+                <span><b>Hora Final</b></span>
+                <span><b>Salon</b></span>
+                <span><b>Materia</b></span>
+                <span><b>Profesor</b></span>
+              </div>
+              <div class="horario-content">
+                <!-- Turno (mantenemos spans como están) -->
+                <span name="hora_inicio" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+                <span name="hora_final" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+
+                <!-- Select de Salón -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="salon">
+                    <div class="boton-select">
+                      <span>Selecciona un salón</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar salón..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Materia -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="materia">
+                    <div class="boton-select">
+                      <span>Selecciona una materia</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar materia..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Profesor -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="persona">
+                    <div class="boton-select">
+                      <span>Selecciona un profesor</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar profesor..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+            <div class="horario-card">
+              <div class="horario-header">
+                <span><b>Hora Inicio</b></span>
+                <span><b>Hora Final</b></span>
+                <span><b>Salon</b></span>
+                <span><b>Materia</b></span>
+                <span><b>Profesor</b></span>
+              </div>
+              <div class="horario-content">
+                <!-- Turno (mantenemos spans como están) -->
+                <span name="hora_inicio" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+                <span name="hora_final" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+
+                <!-- Select de Salón -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="salon">
+                    <div class="boton-select">
+                      <span>Selecciona un salón</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar salón..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Materia -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="materia">
+                    <div class="boton-select">
+                      <span>Selecciona una materia</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar materia..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Profesor -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="persona">
+                    <div class="boton-select">
+                      <span>Selecciona un profesor</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar profesor..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+            <div class="horario-card">
+              <div class="horario-header">
+                <span><b>Hora Inicio</b></span>
+                <span><b>Hora Final</b></span>
+                <span><b>Salon</b></span>
+                <span><b>Materia</b></span>
+                <span><b>Profesor</b></span>
+              </div>
+              <div class="horario-content">
+                <!-- Turno (mantenemos spans como están) -->
+                <span name="hora_inicio" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+                <span name="hora_final" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+
+                <!-- Select de Salón -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="salon">
+                    <div class="boton-select">
+                      <span>Selecciona un salón</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar salón..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Materia -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="materia">
+                    <div class="boton-select">
+                      <span>Selecciona una materia</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar materia..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Profesor -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="persona">
+                    <div class="boton-select">
+                      <span>Selecciona un profesor</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar profesor..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+            <div class="horario-card">
+              <div class="horario-header">
+                <span><b>Hora Inicio</b></span>
+                <span><b>Hora Final</b></span>
+                <span><b>Salon</b></span>
+                <span><b>Materia</b></span>
+                <span><b>Profesor</b></span>
+              </div>
+              <div class="horario-content">
+                <!-- Turno (mantenemos spans como están) -->
+                <span name="hora_inicio" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+                <span name="hora_final" id="" class="select-group">
+                  Selecciona Turno
+                </span>
+
+                <!-- Select de Salón -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="salon">
+                    <div class="boton-select">
+                      <span>Selecciona un salón</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar salón..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Materia -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="materia">
+                    <div class="boton-select">
+                      <span>Selecciona una materia</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar materia..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+
+                <!-- Select de Profesor -->
+                <span class="contenedor-select-persona">
+                  <div class="contenedor-select" data-name="persona">
+                    <div class="boton-select">
+                      <span>Selecciona un profesor</span>
+                      <i class="uil uil-angle-down"></i>
+                    </div>
+                    <div class="contenido-select">
+                      <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input
+                          spellcheck="false"
+                          type="text"
+                          placeholder="Buscar profesor..."
+                        />
+                      </div>
+                      <ul class="opciones"></ul>
+                    </div>
+                  </div>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="blur-overlay bottom"></div>
+        </div>
+        <button type="button" class="btnEnviar" id="btnEnviar">
+          enviarrrrrr
+        </button>
+      </main>
+      <!-- MAIN -->
+    </section>
+    <!-- NAVBAR -->
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="/ADM_AgregarHorario.js"></script>
-	<script>
+    <script>
+      function cerrarSesion() {
+        // Envía una solicitud al servidor para cerrar la sesión
+        fetch("/logout", {
+          method: "POST",
+          credentials: "same-origin", // Incluye las cookies en la solicitud
+        })
+          .then((response) => {
+            // Si la solicitud fue exitosa, redirige al usuario a la página de inicio
+            if (response.ok) {
+              window.location.href = "/"; // Cambia esto según la ruta de tu página de inicio
+            } else {
+              console.error("Error al cerrar sesión:", response.statusText);
+            }
+          })
+          .catch((error) => {
+            console.error("Error al cerrar sesión:", error);
+          });
+      }
 
-		           
+      // SIDEBAR DROPDOWN
+      const allDropdown = document.querySelectorAll("#sidebar .side-dropdown");
+      const sidebar = document.getElementById("sidebar");
 
-		function cerrarSesion() {
-			// Envía una solicitud al servidor para cerrar la sesión
-			fetch('/logout', {
-				method: 'POST',
-				credentials: 'same-origin' // Incluye las cookies en la solicitud
-			})
-				.then(response => {
-					// Si la solicitud fue exitosa, redirige al usuario a la página de inicio
-					if (response.ok) {
-						window.location.href = '/'; // Cambia esto según la ruta de tu página de inicio
-					} else {
-						console.error('Error al cerrar sesión:', response.statusText);
-					}
-				})
-				.catch(error => {
-					console.error('Error al cerrar sesión:', error);
-				});
-		}
+      allDropdown.forEach((item) => {
+        const a = item.parentElement.querySelector("a:first-child");
+        a.addEventListener("click", function (e) {
+          e.preventDefault();
 
-		// SIDEBAR DROPDOWN
-		const allDropdown = document.querySelectorAll('#sidebar .side-dropdown');
-		const sidebar = document.getElementById('sidebar');
+          if (!this.classList.contains("active")) {
+            allDropdown.forEach((i) => {
+              const aLink = i.parentElement.querySelector("a:first-child");
 
-		allDropdown.forEach(item => {
-			const a = item.parentElement.querySelector('a:first-child');
-			a.addEventListener('click', function (e) {
-				e.preventDefault();
+              aLink.classList.remove("active");
+              i.classList.remove("show");
+            });
+          }
 
-				if (!this.classList.contains('active')) {
-					allDropdown.forEach(i => {
-						const aLink = i.parentElement.querySelector('a:first-child');
+          this.classList.toggle("active");
+          item.classList.toggle("show");
+        });
+      });
 
-						aLink.classList.remove('active');
-						i.classList.remove('show');
-					})
-				}
+      // SIDEBAR COLLAPSE
+      const toggleSidebar = document.querySelector("nav .toggle-sidebar");
+      const allSideDivider = document.querySelectorAll("#sidebar .divider");
 
-				this.classList.toggle('active');
-				item.classList.toggle('show');
-			})
-		})
+      if (sidebar.classList.contains("hide")) {
+        allSideDivider.forEach((item) => {
+          item.textContent = "-";
+        });
+        allDropdown.forEach((item) => {
+          const a = item.parentElement.querySelector("a:first-child");
+          a.classList.remove("active");
+          item.classList.remove("show");
+        });
+      } else {
+        allSideDivider.forEach((item) => {
+          item.textContent = item.dataset.text;
+        });
+      }
 
+      toggleSidebar.addEventListener("click", function () {
+        sidebar.classList.toggle("hide");
 
+        if (sidebar.classList.contains("hide")) {
+          allSideDivider.forEach((item) => {
+            item.textContent = "-";
+          });
 
+          allDropdown.forEach((item) => {
+            const a = item.parentElement.querySelector("a:first-child");
+            a.classList.remove("active");
+            item.classList.remove("show");
+          });
+        } else {
+          allSideDivider.forEach((item) => {
+            item.textContent = item.dataset.text;
+          });
+        }
+      });
 
+      sidebar.addEventListener("mouseleave", function () {
+        if (this.classList.contains("hide")) {
+          allDropdown.forEach((item) => {
+            const a = item.parentElement.querySelector("a:first-child");
+            a.classList.remove("active");
+            item.classList.remove("show");
+          });
+          allSideDivider.forEach((item) => {
+            item.textContent = "-";
+          });
+        }
+      });
 
-		// SIDEBAR COLLAPSE
-		const toggleSidebar = document.querySelector('nav .toggle-sidebar');
-		const allSideDivider = document.querySelectorAll('#sidebar .divider');
+      sidebar.addEventListener("mouseenter", function () {
+        if (this.classList.contains("hide")) {
+          allDropdown.forEach((item) => {
+            const a = item.parentElement.querySelector("a:first-child");
+            a.classList.remove("active");
+            item.classList.remove("show");
+          });
+          allSideDivider.forEach((item) => {
+            item.textContent = item.dataset.text;
+          });
+        }
+      });
 
-		if (sidebar.classList.contains('hide')) {
-			allSideDivider.forEach(item => {
-				item.textContent = '-'
-			})
-			allDropdown.forEach(item => {
-				const a = item.parentElement.querySelector('a:first-child');
-				a.classList.remove('active');
-				item.classList.remove('show');
-			})
-		} else {
-			allSideDivider.forEach(item => {
-				item.textContent = item.dataset.text;
-			})
-		}
+      // PROFILE DROPDOWN
+      const profile = document.querySelector("nav .profile");
+      const imgProfile = profile.querySelector("img");
+      const dropdownProfile = profile.querySelector(".profile-link");
 
-		toggleSidebar.addEventListener('click', function () {
-			sidebar.classList.toggle('hide');
+      imgProfile.addEventListener("click", function () {
+        dropdownProfile.classList.toggle("show");
+      });
 
-			if (sidebar.classList.contains('hide')) {
-				allSideDivider.forEach(item => {
-					item.textContent = '-'
-				})
+      // MENU
+      const allMenu = document.querySelectorAll(
+        "main .content-data .head .menu"
+      );
 
-				allDropdown.forEach(item => {
-					const a = item.parentElement.querySelector('a:first-child');
-					a.classList.remove('active');
-					item.classList.remove('show');
-				})
-			} else {
-				allSideDivider.forEach(item => {
-					item.textContent = item.dataset.text;
-				})
-			}
-		})
+      allMenu.forEach((item) => {
+        const icon = item.querySelector(".icon");
+        const menuLink = item.querySelector(".menu-link");
 
+        icon.addEventListener("click", function () {
+          menuLink.classList.toggle("show");
+        });
+      });
 
+      window.addEventListener("click", function (e) {
+        if (e.target !== imgProfile) {
+          if (e.target !== dropdownProfile) {
+            if (dropdownProfile.classList.contains("show")) {
+              dropdownProfile.classList.remove("show");
+            }
+          }
+        }
 
+        allMenu.forEach((item) => {
+          const icon = item.querySelector(".icon");
+          const menuLink = item.querySelector(".menu-link");
 
-		sidebar.addEventListener('mouseleave', function () {
-			if (this.classList.contains('hide')) {
-				allDropdown.forEach(item => {
-					const a = item.parentElement.querySelector('a:first-child');
-					a.classList.remove('active');
-					item.classList.remove('show');
-				})
-				allSideDivider.forEach(item => {
-					item.textContent = '-'
-				})
-			}
-		})
+          if (e.target !== icon) {
+            if (e.target !== menuLink) {
+              if (menuLink.classList.contains("show")) {
+                menuLink.classList.remove("show");
+              }
+            }
+          }
+        });
+      });
 
+      const switchMode = document.getElementById("switch-mode");
 
-
-		sidebar.addEventListener('mouseenter', function () {
-			if (this.classList.contains('hide')) {
-				allDropdown.forEach(item => {
-					const a = item.parentElement.querySelector('a:first-child');
-					a.classList.remove('active');
-					item.classList.remove('show');
-				})
-				allSideDivider.forEach(item => {
-					item.textContent = item.dataset.text;
-				})
-			}
-		})
-
-
-
-
-		// PROFILE DROPDOWN
-		const profile = document.querySelector('nav .profile');
-		const imgProfile = profile.querySelector('img');
-		const dropdownProfile = profile.querySelector('.profile-link');
-
-		imgProfile.addEventListener('click', function () {
-			dropdownProfile.classList.toggle('show');
-		})
-
-
-
-
-		// MENU
-		const allMenu = document.querySelectorAll('main .content-data .head .menu');
-
-		allMenu.forEach(item => {
-			const icon = item.querySelector('.icon');
-			const menuLink = item.querySelector('.menu-link');
-
-			icon.addEventListener('click', function () {
-				menuLink.classList.toggle('show');
-			})
-		})
-
-
-
-		window.addEventListener('click', function (e) {
-			if (e.target !== imgProfile) {
-				if (e.target !== dropdownProfile) {
-					if (dropdownProfile.classList.contains('show')) {
-						dropdownProfile.classList.remove('show');
-					}
-				}
-			}
-
-			allMenu.forEach(item => {
-				const icon = item.querySelector('.icon');
-				const menuLink = item.querySelector('.menu-link');
-
-				if (e.target !== icon) {
-					if (e.target !== menuLink) {
-						if (menuLink.classList.contains('show')) {
-							menuLink.classList.remove('show')
-						}
-					}
-				}
-			})
-		})
-
-		const switchMode = document.getElementById('switch-mode');
-
-		switchMode.addEventListener('change', function () {
-			if (this.checked) {
-				document.body.classList.add('dark');
-			} else {
-				document.body.classList.remove('dark');
-			}
-		})
-
-
-	</script>
-</body>
-
+      switchMode.addEventListener("change", function () {
+        if (this.checked) {
+          document.body.classList.add("dark");
+        } else {
+          document.body.classList.remove("dark");
+        }
+      });
+    </script>
+  </body>
 </html>

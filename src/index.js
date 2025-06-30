@@ -409,8 +409,37 @@ app.get('/obtenerUsuario', (req, res) => {
     res.json({
         success: true,
         id_usuario: req.session.id_usuario,
-        nom_usuario: req.session.nombre
+        nom_usuario: req.session.nombre,
+        cargo: req.session.cargo,
+        id_escuela: req.session.id_escuela
     });
+});
+
+
+app.get('/datos-usuario', async (req, res) => {
+    const ID_usuario = req.session.userId;
+    const nom_usuario = req.session.userName;
+    const cargo = req.session.cargo;
+
+   
+    try {
+    const i = req.session.id_escuela;
+        const results = await query('SELECT * FROM escuela WHERE id_escuela = ?', [i]);
+        if (results.length === 0) {
+            return res.status(404).json({ success: false, message: 'Usuario no encontrado.' });
+        }
+        const user = results[0];
+        res.json({
+            success: true,
+            userId: ID_usuario,
+            nom_usuario: nom_usuario,
+            cargo: cargo,
+            nom_escuela: user.nom_escuela,
+        });
+    } catch (err) {
+        console.error('Error al obtener datos del usuario:', err);
+        res.status(500).json({ success: false, message: 'Error al obtener datos del usuario.' });
+    }
 });
 
 

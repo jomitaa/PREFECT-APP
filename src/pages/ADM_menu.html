@@ -9,6 +9,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
 <script src="https://unpkg.com/fancy-canvas@2.1.0/dist/umd.min.js"></script>
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+
 
 
     <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet"/>
@@ -154,15 +156,15 @@
             <li>
               <i class="bx bxs-group"></i>
               <span class="text">
-                <h3>( Número ) 3</h3>
-                <p>Usuarios ingresados</p>
+                <h3 id="usuario"></h3>
+                <p id="cargo"></p>
               </span>
             </li>
             <li>
               <i class="bx bxs-pin"></i>
               <span class="text">
-                <h3>No se</h3>
-                <p>lol</p>
+                <h3>Escuela del usuario:</h3>
+                <p id="escuela"></p>
               </span>
             </li>
           </ul>
@@ -174,6 +176,9 @@
           <h2>Reporte de Asistencias</h2>
           <div class="filtros-reporte">
 <button id="btnCambiarGrafica" class="chart-toggle-btn">Cambiar a Gráfica de Líneas</button>
+            <button class="chart-toggle-btn" id="btnDescargarPDF">Descargar PDF</button>
+
+            <div style="display: none;">
             <label for="profesor">Profesor:</label>
             <select id="profesor">
               <option value="todos">Todos</option>
@@ -194,8 +199,63 @@
               <option value="6meses">6 meses</option>
               <option value="anio">Año</option>
             </select>
+            </div>
 
-            <button id="btnDescargarPDF">Descargar PDF</button>
+            <div class="select-custom">
+
+              <div class="contenedor-select">
+					<div class="boton-select">
+						<span>Seleccione el periodo: Dia</span>
+						<i class="uil uil-angle-down"></i>
+					</div>
+					<div class="contenido-select">
+						<ul class="opciones">
+							<li onclick="seleccionarOpcion(this)" data-value="dia">Dia</li>
+							<li onclick="seleccionarOpcion(this)" data-value="semana">Semana</li>
+							<li onclick="seleccionarOpcion(this)" data-value="mes">Mes</li>
+							<li onclick="seleccionarOpcion(this)" data-value="6meses">Semestral</li>
+							<li onclick="seleccionarOpcion(this)" data-value="anio">Anio</li>
+						</ul>
+					</div>
+				</div>
+
+              <div class="contenedor-select" data-type="profesor">
+						<div class="boton-select">
+							<span>Seleccione un Profesor: Todos</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Profesor...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+
+
+          <div class="contenedor-select" data-type="materia">
+						<div class="boton-select">
+							<span>Seleccione una Materia: Todas</span>
+							<i class="uil uil-angle-down"></i>
+						</div>
+						<div class="contenido-select">
+							<div class="buscador">
+								<i class="uil uil-search"></i>
+								<input spellcheck="false" type="text" placeholder="Buscar Materia...">
+							</div>
+							<ul class="opciones"></ul>
+						</div>
+					</div>
+
+
+              
+
+
+
+            </div>
+
           </div>
 
          <div id="chart-container">

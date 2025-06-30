@@ -1,3 +1,25 @@
+anioSeleccionado = '';
+periodoSeleccionado = '';
+grupoSeleccionado = '';
+profesorSeleccionado = '';
+materiaSeleccionada = '';
+horaInicioSeleccionada = '';
+horaFinSeleccionada = '';
+diaSeleccionado = '';
+registroAsistenciaSeleccionado = '';
+
+const contenedorAsistencia = document.querySelector('.contenedor-select[data-type="asistencia"]');
+const contenedorAnio = document.querySelector('.contenedor-select[data-type="anio"]');
+const contenedorPeriodo = document.querySelector('.contenedor-select[data-type="periodo"]');
+const contenedorDia = document.querySelector('.contenedor-select[data-type="dia"]');
+const contenedorGrupo = document.querySelector('.contenedor-select[data-type="grupo"]');
+const contenedorProfesor = document.querySelector('.contenedor-select[data-type="profesor"]');
+const contenedorMateria = document.querySelector('.contenedor-select[data-type="materia"]');
+const contenedorHoraInicio = document.querySelector('.contenedor-select[data-type="horaInicio"]');
+const contenedorHoraFin = document.querySelector('.contenedor-select[data-type="horaFin"]');
+
+
+
 document.addEventListener('DOMContentLoaded', async () => {
 
     try {
@@ -24,6 +46,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         llenarSelect('anio', data.anios);
         llenarSelect('periodo', data.periodos);
 
+inicializarEventosAsis();
+                        inicializarEventosFiltros();
+                        
+
+
+
     } catch (error) {
         createToast(
             "error",
@@ -35,56 +63,259 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// ✅ Función para llenar selects
-function llenarSelect(id, datos) {
-    const select = document.getElementById(id);
-    if (!select) {
-        console.error(`No se encontró el select con ID: ${id}`);
+function llenarSelect(tipo, datos) {
+            const contenedor = document.querySelector(`.contenedor-select[data-type="${tipo}"]`);
+            if (!contenedor) {
+                console.error(`No se encontró el select con tipo: ${tipo}`);
+                return;
+            }
+        
+            const opciones = contenedor.querySelector('.opciones');
+            opciones.innerHTML = '';
+
+             
+        const limpiarLi = document.createElement('li');
+        limpiarLi.className = 'limpiar-seleccion';
+        limpiarLi.innerHTML = '<i class="fas fa-times-circle"></i> Limpiar selección';
+        limpiarLi.onclick = function() {
+            limpiarFiltro(tipo, contenedor);
+        };
+        opciones.appendChild(limpiarLi);
+    
+        
+            datos.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                li.setAttribute('data-value', item);
+                li.onclick = function() {
+                    seleccionarOpcionFiltro(this, tipo);
+                };
+                opciones.appendChild(li);
+            });
+        }
+
+         function seleccionarAsistencia(opcion) {
+            // Animación
+            opcion.style.transform = 'scale(0.98)';
+            setTimeout(() => opcion.style.transform = '', 150);
+            
+            // Actualizar variable y UI
+            registroAsistenciaSeleccionado = opcion.dataset.value;
+            contenedorAsistencia.querySelector('.boton-select span').textContent = opcion.textContent;
+            
+            // Marcar como seleccionado
+            contenedorAsistencia.querySelectorAll('.opciones li').forEach(li => {
+                li.classList.remove('seleccionado');
+            });
+            opcion.classList.add('seleccionado');
+            
+            // Cerrar select
+            cerrarSelect(contenedorAsistencia);
+            
+        }
+
+        function seleccionarOpcionFiltro(opcion, tipo) {
+            // Animación
+            opcion.style.transform = 'scale(0.98)';
+            setTimeout(() => opcion.style.transform = '', 150);
+            
+            // Actualizar variable correspondiente
+            switch(tipo) {
+                case 'anio': anioSeleccionado = opcion.dataset.value; break;
+                case 'periodo': periodoSeleccionado = opcion.dataset.value; break;
+                case 'dia': diaSeleccionado = opcion.dataset.value; break;
+                case 'grupo': grupoSeleccionado = opcion.dataset.value; break;
+                case 'profesor': profesorSeleccionado = opcion.dataset.value; break;
+                case 'materia': materiaSeleccionada = opcion.dataset.value; break;
+                case 'horaInicio': horaInicioSeleccionada = opcion.dataset.value; break;
+                case 'horaFin': horaFinSeleccionada = opcion.dataset.value; break;
+            }
+            
+            // Actualizar UI
+            const contenedor = opcion.closest('.contenedor-select');
+            contenedor.querySelector('.boton-select span').textContent = opcion.textContent;
+            
+            // Marcar como seleccionado
+            contenedor.querySelectorAll('.opciones li').forEach(li => {
+                li.classList.remove('seleccionado');
+            });
+            opcion.classList.add('seleccionado');
+            contenedor.classList.add('filtro-activo');
+            
+            // Cerrar select
+            cerrarSelect(contenedor);
+        }
+
+        function limpiarFiltro(tipo, contenedor) {
+    if (!contenedor) return;
+    
+    // Limpiar la variable correspondiente
+    switch(tipo) {
+        case 'anio': anioSeleccionado = ''; break;
+        case 'periodo': periodoSeleccionado = ''; break;
+        case 'dia': diaSeleccionado = ''; break;
+        case 'grupo': grupoSeleccionado = ''; break;
+        case 'profesor': profesorSeleccionado = ''; break;
+        case 'materia': materiaSeleccionada = ''; break;
+        case 'horaInicio': horaInicioSeleccionada = ''; break;
+        case 'horaFin': horaFinSeleccionada = ''; break;
+        case 'asistencia': registroAsistenciaSeleccionado = ''; break;
+    }
+    
+    // Actualizar UI
+    const defaultText = `Seleccione ${tipo === 'anio' ? 'AÑO' : 
+                       tipo === 'periodo' ? 'PERIODO' :
+                       tipo === 'dia' ? 'DÍA' :
+                       tipo === 'grupo' ? 'GRUPO' :
+                       tipo === 'profesor' ? 'PROFESOR' :
+                       tipo === 'materia' ? 'MATERIA' :
+                       tipo === 'asistencia' ? 'ASISTENCIA' :
+                       tipo === 'horaInicio' ? 'HORA INICIO' : 'HORA FIN'}`;
+    
+    const span = contenedor.querySelector('.boton-select span');
+    if (span) span.textContent = defaultText;
+    
+    // Limpiar selección visual
+    contenedor.querySelectorAll('.opciones li').forEach(li => {
+        li.classList.remove('seleccionado');
+    });
+    contenedor.classList.remove('filtro-activo');
+    
+    // Cerrar el select
+    cerrarSelect(contenedor);
+    
+    // Volver a filtrar
+    filtrarHorarios();
+}
+
+function inicializarEventosAsis() {
+    if (!contenedorAsistencia) {
+        console.error('Contenedor de asistencia no encontrado');
         return;
     }
 
-    // Aquí cambiamos el texto que aparece en la opción por defecto
-    let label = '';
-    switch (id) {
-        case 'anio':
-            label = 'Seleccione un AÑO';
-            break;
-        case 'periodo':
-            label = 'Seleccione un PERIODO';
-            break;
-        case 'dia':
-            label = 'Seleccione un DIA';
-            break;
-        case 'grupo':
-            label = 'Seleccione un GRUPO';
-            break;
-        case 'profesor':
-            label = 'Seleccione un PROFESOR';
-            break;
-        case 'materia':
-            label = 'Seleccione una MATERIA';
-            break;
-        case 'horaInicio':
-            label = 'Seleccione la HORA INICIO';
-            break;
-        case 'horaFin':
-            label = 'Seleccione la HORA FIN';
-            break;
-        default:
-            label = 'Seleccione una opción';
+    const botonSelect = contenedorAsistencia.querySelector('.boton-select');
+    const opcionesContainer = contenedorAsistencia.querySelector('.opciones'); // Cambiado de 'opciones' a 'opcionesContainer'
+    
+    if (!botonSelect || !opcionesContainer) {
+        console.error('Elementos no encontrados en contenedorAsistencia', {
+            botonSelect: !!botonSelect,
+            opcionesContainer: !!opcionesContainer
+        });
+        return;
     }
 
-    // Agregamos la opción por defecto con el texto correcto
-    select.innerHTML = `<option value="">${label}</option>`;
+     const limpiarLi = document.createElement('li');
+        limpiarLi.className = 'limpiar-seleccion';
+        limpiarLi.innerHTML = '<i class="fas fa-times-circle"></i> Limpiar selección';
+        limpiarLi.onclick = function() {
+            limpiarFiltro('asistencia', contenedorAsistencia);
+        };
+        
+    opcionesContainer.insertBefore(limpiarLi, opcionesContainer.firstChild);
+    
 
-    // Llenamos el select con las opciones recibidas
-    datos.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item;
-        option.textContent = item;
-        select.appendChild(option);
+    // 1. Configurar evento de apertura/cierre
+    botonSelect.addEventListener('click', function(e) {
+        e.stopPropagation();
+        contenedorAsistencia.classList.toggle('activo');
     });
+
+      
+
+    // 2. Configurar eventos para las opciones existentes
+    const opciones = opcionesContainer.querySelectorAll('li:not(.limpiar-seleccion)');
+    opciones.forEach(opcion => {
+        opcion.addEventListener('click', function() {
+            registroAsistenciaSeleccionado = this.getAttribute('data-value');
+            botonSelect.querySelector('span').textContent = this.textContent;
+            
+            // Marcar como seleccionado
+            opciones.forEach(li => li.classList.remove('seleccionado'));
+            this.classList.add('seleccionado');
+            
+            cerrarSelect(contenedorAsistencia);
+            filtrarHorarios();
+        });
+    });
+
+   
+
+    console.log('Eventos de asistencia inicializados correctamente');
 }
+function inicializarEventosFiltros() {
+            const contenedores = [
+                contenedorAnio, contenedorPeriodo, contenedorDia, contenedorGrupo, contenedorProfesor, 
+                contenedorMateria, contenedorHoraInicio, contenedorHoraFin
+            ];
+        
+            contenedores.forEach(contenedor => {
+                if (!contenedor) return;
+        
+                const botonSelect = contenedor.querySelector('.boton-select');
+                const inputBusqueda = contenedor.querySelector('.buscador input');
+                const opciones = contenedor.querySelector('.opciones');
+                const tipo = contenedor.dataset.type;
+        
+                // Abrir/cerrar select
+                botonSelect.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    contenedor.classList.toggle('activo');
+                    
+                    if (contenedor.classList.contains('activo') && inputBusqueda) {
+                        inputBusqueda.focus();
+                    }
+                });
+        
+                // Búsqueda
+                if (inputBusqueda) {
+                    inputBusqueda.addEventListener('input', () => {
+                        const busqueda = inputBusqueda.value.toLowerCase();
+                        const items = opciones.querySelectorAll('li');
+                        
+                        items.forEach(item => {
+                            const texto = item.textContent.toLowerCase();
+                            item.style.display = texto.includes(busqueda) ? 'flex' : 'none';
+                        });
+                    });
+                }
+        
+                // Limpiar selección (doble clic)
+               
+            });
+        
+            
+            // Cerrar selects al hacer clic fuera
+           document.addEventListener('click', (e) => {
+    contenedores.forEach(contenedor => {
+        if (contenedor && !contenedor.contains(e.target)) {
+            cerrarSelect(contenedor);
+        }
+    });
+});
+            
+            
+            // Evento para filtrar
+        }
+        
+        // Función para cerrar select
+        function cerrarSelect(contenedor) {
+            if (!contenedor) return;
+            
+            const contenidoSelect = contenedor.querySelector('.contenido-select');
+            if (!contenidoSelect) return;
+            
+            contenidoSelect.style.opacity = '0';
+            contenidoSelect.style.transform = 'translateY(-15px)';
+            
+            setTimeout(() => {
+                contenedor.classList.remove("activo");
+                contenidoSelect.style.opacity = '';
+                contenidoSelect.style.transform = '';
+            }, 300);
+        }
+
+// Evento para abrir el select
 
 let alerta = document.querySelector(".alerta");
 
@@ -263,45 +494,13 @@ document.head.appendChild(style);
         document.getElementById("filterBtn").replaceWith(document.getElementById("filterBtn").cloneNode(true));
     document.getElementById("filterBtn").addEventListener("click", filtrarHorarios);
 
-    const filtros = [
-        "anio",
-        "periodo",
-        "dia",
-        "grupo",
-        "profesor",
-        "materia",
-        "horaInicio",
-        "horaFin",
-        "fecha",
-        "asistencia"
-
-      ];
     
-      filtros.forEach((id) => {
-        const select = document.getElementById(id);
-        select.addEventListener("change", () => {
-          if (select.value !== "") {
-            select.classList.add("filtro-activo");
-          } else {
-            select.classList.remove("filtro-activo");
-          }
-        });
-      });
     
     async function filtrarHorarios() {
-        const anio = document.getElementById("anio").value;
-        const periodo = document.getElementById("periodo").value;
-        const grupo = document.getElementById("grupo").value;
-        const dia = document.getElementById("dia").value;
         const fecha = document.getElementById("fecha").value;
-        const registro_asis = document.getElementById("asistencia").value;
-        const profesor = document.getElementById("profesor").value;
-        const materia = document.getElementById("materia").value;
-        const horaInicio = document.getElementById("horaInicio").value;
-        const horaFin = document.getElementById("horaFin").value;
-
-        const anioFiltro = anio ? Number(anio) : null;
-        const periodoFiltro = periodo ? Number(periodo) : null;
+      
+        const anioFiltro = contenedorAnio ? Number(contenedorAnio) : null;
+        const periodoFiltro = contenedorPeriodo ? Number(contenedorPeriodo) : null;
     
     
         try {
@@ -335,19 +534,19 @@ document.head.appendChild(style);
                 const estadoRetardo = consulta.retardo; // 1 si tiene retardo
                 const estadoFalta = consulta.falta; // 1 si tiene falta
 
-                const filtroAsistencia = registro_asis === "asis" ? estadoAsistencia === 1 :
-                                     registro_asis === "ret" ? estadoRetardo === 1 :
-                                     registro_asis === "falt" ? estadoFalta === 1 :
+                const filtroAsistencia = registroAsistenciaSeleccionado === "asis" ? estadoAsistencia === 1 :
+                                     registroAsistenciaSeleccionado === "ret" ? estadoRetardo === 1 :
+                                     registroAsistenciaSeleccionado === "falt" ? estadoFalta === 1 :
                                      true;
 
                 return (
-                    (!grupo || consulta.grupo === grupo) &&
-                    (!dia || consulta.dia_horario === dia) &&
-                    (!profesor || consulta.persona === profesor) &&
+                    (grupoSeleccionado === '' || consulta.grupo === grupoSeleccionado) &&
+                    (diaSeleccionado === '' || consulta.dia_horario === diaSeleccionado) &&
+                    (profesorSeleccionado === '' || consulta.persona === contenedorProfesor) &&
                     (!fecha || fechaAsistencia === fechaUsuario) && // Comparación de fechas sin la hora
-                    (!materia || consulta.materia === materia) &&
-                    (!horaInicio || consulta.hora_inicio === horaInicio) &&
-                    (!horaFin || consulta.hora_final === horaFin) &&
+                    (materiaSeleccionada === '' || consulta.materia === materiaSeleccionada) &&
+                    (horaInicioSeleccionada === '' || consulta.hora_inicio === horaInicioSeleccionada) &&
+                    (horaFinSeleccionada === '' || consulta.hora_final === horaFinSeleccionada) &&
                     (!anioFiltro || Number(consulta.anio) === anioFiltro) &&
                     (!periodoFiltro || Number(consulta.periodo) === periodoFiltro) &&
                     filtroAsistencia
@@ -379,26 +578,48 @@ document.head.appendChild(style);
         }
     }
 
-    document.getElementById("resetFiltersButton").addEventListener("click", function() {
-        // Restablece todos los filtros a su estado inicial
-        document.getElementById("grupo").value = "";
-        document.getElementById("dia").value = "";
-        document.getElementById("fecha").value = "";
-        document.getElementById("asistencia").value = "";
-        document.getElementById("profesor").value = "";
-        document.getElementById("materia").value = "";
-        document.getElementById("horaInicio").value = "";
-        document.getElementById("horaFin").value = "";
+   document.getElementById("resetFiltersButton").addEventListener("click", function() {
+    // Limpiar variables
+    anioSeleccionado = '';
+    periodoSeleccionado = '';
+    grupoSeleccionado = '';
+    profesorSeleccionado = '';
+    materiaSeleccionada = '';
+    horaInicioSeleccionada = '';
+    horaFinSeleccionada = '';
+    diaSeleccionado = '';
+    registroAsistenciaSeleccionado = '';
     
-        filtros.forEach((id) => {
-            const select = document.getElementById(id);
-            select.classList.remove("filtro-activo");
-          });
-
-
-        filtrarHorarios();
-
+    // Limpiar UI de todos los filtros
+    const tipos = ['anio', 'periodo', 'dia', 'grupo', 'profesor', 'materia', 'horaInicio', 'horaFin'];
+    tipos.forEach(tipo => {
+        const contenedor = document.querySelector(`.contenedor-select[data-type="${tipo}"]`);
+        if (contenedor) {
+            const defaultText = `Seleccione ${tipo === 'anio' ? 'AÑO' : 
+                               tipo === 'periodo' ? 'PERIODO' :
+                               tipo === 'dia' ? 'DÍA' :
+                               tipo === 'grupo' ? 'GRUPO' :
+                               tipo === 'profesor' ? 'PROFESOR' :
+                               tipo === 'materia' ? 'MATERIA' :
+                               tipo === 'horaInicio' ? 'HORA INICIO' : 'HORA FIN'}`;
+            
+            const span = contenedor.querySelector('.boton-select span');
+            if (span) span.textContent = defaultText;
+            
+            contenedor.querySelectorAll('.opciones li').forEach(li => {
+                li.classList.remove('seleccionado');
+            });
+            contenedor.classList.remove('filtro-activo');
+        }
     });
+    
+    // Limpiar fecha si existe
+    const fechaInput = document.getElementById("fecha");
+    if (fechaInput) fechaInput.value = '';
+    
+    // Volver a filtrar
+    filtrarHorarios();
+});
     
 
     }
@@ -408,134 +629,3 @@ document.head.appendChild(style);
     fetchConsulta();
 
     //------------------------------------------------------------ FIN CODIGO CONSULTA -----------------------------------
-
-// ---------------------------------------------------------------  CODIGO DE BUSCADOR  -------------------------------
-
-const search = document.querySelector('.input-group input'),
-            table_rows = document.getElementsByName('joma'),
-            table_headings = document.querySelectorAll('thead th');
-
-        // 1. BUSCAR EN LA TABLA
-        search.addEventListener('input', searchTable);
-
-        function searchTable() {
-            table_rows.forEach((row, i) => {
-                let table_data = row.textContent.toLowerCase(),
-                    search_data = search.value.toLowerCase();
-
-                row.classList.toggle('hide', table_data.indexOf(search_data) < 0);
-                row.style.setProperty('--delay', i / 25 + 's');
-            })
-
-            document.querySelectorAll('tbody tr:not(.hide)').forEach((visible_row, i) => {
-                visible_row.style.backgroundColor = (i % 2 == 0) ? 'transparent' : '#0000000b';
-            });
-        }
-
-        // 2. ORDENAR TABLA
-
-        table_headings.forEach((head, i) => {
-            let sort_asc = true;
-            head.onclick = () => {
-                table_headings.forEach(head => head.classList.remove('active'));
-                head.classList.add('active');
-
-                document.querySelectorAll('td').forEach(td => td.classList.remove('active'));
-                table_rows.forEach(row => {
-                    row.querySelectorAll('td')[i].classList.add('active');
-                })
-
-                head.classList.toggle('asc', sort_asc);
-                sort_asc = head.classList.contains('asc') ? false : true;
-
-                sortTable(i, sort_asc);
-            }
-        })
-
-
-        function sortTable(column, sort_asc) {
-            [...table_rows].sort((a, b) => {
-                let first_row = a.querySelectorAll('td')[column].textContent.toLowerCase(),
-                    second_row = b.querySelectorAll('td')[column].textContent.toLowerCase();
-
-                return sort_asc ? (first_row < second_row ? 1 : -1) : (first_row < second_row ? -1 : 1);
-            })
-                .map(sorted_row => document.querySelector('tbody').appendChild(sorted_row));
-        }
-
-
-
-// 3. PDF
-
-const pdf_btn = document.querySelector('#toPDF');
-const customers_table = document.querySelector('#customers_table');
-
-const toPDF = function (customers_table) {
-    const html_code = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-        <link rel="stylesheet" type="text/css" href="../public/css/PRF_1ER_PISO.css">
-    </head>
-    <body>
-        <main class="table" id="customers_table">${customers_table.innerHTML}</main>
-    </body>
-    </html>`;
-
-    const new_window = window.open();
-    new_window.document.write(html_code);
-
-    setTimeout(() => {
-        new_window.print();
-        new_window.close();
-    }, 1000); 
-}
-
-pdf_btn.onclick = () => {
-    toPDF(customers_table);
-}
-
-// 4. JSON
-
-const json_btn = document.querySelector('#toJSON');
-
-const toJSON = function (table) {
-    let table_data = [],
-        t_head = [],
-
-        t_headings = table.querySelectorAll('th'),
-        t_rows = table.querySelectorAll('tbody tr');
-
-    for (let t_heading of t_headings) {
-        let actual_head = t_heading.textContent.trim().split(' ');
-
-        t_head.push(actual_head.splice(0, actual_head.length - 1).join(' ').toLowerCase());
-    }
-
-    t_rows.forEach(row => {
-        const row_object = {},
-            t_cells = row.querySelectorAll('td');
-
-        t_cells.forEach((t_cell, cell_index) => {
-            const img = t_cell.querySelector('img');
-            if (img) {
-                row_object['customer image'] = decodeURIComponent(img.src);
-            }
-            row_object[t_head[cell_index]] = t_cell.textContent.trim();
-        })
-        table_data.push(row_object);
-    })
-
-    return JSON.stringify(table_data, null, 4);
-}
-
-json_btn.onclick = () => {
-    const json = toJSON(customers_table);
-    downloadFile(json, 'json')
-}
-
-// --------------------------------------------------------------- FIN CODIGO DE BUSCADOR  -------------------------------
-

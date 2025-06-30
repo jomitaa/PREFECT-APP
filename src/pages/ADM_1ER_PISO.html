@@ -7,6 +7,10 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
 	<link rel="stylesheet" href="/css/ADM_1ER_PISO.css">
+	 <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
+    />
 	<title>Prefect App 1.1</title>
 </head>
 
@@ -14,69 +18,80 @@
 
 	<!-- SIDEBAR -->
 	<section id="sidebar">
-		<a href="#" class="brand"
-		  ><i class="bx bxs-parking icon"></i> PREFECT APP</a
-		>
-		<ul class="side-menu">
-		  <li>
-			<a href="#" class="active"
-			  ><i class="bx bxs-dashboard icon"></i> ADMINISTRADOR</a
-			>
-		  </li>
-		  <br />
-  
-		  <li>
-			<a href="./ADM_menu.html" ><i class="bx bx-table icon"></i> Inicio</a>
-		  </li>
-  
-		  <li class="divider" data-text="Horarios"></li>
-		  <li>
-			<a href="#" class="active"><i class="bx bxs-inbox icon"></i> Editar Asistencia
-			  <i class="bx bx-chevron-right icon-right"></i></a>
-			<ul class="side-dropdown">
-			  <li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
-			  <li><a href="./ADM_2DO_PISO.html">2do Piso</a></li>
-			  <li><a href="./ADM_3ER_PISO.html">3er Piso</a></li>
-			</ul>
-		  </li>
-		  <li>
-			<a href="./ADM_AgregarHorario.html"
-			  ><i class="bx bx-table icon"></i> Agregar Horarios</a
-			>
-		  </li>
-		  <li>
-			<a href="./ADM_EditarHorario.html"
-			  ><i class="bx bx-table icon"></i> Editar Horarios</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="maestros"></li>
-		  <li>
-			<a href="./ADM_Consulta.html"
-			  ><i class="bx bx-table icon"></i> Consulta</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="reportes"></li>
-		  <li>
-			<a href="./ADM_Reportes.html"
-			  ><i class="bx bx-table icon"></i> Consulta</a
-			>
-		  </li>
-  
-		  <li class="divider" data-text="usuarios"></li>
-		  <li>
-			<a href="./ADM_Editar_Usuarios.html"
-			  ><i class="bx bx-table icon"></i> Editar Usuario</a
-			>
-		  </li>
-		  <li>
-			<a href="./registrar.html"
-			  ><i class="bx bx-table icon"></i> Registrar Usuario</a
-			>
-		  </li>
-		</ul>
-	  </section>
+      <a href="#" class="brand"
+        ><i class="bx bxs-parking icon"></i> PREFECT APP</a
+      >
+      <ul class="side-menu">
+        <li>
+          <a href="#" class="active"
+            ><i class="bx bxs-dashboard icon"></i> ADMINISTRADOR</a
+          >
+        </li>
+        <br />
+
+        <li>
+          <a href="./ADM_menu.html" class=""><i class="bx bx-table icon"></i> Inicio</a>
+        </li>
+
+        <li class="divider" data-text="Horarios"></li>
+        <li>
+          <a href="#" class="active"
+            ><i class="bx bxs-inbox icon"></i> Editar Asistencia
+            <i class="bx bx-chevron-right icon-right"></i
+          ></a>
+          <ul class="side-dropdown">
+            <li><a href="./ADM_1ER_PISO.html">1er Piso</a></li>
+            <li><a href="./ADM_2DO_PISO.html">2do Piso</a></li>
+            <li><a href="./ADM_3ER_PISO.html">3er Piso</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="./ADM_AgregarHorario.html"
+            ><i class="bx bx-table icon"></i> Agregar Horarios</a
+          >
+        </li>
+        <li>
+          <a href="./ADM_EditarHorario.html"
+            ><i class="bx bx-table icon"></i> Editar Horarios</a
+          >
+        </li>
+        <li>
+          <a href="./ADM_datos.html"
+            ><i class="bx bx-table icon"></i> Agregar Datos/Horario</a
+          >
+        </li>
+        <a href="./ADM_consulta-datos.html"
+            ><i class="bx bx-table icon"></i> Consulta Datos/Horario</a
+          >
+        </li>
+
+        <li class="divider" data-text="maestros"></li>
+        <li>
+          <a href="./ADM_Consulta.html"
+            ><i class="bx bx-table icon"></i> Consulta</a
+          >
+        </li>
+
+        <li class="divider" data-text="reportes"></li>
+        <li>
+          <a href="./ADM_Reportes.html"
+            ><i class="bx bx-table icon"></i> Consulta</a
+          >
+        </li>
+
+        <li class="divider" data-text="usuarios"></li>
+        <li>
+          <a href="./ADM_Editar_Usuarios.html"
+            ><i class="bx bx-table icon"></i> Editar Usuario</a
+          >
+        </li>
+        <li>
+          <a href="./registrar.html"
+            ><i class="bx bx-table icon"></i> Registrar Usuario</a
+          >
+        </li>
+      </ul>
+    </section>
 
 	<!-- NAVBAR -->
 	<section id="content">
@@ -119,21 +134,111 @@
 
 			</ul>
 			<div class="filters">
-				<select name="turno" id="" class="filter-btn">
-					<option disabled selected>Seleccione un Turno</option>
-					<option value="1">Matutino</option>
-					<option value="2">Vespertino</option>
-				</select>
+				<div class="contenedor-select turno">
+        <div class="boton-select">
+            <span>Seleccione un Turno</span>
+            <i class="uil uil-angle-down"></i>
+        </div>
+        <div class="contenido-select">
+            <ul class="opciones">
+                <li onclick="seleccionarOpcion(this)" data-value="1">Matutino</li>
+                <li onclick="seleccionarOpcion(this)" data-value="2">Vespertino</li>
+            </ul>
+        </div>
+    </div>
 				<button id="selectAttendanceBtn" type="button" class="filter-btn">Seleccionar Asistencias</button>
 				
 
 				<button class="filter-btn" id="filterBtn">FILTRAR POR:</button>
-				<select id="salon"><option value="">SALÓN</option></select>
-				<select id="grupo"><option value="">GRUPO</option></select>
-				<select id="profesor"><option value="">PROFESOR</option></select>
-				<select id="materia"><option value="">MATERIA</option></select>
-				<select id="horaInicio"><option value="">HORA INICIO</option></select>
-				<select id="horaFin"><option value="">HORA FIN</option></select>
+				<!-- Select para Salón -->
+<div class="contenedor-select" data-type="salon">
+  <div class="boton-select">
+    <span>Seleccione un SALÓN</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar salón...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+
+<!-- Select para Grupo -->
+<div class="contenedor-select" data-type="grupo">
+  <div class="boton-select">
+    <span>Seleccione un GRUPO</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar grupo...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+
+<!-- Select para Profesor -->
+<div class="contenedor-select" data-type="profesor">
+  <div class="boton-select">
+    <span>Seleccione un PROFESOR</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar profesor...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+
+<!-- Select para Materia -->
+<div class="contenedor-select" data-type="materia">
+  <div class="boton-select">
+    <span>Seleccione una MATERIA</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar materia...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+
+<!-- Select para Hora Inicio -->
+<div class="contenedor-select" data-type="horaInicio">
+  <div class="boton-select">
+    <span>Seleccione HORA INICIO</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar hora...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+
+<!-- Select para Hora Fin -->
+<div class="contenedor-select" data-type="horaFin">
+  <div class="boton-select">
+    <span>Seleccione HORA FIN</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar hora...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
 			</div>
 			<div class="contenedor-horario">
 				<div class="blur-overlay top"></div>

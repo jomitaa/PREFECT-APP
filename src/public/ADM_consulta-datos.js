@@ -1,28 +1,425 @@
+let datoSeleccionado = null;
+let Profesor_nombre = null;
+let Materia_nombre = null;
+let Carrera_nombre = null;
+let Grupo_nombre = null;
+let Salon_nombre = null;
+let Profesor_correo = null;
+let Materia_tipo = null;
+let Grupo_semestre = null;
+let Salon_piso = null;
+let Grupo_carrera = null;
+let Salon_numero = null;
+let Grupo_turno = null;
+
+
+
+const contenedorDato = document.querySelector('.contenedor-select');
+const contenedorProfesor_nombre = document.querySelector('.contenedor-select[data-type="profe-nombre"]');
+const contenedorMateria_nombre = document.querySelector('.contenedor-select[data-type="materia-nombre"]');
+const contenedorCarrera_nombre = document.querySelector('.contenedor-select[data-type="carrera-nombre"]');
+const contenedorGrupo_nombre = document.querySelector('.contenedor-select[data-type="grupo-nombre"]');
+const contenedorSalon_nombre = document.querySelector('.contenedor-select[data-type="salon-nombre"]');
+const contenedorProfesor_correo = document.querySelector('.contenedor-select[data-type="profe-correo"]');
+const contenedorMateria_tipo = document.querySelector('.contenedor-select[data-type="materia-tipo"]');
+const contenedorGrupo_semestre = document.querySelector('.contenedor-select[data-type="grupo-semestre"]');
+const contenedorSalon_piso = document.querySelector('.contenedor-select[data-type="salon-piso"]');
+const contenedorGrupo_carrera = document.querySelector('.contenedor-select[data-type="grupo-carrera"]');
+const contenedorSalon_numero = document.querySelector('.contenedor-select[data-type="salon-numero"]');
+const contenedorGrupo_turno = document.querySelector('.contenedor-select[data-type="grupo-turno"]');
+
+
 document.addEventListener('DOMContentLoaded', function() {
-    const selector = document.getElementById('selector-consulta');
+    inicializarEventosDatos();
     
     // Ocultar todos los contenedores al inicio
     document.querySelectorAll('[class^="contenedor-consulta-"]').forEach(container => {
         container.style.display = 'none';
     });
 
-    selector.addEventListener('change', function() {
-        // Ocultar todos los contenedores primero
-        document.querySelectorAll('[class^="contenedor-consulta-"]').forEach(container => {
-            container.style.display = 'none';
-        });
-
-        // Mostrar el contenedor seleccionado y cargar datos
-        if (this.value) {
-            const contenedor = document.querySelector(`.contenedor-consulta-${this.value}`);
-            if (contenedor) {
-                contenedor.style.display = 'block';
-                cargarDatos(this.value);
-                contenedor.style.animation = 'fadeIn 0.5s ease-in-out';
-            }
-        }
+       document.querySelectorAll('[class^="filtros-"]').forEach(container => {
+        container.style.display = 'none';
     });
 });
+
+function cerrarSelect(contenedor) {
+    if (!contenedor) return;
+    
+    const contenidoSelect = contenedor.querySelector('.contenido-select');
+    if (!contenidoSelect) return;
+    
+    contenidoSelect.style.opacity = '0';
+    contenidoSelect.style.transform = 'translateY(-15px)';
+    
+    setTimeout(() => {
+        contenedor.classList.remove("activo");
+        contenidoSelect.style.opacity = '';
+        contenidoSelect.style.transform = '';
+    }, 300);
+}
+
+function seleccionarDato(opcion) {
+    // Animación
+    opcion.style.transform = 'scale(0.98)';
+    setTimeout(() => opcion.style.transform = '', 150);
+    
+    // Actualizar variable y UI
+    datoSeleccionado = opcion.dataset.value;
+    contenedorDato.querySelector('.boton-select span').textContent = opcion.textContent;
+    
+    // Marcar como seleccionado
+    contenedorDato.querySelectorAll('.opciones li').forEach(li => {
+        li.classList.remove('seleccionado');
+    });
+    opcion.classList.add('seleccionado');
+    
+    // Cerrar select
+    cerrarSelect(contenedorDato);
+    
+    // Mostrar el contenedor correspondiente y cargar datos
+    mostrarContenedorConsulta(datoSeleccionado);
+    
+    // Cargar filtros para este tipo
+    cargarFiltros(datoSeleccionado);
+    
+    // Cargar datos iniciales
+    cargarDatos(datoSeleccionado);
+}
+
+function mostrarContenedorConsulta(tipo) {
+    // Ocultar todos los contenedores primero
+    document.querySelectorAll('[class^="contenedor-consulta-"]').forEach(container => {
+        container.style.display = 'none';
+    });
+    document.querySelectorAll('[class^="filtros-"]').forEach(container => {
+        container.style.display = 'none';
+    });
+
+    // Mostrar el contenedor seleccionado
+    const contenedor = document.querySelector(`.contenedor-consulta-${tipo}`);
+    const contenedorFiltro = document.querySelector(`.filtros-${tipo}`);
+    
+    if (contenedor) {
+        contenedor.style.display = 'block';
+        contenedor.style.animation = 'fadeIn 0.5s ease-in-out';
+    }
+    
+    if (contenedorFiltro) {
+        contenedorFiltro.style.display = 'grid';
+        contenedorFiltro.style.animation = 'fadeIn 0.5s ease-in-out';
+    }
+}
+
+function inicializarEventosDatos() {
+    const botonSelect = contenedorDato.querySelector('.boton-select');
+    const contenidoSelect = contenedorDato.querySelector('.contenido-select');
+    
+    // Evento para abrir/cerrar el select
+    botonSelect.addEventListener("click", (e) => {
+        e.stopPropagation();
+        contenedorDato.classList.toggle("activo");
+    });
+    
+    // Asegúrate que las opciones tienen el evento onclick correcto
+    const opcionesDato = contenedorDato.querySelectorAll('.opciones li');
+    opcionesDato.forEach(opcion => {
+        opcion.onclick = function() {
+            seleccionarDato(this);
+        };
+    });
+    
+    // Cerrar select al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        if (!contenedorDato.contains(e.target)) {
+            cerrarSelect(contenedorDato);
+        }
+    });
+}
+
+async function cargarFiltros(tipo) {
+    try {
+        // Usamos el mismo endpoint de consulta
+        const response = await fetch(`/api/consulta-${tipo}`);
+        const data = await response.json();
+        
+        if (!data || data.length === 0) {
+            console.warn(`No se encontraron datos para ${tipo}`);
+            return;
+        }
+        
+        // Procesamos los datos para extraer valores únicos para los filtros
+        switch(tipo) {
+            case 'profesor':
+                const nombresProfesores = [...new Set(data.map(p => p.nom_persona + ' ' + p.appat_persona + (p.apmat_persona ? ' ' + p.apmat_persona : '')))];
+                const correosProfesores = [...new Set(data.map(p => p.correo))];
+                llenarSelect('profe-nombre', nombresProfesores);
+                llenarSelect('profe-correo', correosProfesores);
+                break;
+                
+            case 'materia':
+                const nombresMaterias = [...new Set(data.map(m => m.nom_materia))];
+                const tiposMaterias = [...new Set(data.map(m => m.nom_tipomateria))];
+                llenarSelect('materia-nombre', nombresMaterias);
+                llenarSelect('materia-tipo', tiposMaterias);
+                break;
+                
+            case 'carrera':
+                const nombresCarreras = [...new Set(data.map(c => c.nom_carrera))];
+                llenarSelect('carrera-nombre', nombresCarreras);
+                break;
+                
+            case 'grupo':
+                const nombresGrupos = [...new Set(data.map(g => g.nom_grupo))];
+                const semestresGrupos = [...new Set(data.map(g => g.sem_grupo))];
+                const carrerasGrupos = [...new Set(data.map(g => g.nom_carrera))];
+                const turnosGrupos = [...new Set(data.map(g => g.nom_turno))];
+                llenarSelect('grupo-nombre', nombresGrupos);
+                llenarSelect('grupo-semestre', semestresGrupos);
+                llenarSelect('grupo-carrera', carrerasGrupos);
+                llenarSelect('grupo-turno', turnosGrupos);
+                break;
+                
+            case 'salon':
+                const nombresSalones = [...new Set(data.map(s => s.nom_salon))];
+                const pisosSalones = [...new Set(data.map(s => s.nom_piso))];
+                llenarSelect('salon-nombre', nombresSalones);
+                llenarSelect('salon-piso', pisosSalones);
+                break;
+        }
+        
+        // Inicializar eventos para los nuevos selects
+        inicializarEventosFiltros(tipo);
+        
+    } catch (error) {
+        console.error(`Error al cargar filtros para ${tipo}:`, error);
+        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', `Error al cargar filtros para ${tipo}`);
+    }
+}
+
+function llenarSelect(tipo, datos) {
+    const contenedor = document.querySelector(`.contenedor-select[data-type="${tipo}"]`);
+    if (!contenedor) {
+        console.error(`No se encontró el select con tipo: ${tipo}`);
+        return;
+    }
+
+    const opciones = contenedor.querySelector('.opciones');
+    opciones.innerHTML = '';
+
+    // Agregar opción para limpiar filtro
+    const limpiarLi = document.createElement('li');
+    limpiarLi.className = 'limpiar-seleccion';
+    limpiarLi.innerHTML = '<i class="fas fa-times-circle"></i> Limpiar selección';
+    limpiarLi.onclick = function() {
+        limpiarFiltro(tipo, contenedor);
+    };
+    opciones.appendChild(limpiarLi);
+
+    // Agregar opciones
+    datos.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        li.setAttribute('data-value', item);
+        li.onclick = function() {
+            seleccionarOpcionFiltro(this, tipo);
+        };
+        opciones.appendChild(li);
+    });
+}
+
+function seleccionarOpcionFiltro(opcion, tipo) {
+    // Animación
+    opcion.style.transform = 'scale(0.98)';
+    setTimeout(() => opcion.style.transform = '', 150);
+    
+    // Actualizar variable correspondiente
+    switch(tipo) {
+        case 'profe-nombre': Profesor_nombre = opcion.dataset.value; break;
+        case 'materia-nombre': Materia_nombre = opcion.dataset.value; break;
+        case 'carrera-nombre': Carrera_nombre = opcion.dataset.value; break;
+        case 'grupo-nombre': Grupo_nombre = opcion.dataset.value; break;
+        case 'salon-nombre': Salon_nombre = opcion.dataset.value; break;
+        case 'profe-correo': Profesor_correo = opcion.dataset.value; break;
+        case 'materia-tipo': Materia_tipo = opcion.dataset.value; break;
+        case 'grupo-semestre': Grupo_semestre = opcion.dataset.value; break;
+        case 'salon-piso': Salon_piso = opcion.dataset.value; break;
+        case 'grupo-carrera': Grupo_carrera = opcion.dataset.value; break;
+        case 'salon-numero': Salon_numero = opcion.dataset.value; break;
+        case 'grupo-turno': Grupo_turno = opcion.dataset.value; break;
+    }
+    
+    // Actualizar UI
+    const contenedor = opcion.closest('.contenedor-select');
+    contenedor.querySelector('.boton-select span').textContent = opcion.textContent;
+    
+    // Marcar como seleccionado
+    contenedor.querySelectorAll('.opciones li').forEach(li => {
+        li.classList.remove('seleccionado');
+    });
+    opcion.classList.add('seleccionado');
+    contenedor.classList.add('filtro-activo');
+    
+    // Cerrar select
+    cerrarSelect(contenedor);
+    
+    // Filtrar datos
+    filtrarDatosConsulta();
+}
+
+function limpiarFiltro(tipo, contenedor) {
+    const defaultText = getDefaultTextForFilter(tipo);
+    
+    // Actualizar UI
+    contenedor.querySelector('.boton-select span').textContent = defaultText;
+    
+    // Limpiar variable
+    switch(tipo) {
+        case 'profe-nombre': Profesor_nombre = null; break;
+        case 'materia-nombre': Materia_nombre = null; break;
+        case 'carrera-nombre': Carrera_nombre = null; break;
+        case 'grupo-nombre': Grupo_nombre = null; break;
+        case 'salon-nombre': Salon_nombre = null; break;
+        case 'profe-correo': Profesor_correo = null; break;
+        case 'materia-tipo': Materia_tipo = null; break;
+        case 'grupo-semestre': Grupo_semestre = null; break;
+        case 'salon-piso': Salon_piso = null; break;
+        case 'grupo-carrera': Grupo_carrera = null; break;
+        case 'salon-numero': Salon_numero = null; break;
+        case 'grupo-turno': Grupo_turno = null; break;
+    }
+
+    // Limpiar selección visual
+    contenedor.querySelectorAll('.opciones li').forEach(li => {
+        li.classList.remove('seleccionado');
+    });
+    contenedor.classList.remove('filtro-activo');
+    
+    // Cerrar el select
+    cerrarSelect(contenedor);
+    
+    // Volver a filtrar
+    filtrarDatosConsulta();
+}
+
+function getDefaultTextForFilter(tipo) {
+    const map = {
+        'profe-nombre': 'Filtrar por Nombre',
+        'materia-nombre': 'Filtrar por Nombre',
+        'carrera-nombre': 'Filtrar por Nombre',
+        'grupo-nombre': 'Filtrar por Nombre',
+        'salon-nombre': 'Filtrar por Nombre',
+        'profe-correo': 'Filtrar por Correo',
+        'materia-tipo': 'Filtrar por Tipo',
+        'grupo-semestre': 'Filtrar por Semestre',
+        'salon-piso': 'Filtrar por Piso',
+        'grupo-carrera': 'Filtrar por Carrera',
+        'salon-numero': 'Filtrar por Número',
+        'grupo-turno': 'Filtrar por Turno'
+    };
+    return map[tipo] || 'Seleccione una opción';
+}
+
+function inicializarEventosFiltros(tipo) {
+    const contenedores = document.querySelectorAll(`.filtros-${tipo} .contenedor-select`);
+    
+    contenedores.forEach(contenedor => {
+        if (!contenedor) return;
+
+        const botonSelect = contenedor.querySelector('.boton-select');
+        const inputBusqueda = contenedor.querySelector('.buscador input');
+        const opciones = contenedor.querySelector('.opciones');
+        const tipoFiltro = contenedor.dataset.type;
+
+        // Abrir/cerrar select
+        botonSelect.addEventListener('click', (e) => {
+            e.stopPropagation();
+            contenedor.classList.toggle('activo');
+            
+            if (contenedor.classList.contains('activo') && inputBusqueda) {
+                inputBusqueda.focus();
+            }
+        });
+
+        // Búsqueda
+        if (inputBusqueda) {
+            inputBusqueda.addEventListener('input', () => {
+                const busqueda = inputBusqueda.value.toLowerCase();
+                const items = opciones.querySelectorAll('li:not(.limpiar-seleccion)');
+                
+                items.forEach(item => {
+                    const texto = item.textContent.toLowerCase();
+                    item.style.display = texto.includes(busqueda) ? 'flex' : 'none';
+                });
+            });
+        }
+    });
+    
+    // Cerrar selects al hacer clic fuera
+    document.addEventListener('click', (e) => {
+        contenedores.forEach(contenedor => {
+            if (!contenedor.contains(e.target)) {
+                cerrarSelect(contenedor);
+            }
+        });
+    });
+}
+
+async function filtrarDatosConsulta() {
+    if (!datoSeleccionado) return;
+    
+    try {
+        // Obtenemos todos los datos primero
+        const response = await fetch(`/api/consulta-${datoSeleccionado}`);
+        const todosLosDatos = await response.json();
+        
+        if (!todosLosDatos || todosLosDatos.length === 0) {
+            mostrarDatos(datoSeleccionado, []);
+            return;
+        }
+        
+        // Filtramos localmente según las selecciones
+        const datosFiltrados = todosLosDatos.filter(item => {
+            switch(datoSeleccionado) {
+                case 'profesor':
+                    return (
+                        (!Profesor_nombre || item.nom_persona + ' ' + item.appat_persona + ' ' + item.apmat_persona === Profesor_nombre) &&
+                        (!Profesor_correo || item.correo === Profesor_correo)
+                    );
+                case 'materia':
+                    return (
+                        (!Materia_nombre || item.nom_materia === Materia_nombre) &&
+                        (!Materia_tipo || item.nom_tipomateria === Materia_tipo)
+                    );
+                case 'carrera':
+                    return (!Carrera_nombre || item.nom_carrera === Carrera_nombre);
+                case 'grupo':
+                    return (
+                        (!Grupo_nombre || item.nom_grupo === Grupo_nombre) &&
+                        (!Grupo_semestre || item.sem_grupo == Grupo_semestre) &&
+                        (!Grupo_carrera || item.nom_carrera === Grupo_carrera) &&
+                        (!Grupo_turno || item.nom_turno === Grupo_turno)
+                    );
+                case 'salon':
+                    return (
+                        (!Salon_nombre || item.nom_salon === Salon_nombre) &&
+                        (!Salon_piso || item.nom_piso === Salon_piso)
+                    );
+                default:
+                    return true;
+            }
+        });
+        
+        mostrarDatos(datoSeleccionado, datosFiltrados);
+        
+    } catch (error) {
+        console.error('Error al filtrar datos:', error);
+        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Error al aplicar filtros');
+    }
+}
+
+
+
+
 
 // Función para cargar datos según el tipo seleccionado
 async function cargarDatos(tipo) {
@@ -446,7 +843,7 @@ document.querySelector('.btn-cancelar').addEventListener('click', cerrarModal);
 document.addEventListener('click', function(e) {
     if (e.target.closest('.btn-editar')) {
         const boton = e.target.closest('.btn-editar');
-        const tipo = document.getElementById('selector-consulta').value;
+        const tipo = datoSeleccionado
         const id = boton.dataset.id;
         abrirModalEdicion(tipo, id);
     }

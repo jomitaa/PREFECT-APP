@@ -3,31 +3,367 @@ document.addEventListener('DOMContentLoaded', async () => {
         const respuesta = await fetch('/obtener-datos-horarios');
         const datos = await respuesta.json();
 
-        llenarSelect('dia', datos.dias, 'dia', 'dia');
+        // Inicializar selects de filtros
+        inicializarSelectTurno();
+        inicializarSelectDia(datos.dias);
+        inicializarSelectGrupo();
+        
+        // Llenar selects de horarios (si aún los necesitas)
         llenarSelect('hora_inicio', datos.hora_inicio, 'hora_inicio', 'hora_inicio');
         llenarSelect('hora_final', datos.hora_final, 'hora_final', 'hora_final');
-        llenarSelect('salon', datos.salones, 'id_salon', 'id_salon');
-        llenarSelect('materia', datos.materias, 'id_materia', 'nom_materia');
-        llenarSelect('persona', datos.profesores, 'id_persona', 'nombre_completo');
+        
+        // Llenar selects personalizados para salón, materia y persona
+        llenarTodosLosSelectsPersonalizados('salon', datos.salones, 'id_salon', 'id_salon');
+        llenarTodosLosSelectsPersonalizados('materia', datos.materias, 'id_materia', 'nom_materia');
+        llenarTodosLosSelectsPersonalizados('persona', datos.profesores, 'id_persona', 'nombre_completo');
+
+        // Guardar grupos originales
+        todosLosGrupos = datos.grupos;
 
     } catch (error) {
         console.error('Error al cargar los datos:', error);
+        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'No se pudieron cargar los datos iniciales.');
     }
 });
 
+// FUNCIONES PARA LOS FILTROS PERSONALIZADOS
+
+function inicializarSelectTurno() {
+    const contenedorSelect = document.getElementById('selectTurno');
+    if (!contenedorSelect) return;
+
+    const botonSelect = contenedorSelect.querySelector('.boton-select');
+    const inputBusqueda = contenedorSelect.querySelector('input');
+    const listaOpciones = contenedorSelect.querySelector('.opciones');
+    const contenidoSelect = contenedorSelect.querySelector('.contenido-select');
+
+    // Configurar opciones estáticas
+    listaOpciones.innerHTML = `
+        <li data-value="2">Vespertino</li>
+        <li data-value="1">Matutino</li>
+    `;
+
+    function seleccionarOpcion(opcionSeleccionada) {
+        inputBusqueda.value = "";
+        
+        // Animación de cierre
+        contenidoSelect.style.opacity = '0';
+        contenidoSelect.style.transform = 'translateY(-10px)';
+        
+        setTimeout(() => {
+            contenedorSelect.classList.remove("activo");
+            contenidoSelect.style.opacity = '';
+            contenidoSelect.style.transform = '';
+        }, 300);
+        
+        botonSelect.firstElementChild.innerText = opcionSeleccionada.textContent;
+        
+        // Actualizar input oculto
+        const inputOculto = document.querySelector(`input[name="turno"]`);
+        if (!inputOculto) {
+            const nuevoInput = document.createElement('input');
+            nuevoInput.type = 'hidden';
+            nuevoInput.name = "turno";
+            nuevoInput.value = opcionSeleccionada.getAttribute('data-value');
+            contenedorSelect.parentElement.appendChild(nuevoInput);
+        } else {
+            inputOculto.value = opcionSeleccionada.getAttribute('data-value');
+        }
+
+        // Habilitar y actualizar select de grupo
+        const grupoSelect = document.getElementById('selectGrupo');
+        if (grupoSelect) {
+            grupoSelect.querySelector('.buscador input').disabled = false;
+            grupoSelect.querySelector('.boton-select').firstElementChild.innerText = "Seleccione un grupo";
+            filtrarGruposPorTurno(opcionSeleccionada.getAttribute('data-value'));
+            actualizarHorasSegunTurno(opcionSeleccionada.getAttribute('data-value'));
+        }
+    }
+
+    // Evento de búsqueda
+    inputBusqueda.addEventListener("keyup", () => {
+        let busqueda = inputBusqueda.value.toLowerCase();
+        let opciones = listaOpciones.querySelectorAll('li');
+        
+        opciones.forEach(opcion => {
+            opcion.style.display = opcion.textContent.toLowerCase().includes(busqueda) ? 'flex' : 'none';
+        });
+    });
+
+    // Evento click en opciones
+    listaOpciones.querySelectorAll('li').forEach(opcion => {
+        opcion.addEventListener('click', () => seleccionarOpcion(opcion));
+    });
+
+    // Evento para abrir/cerrar
+    botonSelect.addEventListener("click", () => {
+        contenedorSelect.classList.toggle("activo");
+        void contenedorSelect.offsetWidth;
+    });
+}
+
+function inicializarSelectDia(dias) {
+    const contenedorSelect = document.querySelector('.contenedor-select[data-name="dia"]');
+    if (!contenedorSelect) return;
+
+    const botonSelect = contenedorSelect.querySelector('.boton-select');
+    const inputBusqueda = contenedorSelect.querySelector('input');
+    const listaOpciones = contenedorSelect.querySelector('.opciones');
+    const contenidoSelect = contenedorSelect.querySelector('.contenido-select');
+
+    // Limpiar y llenar opciones de días
+    listaOpciones.innerHTML = '';
+    dias.forEach(dia => {
+        const opcion = document.createElement('li');
+        opcion.setAttribute('data-value', dia.dia);
+        opcion.textContent = dia.dia;
+        listaOpciones.appendChild(opcion);
+    });
+
+    function seleccionarOpcion(opcionSeleccionada) {
+        inputBusqueda.value = "";
+        
+        // Animación de cierre
+        contenidoSelect.style.opacity = '0';
+        contenidoSelect.style.transform = 'translateY(-10px)';
+        
+        setTimeout(() => {
+            contenedorSelect.classList.remove("activo");
+            contenidoSelect.style.opacity = '';
+            contenidoSelect.style.transform = '';
+        }, 300);
+        
+        botonSelect.firstElementChild.innerText = opcionSeleccionada.textContent;
+        
+        // Actualizar input oculto
+        const inputOculto = document.querySelector(`input[name="dia"]`);
+        if (!inputOculto) {
+            const nuevoInput = document.createElement('input');
+            nuevoInput.type = 'hidden';
+            nuevoInput.name = "dia";
+            nuevoInput.value = opcionSeleccionada.getAttribute('data-value');
+            contenedorSelect.parentElement.appendChild(nuevoInput);
+        } else {
+            inputOculto.value = opcionSeleccionada.getAttribute('data-value');
+        }
+    }
+
+    // Evento de búsqueda
+    inputBusqueda.addEventListener("keyup", () => {
+        let busqueda = inputBusqueda.value.toLowerCase();
+        let opciones = listaOpciones.querySelectorAll('li');
+        
+        opciones.forEach(opcion => {
+            opcion.style.display = opcion.textContent.toLowerCase().includes(busqueda) ? 'flex' : 'none';
+        });
+    });
+
+    // Evento click en opciones
+    listaOpciones.querySelectorAll('li').forEach(opcion => {
+        opcion.addEventListener('click', () => seleccionarOpcion(opcion));
+    });
+
+    // Evento para abrir/cerrar
+    botonSelect.addEventListener("click", () => {
+        contenedorSelect.classList.toggle("activo");
+        void contenedorSelect.offsetWidth;
+    });
+}
+
+function inicializarSelectGrupo() {
+    const grupoSelect = document.getElementById('selectGrupo');
+    if (!grupoSelect) return;
+
+    const botonSelect = grupoSelect.querySelector('.boton-select');
+    const inputBusqueda = grupoSelect.querySelector('input');
+    const listaOpciones = grupoSelect.querySelector('.opciones');
+    const contenidoSelect = grupoSelect.querySelector('.contenido-select');
+
+    // Deshabilitar inicialmente
+    inputBusqueda.disabled = true;
+}
+
+// FUNCIÓN PARA FILTRAR GRUPOS POR TURNO (ACTUALIZADA)
+function filtrarGruposPorTurno(turnoId) {
+    const grupoSelect = document.getElementById('selectGrupo');
+    if (!grupoSelect) return;
+
+    const botonSelect = grupoSelect.querySelector('.boton-select');
+    const inputBusqueda = grupoSelect.querySelector('input');
+    const listaOpciones = grupoSelect.querySelector('.opciones');
+    const contenidoSelect = grupoSelect.querySelector('.contenido-select');
+
+    // Limpiar opciones anteriores
+    listaOpciones.innerHTML = '';
+    
+    // Filtrar grupos por turno
+    const gruposFiltrados = todosLosGrupos.filter(grupo => grupo.id_turno == turnoId);
+    
+    if(gruposFiltrados.length === 0) {
+        listaOpciones.innerHTML = '<p>No hay grupos para este turno</p>';
+        return;
+    }
+    
+    // Agregar nuevas opciones
+    gruposFiltrados.forEach(grupo => {
+        const opcion = document.createElement('li');
+        opcion.setAttribute('data-value', grupo.id_grupo);
+        opcion.textContent = grupo.nom_grupo;
+        listaOpciones.appendChild(opcion);
+    });
+
+    // Función para manejar la selección de una opción
+    function seleccionarOpcion(opcionSeleccionada) {
+        inputBusqueda.value = "";
+        
+        // Actualizar texto del botón
+        botonSelect.firstElementChild.innerText = opcionSeleccionada.textContent;
+        
+        // Crear o actualizar input oculto
+        let inputOculto = document.querySelector('input[name="grupo"]');
+        if (!inputOculto) {
+            inputOculto = document.createElement('input');
+            inputOculto.type = 'hidden';
+            inputOculto.name = "grupo";
+            grupoSelect.parentElement.appendChild(inputOculto);
+        }
+        inputOculto.value = opcionSeleccionada.getAttribute('data-value');
+        
+        // Cerrar el dropdown con animación
+        contenidoSelect.style.opacity = '0';
+        contenidoSelect.style.transform = 'translateY(-10px)';
+        
+        setTimeout(() => {
+            grupoSelect.classList.remove("activo");
+            contenidoSelect.style.opacity = '';
+            contenidoSelect.style.transform = '';
+        }, 300);
+    }
+
+    // Configurar evento de clic para las opciones
+    listaOpciones.querySelectorAll('li').forEach(opcion => {
+        opcion.addEventListener('click', function() {
+            seleccionarOpcion(this);
+        });
+    });
+
+    // Configurar evento de búsqueda
+    inputBusqueda.addEventListener("keyup", () => {
+        let busqueda = inputBusqueda.value.toLowerCase();
+        let opciones = listaOpciones.querySelectorAll('li');
+        
+        opciones.forEach(opcion => {
+            opcion.style.display = opcion.textContent.toLowerCase().includes(busqueda) ? 'flex' : 'none';
+        });
+    });
+
+    // Evento para abrir/cerrar el dropdown
+    botonSelect.addEventListener("click", () => {
+        grupoSelect.classList.toggle("activo");
+        void grupoSelect.offsetWidth; // Forzar reflow para la animación
+    });
+}
+
+// FUNCIONES PARA LOS SELECTS PERSONALIZADOS EN HORARIOS
+function llenarTodosLosSelectsPersonalizados(name, datos, idColumna, nombreColumna) {
+    const contenedores = document.querySelectorAll(`.contenedor-select[data-name="${name}"]`);
+    
+    contenedores.forEach(contenedorSelect => {
+        const botonSelect = contenedorSelect.querySelector('.boton-select');
+        const inputBusqueda = contenedorSelect.querySelector('input');
+        const listaOpciones = contenedorSelect.querySelector('.opciones');
+        const contenidoSelect = contenedorSelect.querySelector('.contenido-select');
+
+        let opcionesData = datos;
+
+        function mostrarOpciones(opcionSeleccionada = null) {
+            listaOpciones.innerHTML = "";
+            
+            opcionesData.forEach(opcion => {
+                let estaSeleccionado = opcionSeleccionada && opcion[idColumna] == opcionSeleccionada[idColumna] ? "seleccionado" : "";
+                let item = `<li data-value="${opcion[idColumna]}" class="${estaSeleccionado}">${opcion[nombreColumna]}</li>`;
+                listaOpciones.insertAdjacentHTML("beforeend", item);
+            });
+
+            listaOpciones.querySelectorAll('li').forEach(opcion => {
+                opcion.addEventListener('click', function() {
+                    seleccionarOpcion(this);
+                });
+            });
+        }
+
+        function seleccionarOpcion(opcionSeleccionada) {
+            inputBusqueda.value = "";
+            
+            const opcionData = opcionesData.find(
+                p => p[idColumna] == opcionSeleccionada.getAttribute('data-value')
+            );
+            
+            mostrarOpciones(opcionData);
+            
+            // Animación de cierre
+            contenidoSelect.style.opacity = '0';
+            contenidoSelect.style.transform = 'translateY(-10px)';
+            
+            setTimeout(() => {
+                contenedorSelect.classList.remove("activo");
+                contenidoSelect.style.opacity = '';
+                contenidoSelect.style.transform = '';
+            }, 300);
+            
+            botonSelect.firstElementChild.innerText = opcionSeleccionada.textContent;
+            
+            // Crear o actualizar input oculto
+            const card = contenedorSelect.closest('.horario-card');
+            let inputOculto = card.querySelector(`input[name="${name}"]`);
+            
+            if (!inputOculto) {
+                inputOculto = document.createElement('input');
+                inputOculto.type = 'hidden';
+                inputOculto.name = name;
+                card.querySelector('.horario-content').appendChild(inputOculto);
+            }
+            
+            inputOculto.value = opcionSeleccionada.getAttribute('data-value');
+        }
+
+        inputBusqueda.addEventListener("keyup", () => {
+            let busqueda = inputBusqueda.value.toLowerCase();
+            
+            // Mostrar todas las opciones primero
+            listaOpciones.querySelectorAll('li').forEach(li => {
+                li.style.display = 'flex';
+            });
+            
+            // Si hay búsqueda, filtrar
+            if (busqueda.trim() !== '') {
+                listaOpciones.querySelectorAll('li').forEach(li => {
+                    const textoOpcion = li.textContent.toLowerCase();
+                    li.style.display = textoOpcion.includes(busqueda) ? 'flex' : 'none';
+                });
+
+            }
+           
+        });
+
+        botonSelect.addEventListener("click", () => {
+            contenedorSelect.classList.toggle("activo");
+            void contenedorSelect.offsetWidth;
+        });
+
+        mostrarOpciones();
+    });
+}
+
+// FUNCIONES AUXILIARES
 function llenarSelect(idSelect, datos, idColumna, nombreColumna) {
-    // Seleccionamos todos los select con el name dado
     const selects = document.querySelectorAll(`select[name="${idSelect}"]`);
     
-    // Asegurarse de que hemos encontrado al menos un select
     if (selects.length === 0) return;
 
-    // Recorremos todos los selects encontrados
     selects.forEach(select => {
-        // Limpiar las opciones previas
         select.innerHTML = `<option disabled selected>${formatearTexto(nombreColumna)}</option>`;
 
-        // Añadir nuevas opciones
         datos.forEach(dato => {
             const option = document.createElement('option');
             option.value = dato[idColumna];
@@ -41,31 +377,34 @@ function formatearTexto(texto) {
     return texto.replace(/_/g, ' ').replace(/\b\w/g, letra => letra.toUpperCase());
 }
 
-/*
-async function obtenerIdContenedor() {
-    const fechaActual = new Date();
-    const anio = fechaActual.getFullYear();
-    const mes = fechaActual.getMonth() + 1;
-    const periodo = mes >= 1 && mes <= 6 ? 1 : 2; // 1er semestre (Ene-Jun), 2do semestre (Jul-Dic)
-
-    try {
-        const respuesta = await fetch(`/obtener-periodo/${anio}/${periodo}`);
-        const datos = await respuesta.json();
-
-        if (datos.error) {
-            console.error(datos.error);
-            return null;
-        }
-
-        return datos.idContenedor;
-    } catch (error) {
-        console.error('Error al obtener id_contenedor:', error);
-        return null;
-    }
+function obtenerHorasPorTurno(turnoId) {
+    return {
+        vespertino: { inicio: 13, fin: 21 },
+        matutino: { inicio: 7, fin: 15 }
+    }[turnoId === "2" ? "vespertino" : "matutino"];
 }
-*/
 
+function actualizarHorasSegunTurno(turnoId) {
+    const { inicio, fin } = obtenerHorasPorTurno(turnoId);
+    const cards = document.querySelectorAll('.horario-card');
 
+    cards.forEach((card, index) => {
+        const horaInicioSpan = card.querySelector('span[name="hora_inicio"]');
+        const horaFinalSpan = card.querySelector('span[name="hora_final"]');
+        const horaActual = inicio + index;
+        
+        if (horaActual >= fin) {
+            card.style.display = 'none';
+            return;
+        }
+        
+        card.style.display = '';
+        horaInicioSpan.textContent = `${horaActual}:00:00`;
+        horaFinalSpan.textContent = `${horaActual + 1}:00:00`;
+    });
+}
+
+// NOTIFICACIONES
 let alerta = document.querySelector('.alerta');
 
 function createToast(type, icon, title, text) {
@@ -87,106 +426,23 @@ function createToast(type, icon, title, text) {
     newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
 }
 
-function obtenerHorasPorTurno(turnoId) {
-    return {
-        vespertino: { inicio: 13, fin: 21 }, // 13:00 - 21:00
-        matutino: { inicio: 7, fin: 15 }      // 7:00 - 14:00
-    }[turnoId === "2" ? "vespertino" : "matutino"];
-}
-
-let todosLosGrupos = [];
-
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const respuesta = await fetch('/obtener-datos-horarios');
-        const datos = await respuesta.json();
-        
-        // Guardar grupos originales
-        todosLosGrupos = datos.grupos;
-        
-       
-        
-        // Escuchar cambios en el turno
-        document.getElementById('selectTurno').addEventListener('change', function() {
-            const turnoId = this.value;
-            const grupoSelect = document.getElementById('selectGrupo');
-            
-            // Habilitar el select de grupo
-            grupoSelect.disabled = false;
-            
-            // Filtrar y llenar grupos
-            filtrarGruposPorTurno(turnoId);
-
-            actualizarHorasSegunTurno(turnoId);
-        });
-
-    } catch (error) {
-        console.error('Error al cargar datos:', error);
-    }
-});
-
-function filtrarGruposPorTurno(turnoId) {
-    const grupoSelect = document.getElementById('selectGrupo');
-    
-    // Limpiar y establecer mensaje inicial
-    grupoSelect.innerHTML = '<option disabled selected>Seleccione un grupo</option>';
-    
-    // Filtrar grupos
-    const gruposFiltrados = todosLosGrupos.filter(grupo => grupo.id_turno == turnoId);
-    
-    // Llenar opciones
-    gruposFiltrados.forEach(grupo => {
-        const option = document.createElement('option');
-        option.value = grupo.id_grupo;
-        option.textContent = grupo.nom_grupo;
-        grupoSelect.appendChild(option);
-    });
-}
-
-function actualizarHorasSegunTurno(turnoId) {
-    const { inicio, fin } = obtenerHorasPorTurno(turnoId);
-    const cards = document.querySelectorAll('.horario-card');
-
-    cards.forEach((card, index) => {
-        const horaInicioSpan = card.querySelector('span[name="hora_inicio"]');
-        const horaFinalSpan = card.querySelector('span[name="hora_final"]');
-        
-        // Calculamos las horas (ej: 13 + 0 = 13:00, 13 + 1 = 14:00, etc.)
-        const horaActual = inicio + index;
-        
-        // Si excede el límite del turno, ocultamos la card
-        if (horaActual >= fin) {
-            card.style.display = 'none';
-            return;
-        }
-        
-        // Mostrar la card si estaba oculta
-        card.style.display = '';
-        
-        // Formatear a HH:00:00
-        horaInicioSpan.textContent = `${horaActual}:00:00`;
-        horaFinalSpan.textContent = `${horaActual + 1}:00:00`;
-    });
-}
-
-
-// Evento para enviar el formulario
+// ENVÍO DEL FORMULARIO
 document.getElementById('btnEnviar').addEventListener('click', async (e) => {
     e.preventDefault();
 
-    // 1. Validar campos generales (Día y Grupo)
-    const dia = document.querySelector('select[name="dia"]').value;
-    const grupo = document.querySelector('select[name="grupo"]').value;
+    const diaInput = document.querySelector('input[name="dia"]');
+    const grupoInput = document.querySelector('input[name="grupo"]');
+    const turnoInput = document.querySelector('input[name="turno"]');
 
-    if (!dia || !grupo) {
-        createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'Selecciona el Día y el Grupo antes de continuar.');
+    if (!diaInput?.value || !grupoInput?.value || !turnoInput?.value) {
+        createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'Completa todos los filtros antes de continuar.');
         return;
     }
 
-    // 2. Recopilar datos de cards VÁLIDAS (con valores numéricos)
     const datosHorario = {
-        dia_horario: dia,
-        id_grupo: grupo,
+        dia_horario: diaInput.value,
+        id_grupo: grupoInput.value,
+        id_turno: turnoInput.value,
         hora_inicio: [],
         hora_final: [],
         id_salon: [],
@@ -198,17 +454,15 @@ document.getElementById('btnEnviar').addEventListener('click', async (e) => {
     const cards = document.querySelectorAll('.horario-card');
 
     cards.forEach(card => {
-        const salon = card.querySelector('select[name="salon"]').value;
-        const materia = card.querySelector('select[name="materia"]').value;
-        const profesor = card.querySelector('select[name="persona"]').value;
+        if (card.style.display === 'none') return;
+        
+        const salon = card.querySelector('input[name="salon"]')?.value;
+        const materia = card.querySelector('input[name="materia"]')?.value;
+        const profesor = card.querySelector('input[name="persona"]')?.value;
         const horaInicio = card.querySelector('span[name="hora_inicio"]').textContent.trim();
         const horaFinal = card.querySelector('span[name="hora_final"]').textContent.trim();
 
-        // Verificar si los valores son numéricos (y no placeholders)
-        const esValido = 
-            !isNaN(salon) && salon !== "" && 
-            !isNaN(materia) && materia !== "" && 
-            !isNaN(profesor) && profesor !== "";
+        const esValido = salon && materia && profesor;
 
         if (esValido) {
             datosHorario.hora_inicio.push(horaInicio);
@@ -220,13 +474,11 @@ document.getElementById('btnEnviar').addEventListener('click', async (e) => {
         }
     });
 
-    // 3. Validar al menos 1 card válida
     if (cardsValidas === 0) {
         createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'Completa al menos un bloque de horario con valores válidos.');
         return;
     }
 
-    // 4. Enviar al servidor
     try {
         const respuesta = await fetch('/agregar-horario', {
             method: 'POST',
@@ -247,3 +499,6 @@ document.getElementById('btnEnviar').addEventListener('click', async (e) => {
         console.error('Error:', error);
     }
 });
+
+// VARIABLE GLOBAL
+let todosLosGrupos = [];
