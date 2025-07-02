@@ -93,6 +93,9 @@ app.use((req, res, next) => {
     next();
 });
 
+// Ruta pública para registro de jefes (con validación de token)
+
+
 // Middleware de autorización
 const protectedRoutesAdmin = [
     '/pages/ADM_menu.html',
@@ -106,7 +109,8 @@ const protectedRoutesAdmin = [
     '/pages/ADM_EditarHorario.html',
     '/pages/ADM_datos.html',
     '/pages/ADM_consulta-datos.html',
-    '/pages/registrar.html'
+    '/pages/registrar.html',
+    '/pages/ADM_jefegrupos.html'
 ];
 
 const protectedRoutesPrefecto = [
@@ -181,6 +185,10 @@ app.get('/pages/registrar.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'registrar.html'));
 });
 
+app.get('/pages/ADM_jefegrupos.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'ADM_jefegrupos.html'));
+});
+
 // Rutas PREFECTO
 app.get('/pages/PRF_menu.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'PRF_menu.html'));
@@ -218,6 +226,24 @@ app.get('/pages/empresa_editarescuela.html',(req, res)=>{
     res.sendFile(path.join(__dirname,'pages','empresa_editarescuela.html'));
 });
 
+
+
+
+app.use('/api/registrar-jefe', (req, res, next) => {
+    if (req.method === 'POST') {
+        const { token } = req.body;
+        const tokenData = tokenStore.get(token);
+        
+        if (!tokenData || tokenData.expira < Date.now()) {
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Token inválido o expirado' 
+            });
+        }
+    }
+    next();
+});
+
 // Ruta de prueba para sesión
 app.get('/session-test', (req, res) => {
     res.json(req.session);
@@ -247,6 +273,8 @@ app.get('/pages/login.HTML', (req, res) => {
 app.get('/pages/perfil.HTML', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'perfil.html'));
 });
+
+
 // --------------------------------  FIN INICIO  -------------------------
 
 
@@ -618,7 +646,6 @@ app.get('/confirm/:token', async (req, res) => {
         return res.status(400).send("Token inválido o expirado.");
     }
 
-    // Guarda el token en una cookie (para usarlo después en /confirm-registration)
     res.cookie('confirmationToken', token, { maxAge: 900000, httpOnly: true });
     res.sendFile(path.join(__dirname, 'pages', 'confirmacion.html')); // Envía el HTML con el modal
 });
@@ -665,7 +692,7 @@ app.post('/confirm-registration', async (req, res) => {
 app.get('/api/horarios', async (req, res) => {
     const diaActual = new Date().toLocaleDateString('es-MX', { weekday: 'long' });
     const diaCapitalizado = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
-    const diaPrueba = 'Lunes'; // Puedes cambiar esto a `diaCapitalizado` si deseas usar el día real
+    const diaPrueba = 'Viernes'; 
 
     const fechaActual = new Date();
     const anio = fechaActual.getFullYear();
@@ -2841,6 +2868,457 @@ app.get("/api/reportes", async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
+
+
+
+// -------------------------------- FIN RUTAS DE GRAFICAS --------------------------------
+
+
+app.get('/jefes-filtro', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
+    try {
+        const [jefes] = await conexion.promise().query(`
+           SELECT 
+    id_jefe, 
+    CONCAT(nom_jefe, ' ', appat_jefe, ' ', apmat_jefe) AS nombre_completo, 
+    correo, 
+    boleta, 
+    g.nom_grupo
+FROM jefegrupo 
+JOIN grupo g ON jefegrupo.id_grupo = g.id_grupo
+WHERE jefegrupo.id_escuela = ?
+ORDER BY nom_jefe, appat_jefe, apmat_jefe;
+
+        `, [idEscuela]);
+
+        const [grupo_filtro] = await conexion.promise().query(`
+            SELECT id_grupo, nom_grupo 
+            FROM grupo 
+            WHERE id_escuela = ?
+            ORDER BY nom_grupo
+        `, [idEscuela]);
+        
+        res.json({
+    jefes: jefes,
+    grupo_filtro: grupo_filtro
+});
+
+    } catch (error) {
+        console.error('Error al obtener jefes de escuela:', error);
+        res.status(500).json({ error: 'Error al obtener jefes de escuela' });
+    }
+
+});
+
+// -------------------------------- RUTA PARA OBTENER JEFES DE GRUPO --------------------------------
+
+app.get('/api/jefes', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
+    try {
+        const [jefes] = await conexion.promise().query(`
+           SELECT 
+    id_jefe, 
+    nom_jefe,
+    appat_jefe,
+    apmat_jefe,
+    jefegrupo.id_grupo,
+    CONCAT(nom_jefe, ' ', appat_jefe, ' ', apmat_jefe) AS nombre_completo, 
+    correo, 
+    boleta, 
+    g.nom_grupo
+FROM jefegrupo 
+JOIN grupo g ON jefegrupo.id_grupo = g.id_grupo
+WHERE jefegrupo.id_escuela = ?
+ORDER BY nom_jefe, appat_jefe, apmat_jefe;
+
+
+        `, [idEscuela]);
+        res.json(jefes);
+    } catch (error) {
+        console.error('Error al obtener jefes de escuela:', error);
+        res.status(500).json({ error: 'Error al obtener jefes de escuela' });
+    }
+});
+
+// -------------------------------- FIN RUTA PARA OBTENER JEFES DE GRUPO --------------------------------
+
+
+// -------------------------------- RUTA PARA Editar JEFES DE GRUPO --------------------------------
+
+app.delete('/api/editarjefe/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = `DELETE FROM jefegrupo WHERE id_jefe = ?`;
+
+    try {
+        const [results] = await conexion.promise().query(query, [id]);
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        res.sendStatus(200); // Envía una respuesta exitosa
+    } catch (err) {
+        console.error('Error al borrar usuario:', err);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+// ------------------------------- FIN RUTA DE BORRAR USUARIOS POR ID  --------------------------------
+
+
+// ------------------------------- RUTA DE EDITAR USUARIO ----------------------------------------------
+
+app.put('/api/editarjefe/:id', async (req, res) => {
+    const id = req.params.id;
+    const { userName, userEmail, userAppat, userApmat, userBoleta, userGrupo } = req.body;
+
+
+    if (!userName || !userEmail || !userAppat || !userApmat || !userBoleta || !userGrupo) {
+        return res.status(400).json({ error: 'Faltan datos del usuario' });
+    }
+
+
+    const query = `UPDATE jefegrupo SET nom_jefe = ?, appat_jefe = ?, apmat_jefe = ?, correo = ?, boleta = ?, id_grupo = ? WHERE id_jefe = ?`;
+
+    try {
+        const [results] = await conexion.promise().query(query, [userName, userAppat, userApmat, userEmail, userBoleta, userGrupo, id]);
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        res.status(200).json({ message: 'Usuario actualizado exitosamente' });
+    } catch (err) {
+        console.error('Error al actualizar usuario:', err);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+// -------------------------------- FIN RUTA DE EDITAR USUARIO ----------------------------------------------
+
+
+// -------------------------------- RUTA PARA AGREGAR JEFES DE GRUPO --------------------------------
+
+app.post('/api/enviar-correo-jefe', async (req, res) => {
+  const { correo, grupoId, grupoNombre } = req.body;
+  const idEscuela = req.session.id_escuela;
+
+  if (!correo || !grupoId) {
+    return res.json({ success: false, message: 'Correo y grupo son obligatorios' });
+  }
+
+  const nom_escuela = await query("SELECT nom_escuela FROM escuela WHERE id_escuela = ?", [idEscuela]);
+    if (nom_escuela.length === 0) {
+      return res.json({ success: false, message: 'Escuela no encontrada' });
+    }
+
+    const nombreEscuela = nom_escuela[0].nom_escuela;
+
+  try {
+
+    const jefeExistente = await query("SELECT * FROM jefegrupo WHERE correo = ?", [correo]);
+    if (jefeExistente.length > 0) {
+      return res.json({ success: false, message: 'Este correo ya está registrado' });
+    }
+
+    const confirmationToken = crypto.randomBytes(32).toString("hex");
+
+    
+
+    console.log("Nombre de la escuela:", nom_escuela);
+
+    tokenStore.set(confirmationToken, {
+      correo,
+      grupoId,
+      idEscuela,
+      expira: Date.now() + 24 * 60 * 60 * 1000 
+    });
+
+    const baseUrl = process.env.NODE_ENV === 'production'
+      ? 'https://prefect-app-production.up.railway.app'
+      : 'http://localhost:3000';
+
+    const registroLink = `${baseUrl}/registrarjefe/${confirmationToken}`;
+
+    const mailOptions = {
+  from: `"Prefec App" <${process.env.EMAIL_USER}>`,
+      to: correo,
+      subject: "Registro como Jefe de Grupo",
+      html:`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          line-height: 1.6;
+          color: #333;
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+          background-color: #f9f9f9;
+        }
+        .header {
+          background-color: #4c53af;
+          padding: 20px;
+          text-align: center;
+          border-radius: 8px 8px 0 0;
+        }
+        .header h1 {
+          color: white;
+          margin: 0;
+        }
+        .content {
+          background-color: white;
+          padding: 30px;
+          border-radius: 0 0 8px 8px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .logo img {
+          max-width: 150px;
+        }
+        .info-card {
+          background-color: #f5f7ff;
+          border-left: 4px solid #4c53af;
+          padding: 15px;
+          margin: 20px 0;
+          border-radius: 0 4px 4px 0;
+        }
+        .button {
+          display: inline-block;
+          padding: 12px 24px;
+          background-color: #4c53af;
+          color: white !important;
+          text-decoration: none;
+          border-radius: 4px;
+          font-weight: bold;
+          margin: 20px 0;
+          text-align: center;
+        }
+        .footer {
+          text-align: center;
+          margin-top: 30px;
+          font-size: 12px;
+          color: #777;
+        }
+        .group-info {
+          font-size: 18px;
+          font-weight: bold;
+          color: #4c53af;
+          margin: 15px 0;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>Prefec App</h1>
+      </div>
+      
+      <div class="content">
+        <div class="logo">
+          <!-- Reemplaza con tu logo o elimina esta sección -->
+          <img src="/images/PREFECT APP LOGO.png" alt="Logo Prefec App">
+        </div>
+        
+        <h2>Bienvenido</h2>
+        <p>Has sido designado como <strong>Jefe de Grupo</strong> en tu escuela: ${nombreEscuela} y en Prefec Ap.</p>
+        
+        <div class="info-card">
+          <div class="group-info">
+            Grupo Asignado: ${grupoNombre}
+          </div>
+          <p>ID del Grupo: ${grupoId}</p>
+        </div>
+        
+        <p>Para completar tu registro y poder validar las faltas de profes en tu grupo, haz clic en el siguiente botón:</p>
+        
+        <p style="text-align: center;">
+          <a href="${registroLink}" class="button">Completar mi Registro</a>
+        </p>
+        
+        <p><strong>Importante:</strong> Este enlace es válido por <strong>24 horas</strong>. Si no completas tu registro en este tiempo o el <strong>grupo<strong/> no es el correcto, deberás solicitar un nuevo enlace.</p>
+        
+        <p>Si no solicitaste este registro o no reconoces esta actividad, por favor ignora este mensaje.</p>
+        
+        <div class="footer">
+          <p>© ${new Date().getFullYear()} Prefec App. Todos los derechos reservados. no es cierto jaja se ve bien perro apoco no</p>
+          <p><small>Este es un mensaje automático, por favor no respondas a este correo.</small></p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+    };
+
+    await transporter.sendMail(mailOptions);
+
+  
+    
+    res.json({ success: true, message: 'Correo enviado exitosamente' });
+
+  } catch (err) {
+    console.error("Error al enviar correo:", err);
+    res.json({ success: false, message: 'Error al enviar el correo' });
+  }
+});
+
+// -------------------------------- FIN RUTA PARA AGREGAR JEFES DE GRUPO --------------------------------
+
+
+// Agrega esta ruta para servir registrarJefe.html
+app.get('/pages/registrarJefe.html', (req, res) => {
+    const token = req.query.token;
+    
+    if (!token) {
+        return res.redirect('/pages/login.html');
+    }
+
+    // Verificar el token antes de servir la página
+    const tokenData = tokenStore.get(token);
+    if (!tokenData || tokenData.expira < Date.now()) {
+        return res.redirect('/pages/login.html');
+    }
+
+    res.sendFile(path.join(__dirname, 'pages', 'registrarJefe.html'));
+});
+
+
+
+
+
+
+app.get('/registrarjefe/:token', async (req, res) => {
+    const { token } = req.params; // ← Ahora sí obtenemos el token de la ruta
+    
+    if (!token) {
+        return res.redirect('/pages/login.html');
+    }
+
+    try {
+        // Verificamos el token directamente sin hacer fetch
+        const tokenData = tokenStore.get(token);
+        
+        if (!tokenData || tokenData.expira < Date.now()) {
+            return res.redirect('/pages/login.html');
+        }
+
+        // Verificar que el grupo exista
+        const grupo = await query("SELECT * FROM grupo WHERE id_grupo = ? AND id_escuela = ?", [tokenData.grupoId, tokenData.idEscuela]);
+        if (grupo.length === 0) {
+            return res.redirect('/pages/login.html');
+        }
+
+        // Si todo está bien, servir la página con el token en query params
+        res.redirect(`/pages/registrarJefe.html?token=${token}`);
+
+    } catch (error) {
+        console.error('Error al verificar token:', error);
+        res.redirect('/pages/login.html');
+    }
+});
+
+// Endpoint para verificar el token (ahora más simple)
+app.get('/api/verificar-token-jefe/:token', async (req, res) => {
+    const { token } = req.params;
+
+    try {
+        const tokenData = tokenStore.get(token);
+        
+        if (!tokenData) {
+            return res.json({ 
+                success: false, 
+                message: 'Token no encontrado o ya fue usado' 
+            });
+        }
+
+        if (tokenData.expira < Date.now()) {
+            tokenStore.delete(token);
+            return res.json({ 
+                success: false, 
+                message: 'Token expirado' 
+            });
+        }
+
+        // Verificar que el correo no esté ya registrado
+        const [jefeExistente] = await query(
+            "SELECT * FROM jefegrupo WHERE correo = ?", 
+            [tokenData.correo]
+        );
+
+        if (jefeExistente) {
+            return res.json({ 
+                success: false, 
+                message: 'Este correo ya está registrado' 
+            });
+        }
+
+        res.json({
+            success: true,
+            correo: tokenData.correo,
+            grupoId: tokenData.grupoId,
+            idEscuela: tokenData.idEscuela
+        });
+
+    } catch (err) {
+        console.error("Error al verificar token:", err);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error al verificar token' 
+        });
+    }
+});
+
+app.post('/api/registrar-jefe', async (req, res) => {
+
+  const {
+    nombre,
+    appat,
+    apmat,
+    boleta,
+    codigo_jefe,
+    correo,
+    grupoId,
+    token,
+    idEscuela
+  } = req.body;
+
+  // Validar token primero
+  const tokenData = tokenStore.get(token);
+  if (!tokenData || tokenData.expira < Date.now() || tokenData.correo !== correo) {
+    return res.json({ success: false, message: 'Token inválido o expirado' });
+  }
+
+  try {
+    // Verificar si el grupo existe
+    const grupo = await query("SELECT * FROM grupo WHERE id_grupo = ?", [grupoId]);
+    if (grupo.length === 0) {
+      return res.json({ success: false, message: 'Grupo no encontrado' });
+    }
+
+
+    // Insertar en la base de datos
+    await query(
+      `INSERT INTO jefegrupo 
+      (nom_jefe, appat_jefe, apmat_jefe, boleta, correo, codigo_jefe, id_grupo, id_escuela) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [nombre, appat, apmat, boleta, correo, codigo_jefe, grupoId, idEscuela ]
+    );
+
+    // Eliminar el token usado
+    tokenStore.delete(token);
+
+    res.json({ success: true, message: 'Registro completado exitosamente' });
+
+  } catch (err) {
+    console.error("Error al registrar jefe:", err);
+    res.json({ success: false, message: 'Error al registrar jefe' });
+  }
+});
+
 
 
 

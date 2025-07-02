@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Administradores Empresa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="/css/empresa_editarusuarios.css" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <section id="sidebar">
+        <a href="#" class="brand"><i class="bx bxs-parking icon"></i> PREFECT APP</a>
+        <ul class="side-menu">
+            <li>
+                <a href="#" class="active"><i class="bx bxs-dashboard icon"></i> EMPRESA</a>
+            </li>
+            <br />
+            <li>
+                <a class="active" href="./Empresa_menu.html"><i class="bx bx-table icon"></i> Inicio</a>
+            </li>
+
+            <li class="divider" data-text="Usuarios"></li>
+            <li>
+                <a href="#"><i class="bx bxs-inbox icon"></i> Gestión Usuarios
+                    <i class="bx bx-chevron-right icon-right"></i></a>
+                <ul class="side-dropdown">
+                    <li><a href="./empresa_registrar.html">Registrar usuario</a></li>
+                    <li><a href="./empresa_editar.html">Editar usuarios</a></li>
+                </ul>
+            </li>
+            <li class="divider" data-text="Escuelas"></li>
+            <li>
+                <a href="#"><i class="bx bxs-inbox icon"></i> Gestión escuelas
+                    <i class="bx bx-chevron-right icon-right"></i></a>
+                <ul class="side-dropdown">
+                    <li>
+                        <a href="./empresa_registrarescuela.html">Registrar escuela</a>
+                    </li>
+                    <li><a href="./empresa_editarescuela.html">Editar escuelas</a></li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section id="content">
+        <nav>
+            <i class="bx bx-menu toggle-sidebar"></i>
+
+            <form action="#">
+                <div class="form-group"></div>
+            </form>
+
+            <input type="checkbox" id="switch-mode" hidden />
+            <label for="switch-mode" class="switch-mode"></label>
+
+            <span class="divider"></span>
+            <div class="profile">
+                <img src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png" alt="" />
+                <ul class="profile-link">
+                    <li>
+                        <a href="./perfil.html"><i class="bx bxs-user-circle icon"></i> Profile</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="cerrarSesion()"><i class="bx bxs-log-out-circle"></i> Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main>
+            <div class="alerta"></div>
+            <h1 class="title">Editar Administradores</h1>
+            <ul class="breadcrumbs">
+                <li><a href="#">P.A</a></li>
+                <li>/</li>
+                <li>Horarios / 1er Piso</li>
+            </ul>
+
+            <div class="crearBtn">
+                <button class="crear">Agregar Jefe de Grupo</button>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn" id="filterBtn">FILTRAR POR:</button>
+
+                <div class="contenedor-select" data-type="grupo_filtro">
+                                <div class="boton-select">
+                                    <span>Seleccione el grupo al que pertenece:</span>
+                                    <i class="uil uil-angle-down"></i>
+                                </div>
+                                <div class="contenido-select">
+                                    <div class="buscador">
+                                        <i class="uil uil-search"></i>
+                                        <input spellcheck="false" type="text" placeholder="Buscar Grupo..." />
+                                    </div>
+                                    <ul class="opciones"></ul>
+                                </div>
+                            </div>
+
+                            <div class="contenedor-select" data-type="jefes">
+                                <div class="boton-select">
+                                    <span>Seleccione el Jefe de Grupo:</span>
+                                    <i class="uil uil-angle-down"></i>
+                                </div>
+                                <div class="contenido-select">
+                                    <div class="buscador">
+                                        <i class="uil uil-search"></i>
+                                        <input spellcheck="false" type="text" placeholder="Buscar Jefe de Grupo..." />
+                                    </div>
+                                    <ul class="opciones"></ul>
+                                </div>
+                            </div>
+
+            </div>
+
+            <div class="info-data">
+                <section class="joma">
+                    <div class="todo" id="contenedor-usuarios"></div>
+                </section>
+                <section class="modal" id="modal-editar">
+                    <div class="modal__container">
+                        <h2 class="modal__title">Editar Administrador</h2>
+                        <form class="form form-register" id="formEditarUsuario">
+                            <div class="nombre_completo">
+                            <label><i class="bx bx-user"></i>
+                                <input type="text" id="nombreEditar" placeholder="Nombre(s)" required /></label>
+                             <label><i class="bx bx-user"></i>
+                                <input type="text" id="appatEditar" placeholder="Apellido Paterno" required /></label>
+                             <label><i class="bx bx-user"></i>
+                                <input type="text" id="apmatEditar" placeholder="Apellido Materno" required /></label>
+                            </div>
+                            <label><i class="bx bx-note"></i>
+                                <input type="number" id="boletaEditar" placeholder="Boleta" required /></label>
+                            <label><i class="bx bx-envelope"></i>
+                                <input type="email" id="correoEditar" placeholder="Correo electrónico"
+                                    required /></label>
+                            
+                                <div class="contenedor-select" data-type="grupo_jefe">
+                                <div class="boton-select">
+                                    <span>Seleccione el grupo al que pertenece:</span>
+                                    <i class="uil uil-angle-down"></i>
+                                </div>
+                                <div class="contenido-select">
+                                    <div class="buscador">
+                                        <i class="uil uil-search"></i>
+                                        <input spellcheck="false" type="text" placeholder="Buscar Grupo..." />
+                                    </div>
+                                    <ul class="opciones"></ul>
+                                </div>
+                            </div>
+
+
+                            <button type="button" class="btnEditar">
+                                Confirmar Edición
+                            </button>
+                            <div class="alerta-error"></div>
+                            <div class="alerta-exito"></div>
+                        </form>
+                        <a href="#" class="modal__close2">Cancelar</a>
+                    </div>
+                </section>
+                <section class="modal2" id="modal-borrar">
+                    <div class="modal__container2">
+                        <h2 class="modal__title">¿Borrar Administrador?</h2>
+                        <p class="modal__paragraph">
+                            ¿Estás seguro de eliminar este administrador?
+                        </p>
+                        <button class="btnBorrar" id="btnConfirmarBorrar">Borrar</button>
+                        <a href="#" class="modal__close">Cancelar</a>
+                    </div>
+                </section>
+
+                <section class="modal3" id="modal-crear">
+                    <div class="modal__container">
+                        <h2 class="modal__title">Agregar Jefe de Grupo</h2>
+                        <form class="form form-register" id="formCrearJefe">
+                            <label><i class="bx bx-envelope"></i>
+                                <input type="email" id="correoJefe" placeholder="Correo Institucional"
+                                    required /></label>
+
+                            <div class="contenedor-select" data-type="grupo">
+                                <div class="boton-select">
+                                    <span>Seleccione el grupo al que pertenece:</span>
+                                    <i class="uil uil-angle-down"></i>
+                                </div>
+                                <div class="contenido-select">
+                                    <div class="buscador">
+                                        <i class="uil uil-search"></i>
+                                        <input spellcheck="false" type="text" placeholder="Buscar Grupo..." />
+                                    </div>
+                                    <ul class="opciones"></ul>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btnEditar" id="mandarCorreoJefe">
+                                Mandar correo para crear
+                            </button>
+                            <div class="alerta-error"></div>
+                            <div class="alerta-exito"></div>
+                        </form>
+                        <a href="#" class="modal__close3">Cancelar</a>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </section>
+    <script src="/ADM_jefegrupos.js"></script>
+    <script>
+        function cerrarSesion() {
+            // Envía una solicitud al servidor para cerrar la sesión
+            fetch("/logout", {
+                method: "POST",
+                credentials: "same-origin", // Incluye las cookies en la solicitud
+            })
+                .then((response) => {
+                    // Si la solicitud fue exitosa, redirige al usuario a la página de inicio
+                    if (response.ok) {
+                        window.location.href = "/"; // Cambia esto según la ruta de tu página de inicio
+                    } else {
+                        console.error("Error al cerrar sesión:", response.statusText);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error al cerrar sesión:", error);
+                });
+        }
+
+        // SIDEBAR DROPDOWN
+        const allDropdown = document.querySelectorAll("#sidebar .side-dropdown");
+        const sidebar = document.getElementById("sidebar");
+
+        allDropdown.forEach((item) => {
+            const a = item.parentElement.querySelector("a:first-child");
+            a.addEventListener("click", function (e) {
+                e.preventDefault();
+
+                if (!this.classList.contains("active")) {
+                    allDropdown.forEach((i) => {
+                        const aLink = i.parentElement.querySelector("a:first-child");
+
+                        aLink.classList.remove("active");
+                        i.classList.remove("show");
+                    });
+                }
+
+                this.classList.toggle("active");
+                item.classList.toggle("show");
+            });
+        });
+
+        // SIDEBAR COLLAPSE
+        const toggleSidebar = document.querySelector("nav .toggle-sidebar");
+        const allSideDivider = document.querySelectorAll("#sidebar .divider");
+
+        if (sidebar.classList.contains("hide")) {
+            allSideDivider.forEach((item) => {
+                item.textContent = "-";
+            });
+            allDropdown.forEach((item) => {
+                const a = item.parentElement.querySelector("a:first-child");
+                a.classList.remove("active");
+                item.classList.remove("show");
+            });
+        } else {
+            allSideDivider.forEach((item) => {
+                item.textContent = item.dataset.text;
+            });
+        }
+
+        toggleSidebar.addEventListener("click", function () {
+            sidebar.classList.toggle("hide");
+
+            if (sidebar.classList.contains("hide")) {
+                allSideDivider.forEach((item) => {
+                    item.textContent = "-";
+                });
+
+                allDropdown.forEach((item) => {
+                    const a = item.parentElement.querySelector("a:first-child");
+                    a.classList.remove("active");
+                    item.classList.remove("show");
+                });
+            } else {
+                allSideDivider.forEach((item) => {
+                    item.textContent = item.dataset.text;
+                });
+            }
+        });
+
+        sidebar.addEventListener("mouseleave", function () {
+            if (this.classList.contains("hide")) {
+                allDropdown.forEach((item) => {
+                    const a = item.parentElement.querySelector("a:first-child");
+                    a.classList.remove("active");
+                    item.classList.remove("show");
+                });
+                allSideDivider.forEach((item) => {
+                    item.textContent = "-";
+                });
+            }
+        });
+
+        sidebar.addEventListener("mouseenter", function () {
+            if (this.classList.contains("hide")) {
+                allDropdown.forEach((item) => {
+                    const a = item.parentElement.querySelector("a:first-child");
+                    a.classList.remove("active");
+                    item.classList.remove("show");
+                });
+                allSideDivider.forEach((item) => {
+                    item.textContent = item.dataset.text;
+                });
+            }
+        });
+
+        // PROFILE DROPDOWN
+        const profile = document.querySelector("nav .profile");
+        const imgProfile = profile.querySelector("img");
+        const dropdownProfile = profile.querySelector(".profile-link");
+
+        imgProfile.addEventListener("click", function () {
+            dropdownProfile.classList.toggle("show");
+        });
+
+        // MENU
+        const allMenu = document.querySelectorAll(
+            "main .content-data .head .menu"
+        );
+
+        allMenu.forEach((item) => {
+            const icon = item.querySelector(".icon");
+            const menuLink = item.querySelector(".menu-link");
+
+            icon.addEventListener("click", function () {
+                menuLink.classList.toggle("show");
+            });
+        });
+
+        window.addEventListener("click", function (e) {
+            if (e.target !== imgProfile) {
+                if (e.target !== dropdownProfile) {
+                    if (dropdownProfile.classList.contains("show")) {
+                        dropdownProfile.classList.remove("show");
+                    }
+                }
+            }
+
+            allMenu.forEach((item) => {
+                const icon = item.querySelector(".icon");
+                const menuLink = item.querySelector(".menu-link");
+
+                if (e.target !== icon) {
+                    if (e.target !== menuLink) {
+                        if (menuLink.classList.contains("show")) {
+                            menuLink.classList.remove("show");
+                        }
+                    }
+                }
+            });
+        });
+
+        const switchMode = document.getElementById("switch-mode");
+
+        switchMode.addEventListener("change", function () {
+            if (this.checked) {
+                document.body.classList.add("dark");
+            } else {
+                document.body.classList.remove("dark");
+            }
+        });
+    </script>
+</body>
+
+</html>

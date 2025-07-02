@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="/css/Login-Register.css">
+    <title>Document</title>
+</head>
+<body>
+
+    <div class="container-form">
+    <div class="information">
+        <div class="info-childs">
+            <h2>¡Bienvenido Jefe de Grupo!</h2>
+            <p>Estás a punto de completar tu registro en Prefec App</p>
+        </div>
+    </div>
+    <div class="form-information">
+        <div class="form-information-childs">
+            <h2>Completa tu Registro</h2>
+            
+           
+            <form id="formRegistroJefe" class="form form-login" style="display: none;">
+                <input type="hidden" id="token" name="token">
+                <input type="hidden" id="grupoId" name="grupoId">
+                <input type="hidden" id="correo" name="correo">
+                <input type="hidden" id="idEscuela" name="idEscuela">
+                
+                <div>
+                    <label>
+                        <i class='bx bx-envelope'></i>
+                        <input type="email" id="correo-display" placeholder="Correo" readonly>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <i class='bx bx-user'></i>
+                        <input type="text" id="nombre" placeholder="Nombre(s)" name="nombre" required>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <i class='bx bx-user'></i>
+                        <input type="text" id="appat" placeholder="Apellido Paterno" name="appat" required>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <i class='bx bx-user'></i>
+                        <input type="text" id="apmat" placeholder="Apellido Materno" name="apmat" required>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <i class='bx bx-note'></i>
+                        <input type="number" id="boleta" placeholder="Boleta" name="boleta" required>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <i class='bx bx-lock-alt'></i>
+                        <input type="password" id="codigo_jefe" placeholder="Código de Verificación" name="codigo_jefe" required>
+                    </label>
+                </div>
+                
+                <input type="submit" value="Completar Registro">
+            </form>
+             <div id="token-message" class="alerta" style="display: none;"></div>
+            <div id="error-message" class="alerta-error" style="display: none;"></div>
+            <div id="success-message" class="alerta-exito" style="display: none;"></div>
+            
+        </div>
+    </div>
+</div>
+    
+    <script src="/registrarJefe.js"></script>
+    <script src="https://kit.fontawesome.com/9e5ba2e3f5.js" crossorigin="anonymous"></script>
+
+</body>
+</html>

@@ -542,7 +542,7 @@ document.head.appendChild(style);
                 return (
                     (grupoSeleccionado === '' || consulta.grupo === grupoSeleccionado) &&
                     (diaSeleccionado === '' || consulta.dia_horario === diaSeleccionado) &&
-                    (profesorSeleccionado === '' || consulta.persona === contenedorProfesor) &&
+                    (profesorSeleccionado === '' || consulta.persona === profesorSeleccionado) &&
                     (!fecha || fechaAsistencia === fechaUsuario) && // Comparación de fechas sin la hora
                     (materiaSeleccionada === '' || consulta.materia === materiaSeleccionada) &&
                     (horaInicioSeleccionada === '' || consulta.hora_inicio === horaInicioSeleccionada) &&
@@ -576,7 +576,9 @@ document.head.appendChild(style);
             document.getElementById("horario").innerHTML =
                 '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
         }
-    }
+
+
+        }
 
    document.getElementById("resetFiltersButton").addEventListener("click", function() {
     // Limpiar variables

@@ -508,48 +508,10 @@ async function openOTPModal(checkbox) {
     // Enfocar el primer input
     document.querySelector('.otp-input[data-index="0"]').focus();
     
-    try {
-        // Enviar solicitud al servidor para generar OTP
-        const response = await fetch('/generate-falta-otp', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                validacion_falta: true,
-                id_horario: id_horario
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (!data.success) {
-            createToast(
-                "error",
-                "fa-solid fa-circle-exclamation",
-                "Error",
-                data.message || "Error al generar código de verificación."
-            );
-            closeOTPModal();
-        } else {
-            createToast(
-                "Correcto",
-                "fa-solid fa-circle-check",
-                "Código enviado",
-                "Se ha enviado un código de verificación a tu correo."
-            );
-        }
-    } catch (error) {
-        console.error('Error al solicitar OTP:', error);
-        createToast(
-            "error",
-            "fa-solid fa-circle-exclamation",
-            "Error",
-            "Hubo un problema al solicitar el código de verificación."
-        );
-        closeOTPModal();
-    }
+    
 }
+
+
 
 // Función para verificar el OTP con el servidor
 async function verifyOTP() {

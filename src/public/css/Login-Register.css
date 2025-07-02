@@ -18,7 +18,7 @@ body {
   display: flex;
   border-radius: 20px;
   box-shadow: 0 5px 7px rgba(0, 0, 0, .1);
-  height: 500px;
+  height: 540px;
   max-width: 900px;
   transition: all 1s ease;
   margin: 10px;
@@ -111,12 +111,16 @@ body {
 
 .form {
   margin: 30px 0 0 0;
+  gap: 20px;
+}
+
+.form div {
+  padding: 4px;
 }
 
 .form label {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
   border-radius: 20px;
   padding: 0 10px;
   background-color: #fff;
@@ -166,8 +170,8 @@ body {
   width: 290px;
   text-align: left;
   border-radius: 7px;
-  margin-bottom: 10px;
-  font-size: .8rem;
+  padding: 10px;
+  font-size: 10px;
 }
 
 .form > .alerta-error,
@@ -181,7 +185,7 @@ body {
   padding: .5rem 1rem;
   margin-top: 10px;
   font-weight: 500;
-  font-size: .8rem;
+  font-size: 10px;
   border-radius: .5rem;
 }
 
@@ -198,6 +202,12 @@ body {
 .form .error {
   outline: solid 2px #9d2222;
 }
+
+.field-error {
+  font-size: 10px;
+  color: #9d2222;
+  top: -10px;
+} 
 
 
 .otp-container {
@@ -255,16 +265,6 @@ button:hover {
   background-color: #286ac7;
 }
 
-.alerta-error {
-  display: none;
-  background-color: #F66060;
-  color: #fff;
-  padding: 10px;
-  margin-top: 15px;
-  font-size: 0.9rem;
-  border-radius: 5px;
-  text-align: center;
-}
 
 /* Para cuando se muestra un mensaje de error */
 .alerta-error.show {
