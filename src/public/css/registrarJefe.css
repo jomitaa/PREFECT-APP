@@ -18,13 +18,14 @@ body {
   display: flex;
   border-radius: 20px;
   box-shadow: 0 5px 7px rgba(0, 0, 0, .1);
-  height: 520px;
+  height: auto;
   max-width: 900px;
   transition: all 1s ease;
   margin: 10px;
 }
 
 .information {
+  padding: 20px 0;
   width: 40%;
   display: flex;
   align-items: center;
@@ -54,6 +55,7 @@ body {
   align-items: center;
   justify-content: center;
   width: 60%;
+    padding: 20px 0;
   text-align: center;
   background-color: #f8f8f8;
   border-top-right-radius: 20px;
