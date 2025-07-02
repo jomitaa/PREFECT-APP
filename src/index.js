@@ -3034,8 +3034,8 @@ app.post('/api/enviar-correo-jefe', async (req, res) => {
     });
 
     const baseUrl = process.env.NODE_ENV === 'production'
-      ? 'https://prefect-app-production.up.railway.app'
-      : 'http://localhost:3000';
+          ? 'http://localhost:3000'
+      : 'https://prefect-app-production.up.railway.app';
 
     const registroLink = `${baseUrl}/registrarjefe/${confirmationToken}`;
 

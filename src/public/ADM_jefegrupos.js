@@ -860,7 +860,7 @@ async function fetchConsulta() {
             divDetails.className = 'details';
             divDetails.innerHTML = `
                 <h3>${usuario.nom_grupo}</h3>
-                <p>Cargo: ${usuario.nombre_completo}</p>
+                <p>Alumno: ${usuario.nombre_completo}</p>
             `;
 
             divUser.appendChild(divImgBx);

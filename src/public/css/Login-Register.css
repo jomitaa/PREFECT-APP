@@ -18,13 +18,14 @@ body {
   display: flex;
   border-radius: 20px;
   box-shadow: 0 5px 7px rgba(0, 0, 0, .1);
-  height: 540px;
+  height: auto;
   max-width: 900px;
   transition: all 1s ease;
   margin: 10px;
 }
 
 .information {
+  padding: 20px 0;
   width: 40%;
   display: flex;
   align-items: center;
@@ -54,6 +55,7 @@ body {
   align-items: center;
   justify-content: center;
   width: 60%;
+    padding: 20px 0;
   text-align: center;
   background-color: #f8f8f8;
   border-top-right-radius: 20px;
@@ -179,7 +181,7 @@ body {
   display: none;
 }
 
-.form .alertaError {
+.alerta .alertaError {
   display: block;
   background-color: #F66060;
   padding: .5rem 1rem;
@@ -189,7 +191,7 @@ body {
   border-radius: .5rem;
 }
 
-.form .alertaExito {
+.alerta .alertaExito {
   display: block;
   background-color: #0ca828;
   padding: .5rem 1rem;
@@ -197,6 +199,28 @@ body {
   font-weight: 500;
   font-size: .8rem;
   border-radius: .5rem;
+}
+
+#succes-message {
+  display: none;
+  background-color: #0ca828;
+  color: #fff;
+  padding: 10px;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  text-align: center;
+}
+
+#error-message {
+  display: none;
+  background-color: #F66060;
+  color: #fff;
+  padding: 10px;
+  margin-top: 15px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  text-align: center;
 }
 
 .form .error {
