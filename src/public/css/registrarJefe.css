@@ -201,7 +201,7 @@ body {
   border-radius: .5rem;
 }
 
-#succes-message {
+#success-message {
   display: none;
   background-color: #0ca828;
   color: #fff;
