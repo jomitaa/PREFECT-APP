@@ -33,7 +33,7 @@ app.use(cookieParser());
 
 
 // Conexión a la base de datos
-
+/*
 const conexion = mysql.createPool({
     host: 'localhost',
     database: 'hojaprefectos',
@@ -42,13 +42,14 @@ const conexion = mysql.createPool({
     //password: 'n0m3l0'
     
 });
+*/
 
 import dotenv from 'dotenv';
 import { isErrored } from 'stream';
 
 dotenv.config();
 
-//const conexion = mysql.createPool(process.env.MYSQL_URL);
+const conexion = mysql.createPool(process.env.MYSQL_URL);
 
 conexion.getConnection(err => {
   if (err) {
