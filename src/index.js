@@ -754,6 +754,7 @@ app.get('/api/horarios', async (req, res) => {
     const diaCapitalizado = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
     const diaPrueba = diaCapitalizado;
 
+      const turno = req.query.turno;
     const fechaActual = new Date();
     const anio = fechaActual.getFullYear();
     const mes = fechaActual.getMonth() + 1;
@@ -786,7 +787,7 @@ const periodo = (mes >= 8 || mes <= 1) ? 1 : 2;
         const idContenedor = contenedorRows[0].id_contenedor;
 
         // 3️⃣ Consulta filtrando por el contenedor actual
-        const queryText = `
+        let queryText = `
             SELECT DISTINCT
                 h.id_horario,
                 h.dia_horario,
@@ -816,8 +817,15 @@ const periodo = (mes >= 8 || mes <= 1) ? 1 : 2;
             WHERE h.dia_horario = ? AND h.id_contenedor = ? AND h.id_escuela = ?;
 `;
 
+ const params = [diaPrueba, idContenedor, idEscuela];
 
-        const [results] = await conexion.promise().query(queryText, [diaPrueba, idContenedor, idEscuela]);
+    // Si hay turno, lo agregamos como filtro
+    if (turno && turno !== null) {
+      queryText += ` AND g.id_turno = ?`;
+      params.push(turno);
+    }
+
+    const [results] = await conexion.promise().query(queryText, params);
 
         res.json(results);
     } catch (err) {
@@ -3547,7 +3555,7 @@ app.post('/verificar-codigo-jefe', async (req, res) => {
     console.log("ID de grupo recibido para falta:", id_grupo);
     console.log("ID de horario recibido para falta:", id_horario);
 
-    const [codigoFila] = await query('SELECT codigo_jefe FROM jefegrupo WHERE id_grupo = ?', [id_grupo]);
+    const [codigoFila] = await conexion.promise().query('SELECT codigo_jefe FROM jefegrupo WHERE id_grupo = ?', [id_grupo]);
 if (!codigoFila || codigoFila.codigo_jefe !== codigo_jefe){
         return res.status(404).json({ success: false, message: 'Código de jefe no valido.' });
     }
