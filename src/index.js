@@ -814,7 +814,7 @@ const periodo = (mes >= 8 || mes <= 1) ? 1 : 2;
             LEFT JOIN asistencia a ON h.id_horario = a.id_horario
             LEFT JOIN retardo r ON h.id_horario = r.id_horario
             LEFT JOIN falta f ON h.id_horario = f.id_horario
-            WHERE h.dia_horario = ? AND h.id_contenedor = ? AND h.id_escuela = ?;
+            WHERE h.dia_horario = ? AND h.id_contenedor = ? AND h.id_escuela = ?
 `;
 
  const params = [diaPrueba, idContenedor, idEscuela];
