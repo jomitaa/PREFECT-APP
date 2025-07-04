@@ -502,3 +502,46 @@ document.getElementById('btnEnviar').addEventListener('click', async (e) => {
 
 // VARIABLE GLOBAL
 let todosLosGrupos = [];
+document.getElementById("btnCargarHorariosNombresCSV").addEventListener("click", async () => {
+  const input = document.getElementById("csvHorariosNombres");
+  const file = input.files[0];
+
+  if (!file) {
+    return createToast(
+      "error",
+      "fa-solid fa-circle-exclamation",
+      "Error",
+      "Selecciona un archivo CSV."
+    );
+  }
+
+  const text = await file.text();
+
+  const res = await fetch("/csv/horarios-nombres", {
+    method: "POST",
+    headers: {
+      "Content-Type": "text/csv",
+    },
+    body: text,
+  });
+
+  const result = await res.json();
+
+  if (result.success) {
+    createToast(
+      "success",
+      "fa-solid fa-circle-check",
+      "Éxito",
+      result.message
+    );
+    setTimeout(() => location.reload(), 1500);
+  } else {
+    createToast(
+      "error",
+      "fa-solid fa-circle-exclamation",
+      "Error",
+      result.message
+    );
+  }
+});
+

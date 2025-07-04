@@ -369,7 +369,26 @@
 			</div>
 
 
-		</main>
+		
+<div class="contenedor-csv">
+  <h2 class="titulo-csv">Carga desde archivo CSV</h2>
+
+  <input type="file" id="csv-profesores" accept=".csv" onchange="procesarCSV(event, 'profesores')" class="input-oculto">
+  <input type="file" id="csv-materias" accept=".csv" onchange="procesarCSV(event, 'materias')" class="input-oculto">
+  <input type="file" id="csv-carreras" accept=".csv" onchange="procesarCSV(event, 'carreras')" class="input-oculto">
+  <input type="file" id="csv-grupos" accept=".csv" onchange="procesarCSV(event, 'grupos')" class="input-oculto">
+  <input type="file" id="csv-salones" accept=".csv" onchange="procesarCSV(event, 'salones')" class="input-oculto">
+
+  <div class="grupo-botones">
+    <button class="btnCSV" onclick="document.getElementById('csv-profesores').click()">📄 Cargar Profesores por CSV</button>
+    <button class="btnCSV" onclick="document.getElementById('csv-materias').click()">📄 Cargar Materias por CSV</button>
+    <button class="btnCSV" onclick="document.getElementById('csv-carreras').click()">📄 Cargar Carreras por CSV</button>
+    <button class="btnCSV" onclick="document.getElementById('csv-grupos').click()">📄 Cargar Grupos por CSV</button>
+    <button class="btnCSV" onclick="document.getElementById('csv-salones').click()">📄 Cargar Salones por CSV</button>
+  </div>
+</div>
+
+</main>
 
 	</section>
 
@@ -560,6 +579,7 @@
 
 
 	</script>
+
 </body>
 
-</html>
+</html> 		

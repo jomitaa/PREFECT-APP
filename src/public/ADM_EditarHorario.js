@@ -1,3 +1,5 @@
+let horarioOriginal = {};
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const idContenedor = await obtenerIdContenedor();
@@ -6,13 +8,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Cargar grupos y días
         const respuestaDatos = await fetch('/obtener-datos-horarios');
         const datos = await respuestaDatos.json();
         llenarSelect('grupo', datos.grupos, 'id_grupo', 'nom_grupo');
         llenarSelect('dia', datos.dias, 'dia', 'dia');
 
-        // Agregar evento al botón de búsqueda
         document.getElementById('btnBuscar').addEventListener('click', () => filtrarHorarios(idContenedor));
     } catch (error) {
         console.error('Error al cargar los datos:', error);
@@ -41,12 +41,10 @@ async function obtenerIdContenedor() {
     try {
         const respuesta = await fetch(`/obtener-periodo/${anio}/${periodo}`);
         const datos = await respuesta.json();
-
         if (datos.error) {
             console.error(datos.error);
             return null;
         }
-
         return datos.idContenedor;
     } catch (error) {
         console.error('Error al obtener id_contenedor:', error);
@@ -55,66 +53,73 @@ async function obtenerIdContenedor() {
 }
 
 async function filtrarHorarios(idContenedor) {
-	const idGrupo = document.getElementById('grupo').value;
-	const dia = document.getElementById('dia').value;
-	const contenedorHorarios = document.getElementById('horario');
+    const idGrupo = document.getElementById('grupo').value;
+    const dia = document.getElementById('dia').value;
+    const contenedorHorarios = document.getElementById('horario');
 
-	contenedorHorarios.innerHTML = ''; // Limpiar anteriores
-	contenedorHorarios.style.display = 'none'; // Ocultar antes de buscar
+    contenedorHorarios.innerHTML = '';
+    contenedorHorarios.style.display = 'none';
 
-	if (!idGrupo || !dia) {
-		createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'Por favor, selecciona grupo y día.');
-		return;
-	}
+    if (!idGrupo || !dia) {
+        createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'Por favor, selecciona grupo y día.');
+        return;
+    }
 
-	try {
-		const respuesta = await fetch(`/obtener-horarios/${encodeURIComponent(dia)}/${idGrupo}/${idContenedor}`);
-		const horarios = await respuesta.json();
+    try {
+        const respuesta = await fetch(`/obtener-horarios/${encodeURIComponent(dia)}/${idGrupo}/${idContenedor}`);
+        const horarios = await respuesta.json();
 
-		if (!Array.isArray(horarios) || horarios.length === 0) {
-			createToast('info', 'fa-solid fa-circle-info', 'Sin resultados', 'No se encontraron horarios para el grupo y día seleccionados.');
-			return;
-		}
+        if (!Array.isArray(horarios) || horarios.length === 0) {
+            createToast('info', 'fa-solid fa-circle-info', 'Sin resultados', 'No se encontraron horarios para el grupo y día seleccionados.');
+            return;
+        }
 
-		horarios.forEach(horario => {
-			const card = document.createElement('div');
-			card.classList.add('horario-card');
-			card.innerHTML = `
-				<div class="horario-header">
-					<span><b>Grupo</b></span>
-                    <span><b>Salon</b></span>
-					<span><b>Profesor</b></span>
-					<span><b>Materia</b></span>
-					<span><b>Hora</b></span>
-					<span><b>Día</b></span>
-					<span><b>Editar horario</b></span>
-				</div>
-				<div class="horario-content">
-					<span>${horario.nom_grupo}</span>
+        horarios.forEach(horario => {
+            const card = document.createElement('div');
+            card.classList.add('horario-card');
+            card.innerHTML = `
+                <div class="horario-header">
+                    <span><b>Grupo</b></span>
+                    <span><b>Salón</b></span>
+                    <span><b>Profesor</b></span>
+                    <span><b>Materia</b></span>
+                    <span><b>Hora</b></span>
+                    <span><b>Día</b></span>
+                    <span><b>Editar horario</b></span>
+                </div>
+                <div class="horario-content">
+                    <span>${horario.nom_grupo}</span>
                     <span>${horario.id_salon}</span>
-					<span>${horario.nombre_completo}</span>
-					<span>${horario.nom_materia}</span>
-					<span>${horario.hora_inicio} - ${horario.hora_final}</span>
-					<span>${horario.dia_horario}</span>
-					<button class="btn-editar" onclick="editarHorario(${horario.id_horario}, '${horario.id_salon}', '${horario.nom_grupo}', '${horario.dia_horario}', '${horario.nom_materia}', '${horario.nombre_completo}')">Editar</button>
-				</div>
-			`;
-			contenedorHorarios.appendChild(card);
-		});
+                    <span>${horario.nombre_completo}</span>
+                    <span>${horario.nom_materia}</span>
+                    <span>${horario.hora_inicio} - ${horario.hora_final}</span>
+                    <span>${horario.dia_horario}</span>
+                    <button class="btn-editar" onclick="editarHorario(
+                        ${horario.id_horario},
+                        '${horario.id_grupo}',
+                        '${horario.dia_horario}',
+                        '${horario.id_salon}',
+                        '${horario.id_materia}',
+                        '${horario.id_persona}',
+                        '${horario.nom_materia}',
+                        '${horario.nombre_completo}'
+                    )">Editar</button>
+                </div>
+            `;
+            contenedorHorarios.appendChild(card);
+        });
 
-		contenedorHorarios.style.display = 'block'; // Mostrar resultados
-	} catch (error) {
-		console.error('Error al cargar horarios:', error);
-		createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Hubo un error al obtener los horarios.');
-	}
+        contenedorHorarios.style.display = 'block';
+    } catch (error) {
+        console.error('Error al cargar horarios:', error);
+        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Hubo un error al obtener los horarios.');
+    }
 }
-
 
 async function obtenerOpcionesHorarios() {
     try {
         const respuesta = await fetch('/obtener-datos-horarios');
         const datos = await respuesta.json();
-
         llenarSelect('grupo', datos.grupos, 'id_grupo', 'nom_grupo');
         llenarSelect('dia', datos.dias, 'dia', 'dia');
         llenarSelect('salon', datos.salones, 'id_salon', 'id_salon');
@@ -125,55 +130,47 @@ async function obtenerOpcionesHorarios() {
     }
 }
 
-async function editarHorario(idHorario, idGrupo, dia, idSalon, nomMateria, nombreProfesor) {
-    console.log("Editando horario con ID:", idHorario);
+async function editarHorario(idHorario, idGrupo, dia, idSalon, idMateria, idPersona, nomMateria, nombreProfesor) {
+    document.getElementById('idHorario').value = idHorario;
 
-  // Cambiar la clase para hacer visible el formulario
-  document.getElementById('formularioEdicion').classList.remove('hidden');
-  document.getElementById('formularioEdicion').classList.add('visible');
+    document.getElementById('formularioEdicion').classList.remove('hidden');
+    document.getElementById('formularioEdicion').classList.add('visible');
 
-    await obtenerOpcionesHorarios(); // Asegurar que los selects tienen opciones antes de asignar valores
+    await obtenerOpcionesHorarios();
 
-
-    const idGrupoInput = document.getElementById('grupo');
+    const grupo = document.getElementById('grupo');
     const diaInput = document.getElementById('dia');
-    const salonSelect = document.getElementById('salon');
-    const materiaSelect = document.getElementById('materia');
-    const personaSelect = document.getElementById('persona');
+    const salon = document.getElementById('salon');
+    const materia = document.getElementById('materia');
+    const persona = document.getElementById('persona');
 
-    // Verificar que los elementos existen
-    console.log('ID Horario:', idHorarioInput);
-  console.log('Grupo:', document.getElementById('grupo'));
-  console.log('Día:', document.getElementById('dia'));
-  console.log('Salón:', document.getElementById('salon'));
-  console.log('Materia:', document.getElementById('materia'));
-  console.log('Profesor:', document.getElementById('persona'));
-
-    if ( !salonSelect || !materiaSelect || !personaSelect) {
-        console.error("Uno o más elementos del formulario de edición no existen.");
-        return;
-    }
-
-
-    idGrupoInput.value = idGrupo;
+    grupo.value = idGrupo;
     diaInput.value = dia;
-    salonSelect.value = idSalon;
-    materiaSelect.value = nomMateria;
-    personaSelect.value = nombreProfesor;
+    salon.value = idSalon;
+    materia.value = idMateria;
+    persona.value = idPersona;
 
-    idGrupoInput.disabled = true;
+    grupo.disabled = true;
     diaInput.disabled = true;
-    salonSelect.disabled = false;
-    materiaSelect.disabled = false;
-    personaSelect.disabled = false;
 
+    horarioOriginal = {
+        idSalon,
+        idMateria,
+        idPersona
+    };
+
+    console.log(`📝 Editando horario:
+      Grupo: ${idGrupo},
+      Día: ${dia},
+      Salón: ${idSalon},
+      Materia: ${nomMateria} (ID: ${idMateria}),
+      Profesor: ${nombreProfesor} (ID: ${idPersona})`);
 }
 
-let alerta = document.querySelector('.alerta');
-
 function createToast(type, icon, title, text) {
-    let newToast = document.createElement('div');
-    newToast.innerHTML = `
+    const alerta = document.querySelector('.alerta');
+    const toast = document.createElement('div');
+    toast.innerHTML = `
         <div class="toast ${type}">
             <div class="icono">
                 <i class="${icon}"></i>
@@ -182,27 +179,31 @@ function createToast(type, icon, title, text) {
                 <div class="title">${title}</div>
                 <span>${text}</span>
             </div>
-            <i style="cursor: pointer;" class="close fa-solid fa-xmark"
-               onclick="(this.parentElement).remove()"></i>
+            <i class="close fa-solid fa-xmark" onclick="this.parentElement.remove()"></i>
         </div>`;
-
-    alerta.appendChild(newToast);
-    newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
+    alerta.appendChild(toast);
+    toast.timeOut = setTimeout(() => toast.remove(), 5000);
 }
-
 
 document.getElementById('btnGuardar').addEventListener('click', async (e) => {
     e.preventDefault();
 
     const idHorario = document.getElementById('idHorario').value;
-    const idGrupo = document.getElementById('grupo').value;
-    const dia = document.getElementById('dia').value;
     const idSalon = document.getElementById('salon').value;
     const idMateria = document.getElementById('materia').value;
     const idPersona = document.getElementById('persona').value;
 
-    if (!idHorario || !idGrupo || !dia || !idSalon || !idMateria || !idPersona) {
+    if (!idHorario || !idSalon || !idMateria || !idPersona) {
         createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Advertencia', 'No se han seleccionado cambios.');
+        return;
+    }
+
+    if (
+        horarioOriginal.idSalon == idSalon &&
+        horarioOriginal.idMateria == idMateria &&
+        horarioOriginal.idPersona == idPersona
+    ) {
+        createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Sin cambios', 'No se ha modificado ningún valor.');
         return;
     }
 
@@ -215,26 +216,15 @@ document.getElementById('btnGuardar').addEventListener('click', async (e) => {
                 id_materia: idMateria,
                 id_persona: idPersona
             })
-        }).then(response => {
-            if (response.ok) {
-                createToast('Correcto', 'fa-solid fa-circle-check', 'Actualización exitosa', 
-                    `Se actualizó correctamente el horario ID: ${idHorario}`);
-            } else {
-                createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 
-                    `Hubo un problema al actualizar el horario ID: ${idHorario}`);
-            }
-        })
-        .catch(() => {
-            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 
-                `Error de conexión al intentar actualizar el horario ID: ${idHorario}`);
         });
 
-        const resultado = await respuesta.json();
-
-        if (resultado.error) {
-            throw new Error(resultado.error);
+        if (respuesta.ok) {
+            createToast('correcto', 'fa-solid fa-circle-check', 'Actualizado', 'Horario actualizado correctamente.');
+        } else {
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'No se pudo actualizar el horario.');
         }
     } catch (error) {
         console.error('Error al actualizar horario:', error);
+        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Hubo un problema de conexión.');
     }
 });

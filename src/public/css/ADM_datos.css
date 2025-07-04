@@ -1079,3 +1079,102 @@ main .info-data {
 .btn-editar:hover {
     color: var(--dark-blue);
 }
+
+
+/* === MEJORAS INTEGRADAS === */
+
+/* Botón CSV */
+.btnCSV {
+  background: var(--light-blue);
+  color: var(--dark);
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 2px solid var(--blue);
+  font-weight: bold;
+  margin: 10px 8px 0 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btnCSV:hover {
+  background: var(--blue);
+  color: var(--light);
+}
+
+/* Input oculto */
+.input-oculto {
+  display: none;
+}
+
+/* Contenedor CSV */
+.contenedor-csv {
+  margin-top: 60px;
+  background: var(--light);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+}
+.titulo-csv {
+  font-size: 22px;
+  color: var(--blue);
+  margin-bottom: 20px;
+}
+
+/* Toasts */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  animation: slideIn 0.4s ease forwards;
+}
+.toast.Correcto {
+  background-color: var(--light-green);
+  color: #27632a;
+}
+.toast.error {
+  background-color: var(--light-red);
+  color: #842029;
+}
+.toast.advertencia {
+  background-color: var(--light-yellow);
+  color: #664d03;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.toast .icono i {
+  font-size: 20px;
+}
+.toast .close {
+  margin-left: auto;
+  font-size: 18px;
+  color: inherit;
+}
+
+/* Espaciado extra */
+main {
+  padding-bottom: 100px;
+}
+#sidebar.hide ~ #content .contenedor-csv {
+  margin-left: 0 !important; /* asegura que no quede pegado */
+}
+
+
+/* Agrupador de botones CSV */
+.grupo-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}

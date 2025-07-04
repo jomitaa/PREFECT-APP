@@ -1093,3 +1093,33 @@ main .info-data {
     color: #666;
     text-align: center;
 }
+
+
+
+/* BOTONES PRINCIPALES (Enviar / Cargar CSV) */
+.btnEnviar,
+#btnCargarHorariosNombresCSV {
+    background: var(--blue);
+    color: var(--light);
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease, transform 0.2s ease;
+    margin: 15px auto;
+    display: block;
+    box-shadow: 0 4px 12px rgba(23, 117, 241, 0.2);
+}
+
+.btnEnviar:hover,
+#btnCargarHorariosNombresCSV:hover {
+    background: var(--dark-blue);
+    transform: scale(1.03);
+}
+
+.btnEnviar:active,
+#btnCargarHorariosNombresCSV:active {
+    transform: scale(0.98);
+}

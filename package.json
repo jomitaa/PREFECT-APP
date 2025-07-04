@@ -25,7 +25,8 @@
     "lightweight-charts": "^5.0.3",
     "mysql2": "^3.10.2",
     "nodemailer": "^6.10.0",
-    "promise-mysql": "^5.2.0"
+    "promise-mysql": "^5.2.0",
+    "raw-body": "^3.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.7",

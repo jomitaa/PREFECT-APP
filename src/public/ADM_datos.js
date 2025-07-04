@@ -1,4 +1,3 @@
-// Esperar a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', function() {
     // Obtener el selector y los contenedores
     const selector = document.getElementById('selector-contenedor');
@@ -725,3 +724,66 @@ document.getElementById('guardar-salones').addEventListener('click', async (e) =
     btnGuardar.disabled = false;
 });
 // ------------------------------------- SALONES -------------------------------------
+
+
+function procesarCSV(event, tipo) {
+    const archivo = event.target.files[0];
+    if (!archivo) return;
+
+    const lector = new FileReader();
+    lector.onload = async function(e) {
+        const texto = e.target.result;
+        const lineas = texto.split('\n').map(l => l.trim()).filter(Boolean);
+
+        // Ignorar la primera línea (encabezado)
+        lineas.shift();
+
+        const datos = [];
+
+        for (const linea of lineas) {
+            const campos = linea.split(',');
+
+            if (tipo === 'profesores') {
+                const [nombre, appat, apmat, correo] = campos;
+                datos.push({ nom_persona: nombre, appat_persona: appat, apmat_persona: apmat, correo });
+            }
+            else if (tipo === 'materias') {
+                const [nombre, id_tipomateria] = campos;
+                datos.push({ nom_materia: nombre, id_tipomateria });
+            }
+            else if (tipo === 'carreras') {
+                const [nombre, clave] = campos;
+                datos.push({ nom_carrera: nombre, clave_carrera: clave });
+            }
+            else if (tipo === 'grupos') {
+                const [nombre, id_carrera, sem_grupo, id_turno] = campos;
+                datos.push({ nom_grupo: nombre, id_carrera, sem_grupo, id_turno });
+            }
+
+            else if (tipo === 'salones') {
+                const [nombre, id_piso] = campos;
+                datos.push({ nom_salon: nombre, id_piso });
+            }
+        }
+
+        try {
+            const res = await fetch(`/csv/${tipo}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+            const resultado = await res.json();
+            if (resultado.success) {
+                createToast('Correcto', 'fa-solid fa-circle-check', 'Éxito', `Datos de ${tipo} agregados exitosamente.`);
+            } else {
+                createToast('error', 'fa-solid fa-circle-exclamation', 'Error', `Error al insertar ${tipo}`);
+            }
+        } catch (err) {
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', `Error en la solicitud: ${err.message}`);
+        }
+
+    };
+
+    lector.readAsText(archivo);
+}
+

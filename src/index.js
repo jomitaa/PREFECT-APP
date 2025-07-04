@@ -10,8 +10,7 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
-
-
+import getRawBody from 'raw-body'; 
 import bcrypt from 'bcrypt';
 
 const saltRounds = 10;
@@ -3320,8 +3319,259 @@ app.post('/api/registrar-jefe', async (req, res) => {
   }
 });
 
+// =================== CARGA MASIVA DESDE CSV (CORREGIDO) ===================
+
+app.post('/csv/profesores', async (req, res) => {
+    const profesores = req.body;
+
+    // Verificar que `id_escuela` está disponible en la sesión
+    const idEscuela = req.session.id_escuela;
+    if (!idEscuela) {
+        console.error('id_escuela no está disponible en la sesión');
+        return res.status(400).json({ success: false, message: 'id_escuela no está disponible en la sesión' });
+    }
+
+    console.log("id_escuela:", idEscuela);  // Para confirmar que la escuela está bien asignada
+
+    try {
+        for (let profe of profesores) {
+            // Verifica los datos antes de insertarlos
+            console.log("Datos del profesor:", profe);
+
+            // Asegúrate de que los campos necesarios no estén vacíos
+            if (!profe.nom_persona || !profe.appat_persona || !profe.correo) {
+                console.error("Datos incompletos para el profesor:", profe);
+                return res.status(400).json({ success: false, message: 'Datos incompletos para el profesor' });
+            }
+
+            // Insertar en la base de datos
+            await conexion.promise().query(
+                'INSERT INTO persona (nom_persona, appat_persona, apmat_persona, correo, id_rol, id_escuela) VALUES (?, ?, ?, ?, 1, ?)',
+                [profe.nom_persona, profe.appat_persona, profe.apmat_persona || '', profe.correo, idEscuela]
+            );
+        }
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al insertar profesores CSV:', error);
+        res.status(500).json({ success: false, message: 'Error en la base de datos' });
+    }
+});
 
 
+// CSV materias
+app.post('/csv/materias', async (req, res) => {
+    const materias = req.body;
+    const idEscuela = req.session.id_escuela;
+
+    if (!idEscuela) {
+        return res.status(400).json({ success: false, message: 'id_escuela no está disponible en la sesión' });
+    }
+
+    try {
+        for (let materia of materias) {
+            if (!materia.nom_materia || !materia.id_tipomateria) {
+                return res.status(400).json({ success: false, message: 'Datos incompletos para la materia' });
+            }
+
+            await conexion.promise().query(
+                'INSERT INTO materia (nom_materia, id_tipomateria, id_escuela) VALUES (?, ?, ?)',
+                [materia.nom_materia, materia.id_tipomateria, idEscuela]
+            );
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al insertar materias:', error);
+        res.status(500).json({ success: false, message: 'Error en la base de datos' });
+    }
+});
+
+
+// CSV carreras
+app.post('/csv/carreras', async (req, res) => {
+    const carreras = req.body;
+    const idEscuela = req.session.id_escuela;
+
+    if (!idEscuela) {
+        return res.status(400).json({ success: false, message: 'id_escuela no está disponible en la sesión' });
+    }
+
+    try {
+        for (let carrera of carreras) {
+            if (!carrera.nom_carrera) {
+                return res.status(400).json({ success: false, message: 'Nombre de carrera faltante' });
+            }
+
+            await conexion.promise().query(
+                'INSERT INTO carrera (nom_carrera, id_escuela) VALUES (?, ?)',
+                [carrera.nom_carrera, idEscuela]
+            );
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al insertar carreras:', error);
+        res.status(500).json({ success: false, message: 'Error en la base de datos' });
+    }
+});
+
+// CSV grupos
+app.post('/csv/grupos', async (req, res) => {
+    const grupos = req.body;
+    const idEscuela = req.session.id_escuela;
+
+    if (!idEscuela) {
+        return res.status(400).json({ success: false, message: 'id_escuela no está disponible en la sesión' });
+    }
+
+    try {
+        for (let grupo of grupos) {
+            if (!grupo.nom_grupo || !grupo.semestre || !grupo.id_carrera) {
+                return res.status(400).json({ success: false, message: 'Datos incompletos para el grupo' });
+            }
+
+            await conexion.promise().query(
+                'INSERT INTO grupo (nom_grupo, semestre, id_carrera, id_escuela) VALUES (?, ?, ?, ?)',
+                [grupo.nom_grupo, grupo.semestre, grupo.id_carrera, idEscuela]
+            );
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al insertar grupos:', error);
+        res.status(500).json({ success: false, message: 'Error en la base de datos' });
+    }
+});
+
+// csv salones
+app.post('/csv/salones', async (req, res) => {
+    const salones = req.body;
+    const idEscuela = req.session.id_escuela;
+
+    if (!idEscuela) {
+        return res.status(400).json({ success: false, message: 'id_escuela no está disponible en la sesión' });
+    }
+
+    try {
+        for (let salon of salones) {
+            if (!salon.nom_salon || !salon.capacidad) {
+                return res.status(400).json({ success: false, message: 'Datos incompletos para el salón' });
+            }
+
+            await conexion.promise().query(
+                'INSERT INTO salon (nom_salon, capacidad, id_escuela) VALUES (?, ?, ?)',
+                [salon.nom_salon, salon.capacidad, idEscuela]
+            );
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al insertar salones:', error);
+        res.status(500).json({ success: false, message: 'Error en la base de datos' });
+    }
+});
+
+app.post('/csv/horarios-nombres', async (req, res) => {
+  try {
+    const idEscuela = req.session.id_escuela;
+    const bodyBuffer = await getRawBody(req);
+    const body = bodyBuffer.toString('utf8');
+
+    const lines = body.split('\n').filter(line => line.trim() !== '');
+    const rows = lines.slice(1).map(line => {
+      const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g, ''));
+      if (parts.length < 7) return null;
+      return {
+        dia_horario: parts[0],
+        grupo: parts[1],
+        materia: parts[2],
+        profesor: parts[3],
+        salon: parts[4],
+        hora_inicio: parts[5],
+        hora_final: parts[6]
+      };
+    }).filter(Boolean);
+
+    let registrosInsertados = 0;
+
+    for (const r of rows) {
+      // === Buscar grupo ===
+      const [[grupo]] = await conexion.promise().query(
+        'SELECT id_grupo FROM grupo WHERE TRIM(nom_grupo) LIKE ? AND id_escuela = ?',
+        [`%${r.grupo.trim()}%`, idEscuela]
+      );
+      if (grupo) {
+        console.log(`✅ Grupo encontrado: ${r.grupo} → id_grupo=${grupo.id_grupo}`);
+      } else {
+        console.log(`❌ Grupo NO encontrado: ${r.grupo}`);
+      }
+
+      // === Buscar materia ===
+      const [[materia]] = await conexion.promise().query(
+        'SELECT id_materia FROM materia WHERE TRIM(nom_materia) LIKE ? AND id_escuela = ?',
+        [`%${r.materia.trim()}%`, idEscuela]
+      );
+      if (materia) {
+        console.log(`✅ Materia encontrada: ${r.materia} → id_materia=${materia.id_materia}`);
+      } else {
+        console.log(`❌ Materia NO encontrada: ${r.materia}`);
+      }
+
+      // === Buscar persona ===
+      const [[persona]] = await conexion.promise().query(
+        `SELECT id_persona FROM persona 
+         WHERE TRIM(CONCAT(nom_persona, ' ', appat_persona, ' ', apmat_persona)) LIKE ?
+         AND id_escuela = ?`,
+        [`%${r.profesor.trim()}%`, idEscuela]
+      );
+      if (persona) {
+        console.log(`✅ Profesor encontrado: ${r.profesor} → id_persona=${persona.id_persona}`);
+      } else {
+        console.log(`❌ Profesor NO encontrado: ${r.profesor}`);
+      }
+
+      const idSalon = parseInt(r.salon.trim());
+      if (!grupo || !materia || !persona || !idSalon) {
+        console.log(`⚠️ Datos incompletos para insertar:`, r);
+        continue;
+      }
+
+      // === Insertar horario ===
+      await conexion.promise().query(
+        `INSERT INTO horario 
+        (dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona, id_contenedor, id_escuela)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 2, ?)`,
+        [
+          r.dia_horario,
+          r.hora_inicio,
+          r.hora_final,
+          idSalon,
+          grupo.id_grupo,
+          materia.id_materia,
+          persona.id_persona,
+          idEscuela
+        ]
+      );
+
+      console.log(`✅ Horario insertado para ${r.dia_horario} ${r.hora_inicio}-${r.hora_final}`);
+      registrosInsertados++;
+    }
+
+    res.json({
+      success: true,
+      message: `✅ Se insertaron ${registrosInsertados} horarios correctamente.`
+    });
+
+  } catch (err) {
+    console.error('❌ Error al insertar horarios desde CSV:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno al procesar el CSV.'
+    });
+  }
+});
+
+// ------Fin de csv
 
 app.listen(app.get("port"), () => {
     console.log(`PUERTO:`, app.get("port"));
