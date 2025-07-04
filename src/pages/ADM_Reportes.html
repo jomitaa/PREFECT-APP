@@ -40,14 +40,22 @@
           </ul>
         </li>
         <li>
-          <a href="./ADM_AgregarHorario.html"
-            ><i class="bx bx-table icon"></i> Agregar Horarios</a
+           <a href="#"
+            ><i class="bx bx-table icon"></i> Gestion de Horarios
+            <i class="bx bx-chevron-right icon-right"></i
+          ></a>
+              <ul class="side-dropdown">
+            <li><a href="./ADM_AgregarHorario.html"
+            > Agregar Horarios</a
           >
-        </li>
+          </li>
+        
         <li>
           <a href="./ADM_EditarHorario.html"
-            ><i class="bx bx-table icon"></i> Editar Horarios</a
+            >Editar Horarios</a
           >
+          </li>
+          </ul>
         </li>
         <li>
           <a href="./ADM_datos.html"
@@ -83,6 +91,10 @@
           <a href="./registrar.html"
             ><i class="bx bx-table icon"></i> Registrar Usuario</a
           >
+		   <a href="./ADM_jefegrupos.html">
+            <i class="bx bx-table icon"></i> Jefe de Grupos
+            
+          </a>
         </li>
       </ul>
     </section>
@@ -124,7 +136,7 @@
 			<ul class="breadcrumbs">
 				<li><a href="#">P.A</a></li>
 				<li>/</li>
-				<li>Inicio</li>
+				<li>Reportes / Consulta</li>
 
 			</ul>
 
@@ -172,14 +184,15 @@
 			
 	
 				<!-- Modal para ver y editar reportes -->
+
+
 <div id="modal-reporte" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Editar Reporte</h2>
+        <h2>Detalles del Reporte</h2>
         <form id="form-editar-reporte">
-            <label>ID Reporte:</label>
-            <input type="text" id="modal-id-reporte" disabled>
-
+            <input type="hidden" id="modal-id-reporte">
+            
             <label>Tipo de Reporte:</label>
             <select id="modal-tipo-reporte">
                 <option value="1">Reportes Académicos</option>
@@ -190,14 +203,19 @@
                 <option value="6">Reportes de Seguridad</option>
                 <option value="7">Reportes de Mantenimiento</option>
             </select>
-
-            <label>Nombre del Usuario:</label>
-            <input type="text" id="modal-nom-usuario" disabled>
-
-            <label>Descripción:</label>
-            <textarea id="modal-descripcion" rows="5"></textarea>
-
-            <button type="submit">Guardar Cambios</button>
+            
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" id="modal-nom-usuario" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label>Descripción</label>
+                <input type="text" id="modal-descripcion" rows="4">
+            </div>
+            
+            <!-- Contenedor para imagen y botones -->
+            <div id="modal-imagen-container"></div>
         </form>
     </div>
 </div>

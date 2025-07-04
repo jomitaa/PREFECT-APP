@@ -62,7 +62,7 @@
 
       <!-- MAIN -->
       <main>
-        <h1 class="title">Panel Empresa</h1>
+        <h1 class="title">Prefect App</h1>
         <ul class="breadcrumbs">
           <li><a href="#">P.A</a></li>
           <li>/</li>
@@ -80,15 +80,15 @@
           <li>
             <i class="bx bxs-group"></i>
             <span class="text">
-              <h3>Usuarios</h3>
-              <p>Usuarios registrados</p>
+              <h3>PREFECT APP</h3>
+              <p>Vista de Administrador</p>
             </span>
           </li>
           <li>
             <i class="bx bxs-briefcase-alt-2"></i>
             <span class="text">
-              <h3>Activa</h3>
-              <p>Sesión actual</p>
+              <h3>Escuelas registradas:</h3>
+              <p id="no_escuelas"></p>
             </span>
           </li>
         </ul>
@@ -97,8 +97,7 @@
           <div class="order">
             <div class="head">
               <h3>Movimientos recientes</h3>
-              <i class="bx bx-search"></i>
-              <i class="bx bx-filter"></i>
+             
             </div>
             <table>
               <thead>
@@ -106,7 +105,7 @@
                   <th>Usuario</th>
                   <th>Fecha</th>
                   <th>Acción</th>
-                  <th>Estado</th>
+                  <th>Cargo</th>
                 </tr>
               </thead>
               <tbody>
@@ -118,6 +117,7 @@
       </main>
     </section>
 
+    <script src="/empresa_menu.js"></script>
     <script>
       const days = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
       const date = new Date();

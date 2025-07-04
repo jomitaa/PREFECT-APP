@@ -80,18 +80,110 @@
 
 			</ul>
 			<div class="filters">
-				<select name="turno" id="" class="filter-btn">
-					<option disabled selected>Seleccione un Turno</option>
-					<option value="1">Matutino</option>
-					<option value="2">Vespertino</option>
-				</select>
+				<div class="contenedor-select turno">
+        <div class="boton-select">
+            <span>Seleccione un Turno</span>
+            <i class="uil uil-angle-down"></i>
+        </div>
+        <div class="contenido-select">
+            <ul class="opciones">
+                <li onclick="seleccionarOpcion(this)" data-value="1">Matutino</li>
+                <li onclick="seleccionarOpcion(this)" data-value="2">Vespertino</li>
+            </ul>
+        </div>
+    </div>
+				
+
 				<button class="filter-btn" id="filterBtn">FILTRAR POR:</button>
-				<select id="salon"><option value="">SALÓN</option></select>
-				<select id="grupo"><option value="">GRUPO</option></select>
-				<select id="profesor"><option value="">PROFESOR</option></select>
-				<select id="materia"><option value="">MATERIA</option></select>
-				<select id="horaInicio"><option value="">HORA INICIO</option></select>
-				<select id="horaFin"><option value="">HORA FIN</option></select>
+				<!-- Select para Salón -->
+<div class="contenedor-select" data-type="salon">
+  <div class="boton-select">
+    <span>Seleccione un SALÓN</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar salón...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+
+<!-- Select para Grupo -->
+<div class="contenedor-select" data-type="grupo">
+  <div class="boton-select">
+    <span>Seleccione un GRUPO</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar grupo...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+
+<!-- Select para Profesor -->
+<div class="contenedor-select" data-type="profesor">
+  <div class="boton-select">
+    <span>Seleccione un PROFESOR</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar profesor...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+
+<!-- Select para Materia -->
+<div class="contenedor-select" data-type="materia">
+  <div class="boton-select">
+    <span>Seleccione una MATERIA</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar materia...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+
+<!-- Select para Hora Inicio -->
+<div class="contenedor-select" data-type="horaInicio">
+  <div class="boton-select">
+    <span>Seleccione HORA INICIO</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar hora...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
+
+<!-- Select para Hora Fin -->
+<div class="contenedor-select" data-type="horaFin">
+  <div class="boton-select">
+    <span>Seleccione HORA FIN</span>
+    <i class="uil uil-angle-down"></i>
+  </div>
+  <div class="contenido-select">
+    <div class="buscador">
+      <i class="uil uil-search"></i>
+      <input spellcheck="false" type="text" placeholder="Buscar hora...">
+    </div>
+    <ul class="opciones"></ul>
+  </div>
+</div>
 			</div>
 			<div class="contenedor-horario">
 				<div class="blur-overlay top"></div>

@@ -466,9 +466,6 @@ main .breadcrumbs li.divider {
     transition: all .3s ease;
 }
 
-#content main .box-info li:hover {
-    scale: 1.08;
-}
 
 /* Fondo oscuro al activar el modal */
 #content main .modal {
@@ -946,3 +943,212 @@ main .breadcrumbs li.divider {
   .contenedor-select .opciones li.seleccionado {
     background-color: #f0f7ff;
   }
+
+
+
+
+
+.reporte-item {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    padding: 16px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+}
+
+.reporte-item:hover {
+	    border-left: 4px solid #4a6fa5;
+}
+
+/* Encabezado del reporte */
+.reporte-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.reporte-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 18px;
+}
+
+.tipo-reporte-badge {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Contenido del reporte */
+.reporte-content {
+    margin-bottom: 12px;
+}
+
+.reporte-content p {
+    margin: 0 0 8px 0;
+    color: #546e7a;
+    line-height: 1.5;
+}
+
+.reporte-content img {
+    max-width: 100%;
+    border-radius: 4px;
+    margin-top: 8px;
+    height: auto;
+    max-height: 120px;
+    object-fit: cover;
+}
+
+/* Pie del reporte */
+.reporte-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #78909c;
+    padding-top: 8px;
+    border-top: 1px solid #eceff1;
+}
+
+/* Estilo del modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 80%;
+    max-width: 700px;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #333;
+}
+
+/* Formulario dentro del modal */
+#form-editar-reporte {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+#form-editar-reporte h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #455a64;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 10px 12px;
+    border: 1px solid #cfd8dc;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #4a6fa5;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2);
+}
+
+#modal-descripcion {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Contenedor de imagen en el modal */
+#modal-imagen-container {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#modal-imagen-container img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 4px;
+    object-fit: contain;
+}
+
+/* Estilos para los botones (si los agregas) */
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.modal-buttons button {
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.modal-buttons button.primary {
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+}
+
+.modal-buttons button.primary:hover {
+    background-color: #3a5a8f;
+}
+
+.modal-buttons button.secondary {
+    background-color: transparent;
+    border: 1px solid #cfd8dc;
+    color: #546e7a;
+}
+
+.modal-buttons button.secondary:hover {
+    background-color: #f5f7fa;
+}

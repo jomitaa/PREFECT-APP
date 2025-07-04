@@ -1,59 +1,64 @@
 document.getElementById('form-reporte').addEventListener('submit', async function(event) {
-  event.preventDefault(); 
-
-
-  const usuario = document.getElementById('usuario').value;
+  event.preventDefault();
+  
   const tipo_reporte = document.getElementById('tipo-reporte').value;
   const detalle_reporte = document.getElementById('detalle-reporte').value;
+  const inputImagen = document.getElementById('evidencia');
+  const imagen = inputImagen.files[0];
 
-
-  if (!usuario || !tipo_reporte || !detalle_reporte) {
-      document.querySelector('.alerta-error').style.display = 'block';
-      return;
+  // Validación básica
+  if (!tipo_reporte || !detalle_reporte) {
+    document.querySelector('.alerta-error').style.display = 'block';
+    return;
   }
 
   try {
-    
-      const response = await fetch('/obtenerUsuario', {
-        method: 'GET',
-        credentials: 'include' 
+    // Obtener datos del usuario desde la sesión
+    const response = await fetch('/obtenerUsuario', {
+      method: 'GET',
+      credentials: 'include'
     });
-      const data = await response.json();
+    
+    const data = await response.json();
+    const id_usuario = data.ID_usuario;
+    const nom_usuario = data.nom_usuario;
+    const id_escuela = data.id_escuela;
 
-      /* no se porque marca error esto
-      if (!data.success) {
-          alert('No se pudo obtener el usuario. Inicia sesión nuevamente.');
-          return;
-      }*/
+    // Crear FormData para enviar la imagen
+    const formData = new FormData();
+    formData.append('id_tiporeporte', tipo_reporte);
+    formData.append('descripcion', detalle_reporte);
+    formData.append('ID_usuario', id_usuario);
+    formData.append('nom_usuario', nom_usuario);
+    formData.append('id_escuela', id_escuela);
+    
+    if (imagen) {
+      formData.append('evidencia', imagen);
+    }
 
-      const id_usuario = data.ID_usuario;
-      const nom_usuario = data.nom_usuario;
+    // Enviar el reporte
+    const result = await fetch('/agregarReporte', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    });
 
-     
-      const result = await fetch('/agregarReporte', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-              id_tiporeporte: tipo_reporte,
-              descripcion: detalle_reporte,
-              ID_usuario: id_usuario, 
-              nom_usuario: nom_usuario,
-             
-          })
-      });
-
-      const resultData = await result.json();
+    const resultData = await result.json();
+    
+    if (resultData.success) {
+      document.querySelector('.alerta-exito').style.display = 'block';
+      document.getElementById('form-reporte').reset();
       
-      if (resultData.success) {
-          document.querySelector('.alerta-exito').style.display = 'block'; 
-          document.getElementById('form-reporte').reset(); 
-      } else {
-          alert('Hubo un error al agregar el reporte');
+      // Opcional: Mostrar vista previa de la imagen subida
+      if (resultData.imageUrl) {
+        const previewDiv = document.getElementById('imagen-preview');
+        previewDiv.innerHTML = `<img src="${resultData.imageUrl}" alt="Evidencia del reporte" style="max-width: 200px; margin-top: 10px;">`;
       }
+    } else {
+      alert('Hubo un error al agregar el reporte: ' + (resultData.message || 'Error desconocido'));
+    }
   } catch (error) {
-      console.error('Error:', error);
-      alert('Hubo un error en la comunicación con el servidor');
+    console.error('Error:', error);
+    alert('Hubo un error en la comunicación con el servidor');
   }
 });

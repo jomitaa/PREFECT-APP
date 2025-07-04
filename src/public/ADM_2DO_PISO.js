@@ -454,7 +454,7 @@ async function fetchHorarios() {
 function filtrarPorTurno(turnoId) {
   // Filtramos por semestre 2 Y por turno
   const horariosFiltrados = todosLosHorarios.filter(horario => 
-    horario.sem_grupo === 2 && horario.id_turno == turnoId
+    horario.sem_grupo === 4 && horario.id_turno == turnoId
   );
 
   if (horariosFiltrados.length === 0) {

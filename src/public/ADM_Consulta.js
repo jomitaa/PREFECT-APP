@@ -393,8 +393,23 @@ document.head.appendChild(style);
                 return;
             }
     
-            // Caso con datos válidos
-            mostrar(result.data);
+          // Detectar si hay filtros activos
+const hayFiltrosActivos =
+    grupoSeleccionado || diaSeleccionado || profesorSeleccionado ||
+    materiaSeleccionada || horaInicioSeleccionada || horaFinSeleccionada ||
+    registroAsistenciaSeleccionado || document.getElementById("fecha").value;
+
+// Si hay filtros activos, mostrar todos los datos filtrados
+if (hayFiltrosActivos) {
+    mostrar(result.data);
+} else {
+    // Mostrar solo los 50 más recientes (ordenados por fecha descendente)
+    const ordenados = result.data.sort(
+        (a, b) => new Date(b.fecha_asistencia) - new Date(a.fecha_asistencia)
+    );
+    mostrar(ordenados.slice(0, 50));
+}
+
             
         } catch (error) {
             console.error('Error en fetchConsulta:', error);
