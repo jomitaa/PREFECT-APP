@@ -295,16 +295,34 @@ function cargarReportes() {
      consulta.forEach(reporte => {
         window.reportesData[reporte.id_reporte] = reporte;
 
-        resultados += `
-                
-        <li data-id="${reporte.id_reporte}" class="reporte-item" onclick="abrirModal(${reporte.id_reporte})">
-            <h3>Reporte ${reporte.id_reporte}</h3>
-            <p>${reporte.tipo_reporte}</p>
-        </li>
-      `;          
-        
+
+        let imagenThumbnail = '';
+        if (reporte.ruta_imagen) {
+            imagenThumbnail = `
+                <div class="imagen-thumbnail">
+                    <img src="${reporte.ruta_imagen}" alt="Miniatura evidencia">
+                </div>
+            `;
+        }
+
+
+       resultados += `
+            <li data-id="${reporte.id_reporte}" class="reporte-item" onclick="abrirModal(${reporte.id_reporte})">
+                <div class="reporte-header">
+                    <h3>Reporte #${reporte.id_reporte}</h3>
+                    <span class="tipo-reporte-badge">${reporte.tipo_reporte}</span>
+                </div>
+                <div class="reporte-content">
+                    <p>${reporte.descripcion.substring(0, 100)}${reporte.descripcion.length > 100 ? '...' : ''}</p>
+                    ${imagenThumbnail}
+                </div>
+                <div class="reporte-footer">
+                    <span>Por: ${reporte.nom_usuario}</span>
+                    <span>${new Date(reporte.fecha_reporte).toLocaleDateString()}</span>
+                </div>
+            </li>
+        `;
     });
-    
 
      // Filtrar los datos según algún criterio si es necesario
      // const consultaFiltrada = consulta.filter(item => item.algunCriterio);
@@ -434,36 +452,164 @@ function cargarReportes() {
 }
 
 
-function abrirModal(reporteId) {
-    const reporte = window.reportesData[reporteId];
-    
-    if (!reporte) {
-        console.error("Reporte no encontrado:", reporteId);
-        return;
+async function abrirModal(reporteId) {
+    try {
+        const response = await fetch(`/obtenerReporte/${reporteId}`);
+        const reporte = await response.json();
+        
+        if (!reporte) {
+            throw new Error("Reporte no encontrado");
+        }
+
+        const modal = document.getElementById('modal-reporte');
+        const modalContent = document.querySelector('.modal-content');
+
+        document.getElementById('modal-id-reporte').value = reporte.id_reporte;
+        document.getElementById('modal-tipo-reporte').value = reporte.tipo_reporte.toString();
+        document.getElementById('modal-nom-usuario').value = reporte.nom_usuario;
+        document.getElementById('modal-descripcion').value = reporte.descripcion;
+
+        console.log('Datos del reporte:', reporte);
+
+        // Manejar imagen
+        const imagenContainer = document.getElementById('modal-imagen-container');
+        imagenContainer.innerHTML = '';
+        
+        if (reporte.ruta_imagen) {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'imagen-modal-container';
+            
+            const imgElement = document.createElement('img');
+            imgElement.src = reporte.ruta_imagen;
+            imgElement.alt = `Evidencia del reporte ${reporte.id_reporte}`;
+            
+            imgDiv.appendChild(imgElement);
+            imagenContainer.appendChild(imgDiv);
+        }
+
+        // Mostrar botones de acción
+        const actionButtons = document.createElement('div');
+        actionButtons.className = 'modal-actions';
+        
+        // Botón Eliminar
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn-delete';
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar';
+        deleteBtn.onclick = () => confirmarEliminacion(reporte.id_reporte, reporte.cloudinary_public_id);
+        
+        // Botón Guardar
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'btn-save';
+        saveBtn.type = 'submit';
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Guardar';
+        
+        actionButtons.appendChild(deleteBtn);
+        actionButtons.appendChild(saveBtn);
+        imagenContainer.appendChild(actionButtons);
+
+        // Mostrar modal con animación
+        modal.style.display = "block";
+        setTimeout(() => {
+            modal.classList.add('show');
+            modalContent.style.top = "50%";
+        }, 50);
+
+    } catch (error) {
+        console.error('Error:', error);
+        createToast(
+            "error",
+            "fa-solid fa-circle-exclamation",
+            "Error",
+            error.message || "Error al cargar el reporte"
+        );
     }
-
-
-    const modal = document.getElementById('modal-reporte');
-    const modalContent = document.querySelector('.modal-content');
-
-    // Asignar valores al modal
-    document.getElementById('modal-id-reporte').value = reporte.id_reporte;
-    document.getElementById('modal-tipo-reporte').value = reporte.id_tiporeporte;
-    document.getElementById('modal-nom-usuario').value = reporte.nom_usuario;
-    document.getElementById('modal-descripcion').value = reporte.descripcion;
-
-    // Restablecer la posición antes de mostrar el modal
-    modalContent.style.top = "-100%"; // Inicialmente fuera de la pantalla
-    modal.style.display = "block"; // Mostrar modal
-
-    // Animación de bajada después de un pequeño retraso
-    setTimeout(() => {
-        modal.classList.add('show'); // Agregar clase para activar la animación
-        modalContent.style.top = "50%"; // Baja hasta el centro de la pantalla
-    }, 50);
 }
 
-// Función para cerrar el modal con animación
+// Función para confirmar eliminación
+function confirmarEliminacion(reporteId, publicId) {
+    const confirmacion = confirm("¿Estás seguro de eliminar este reporte? Esta acción no se puede deshacer.");
+    
+    if (confirmacion) {
+        eliminarReporte(reporteId, publicId);
+    }
+}
+
+// Función para eliminar reporte
+async function eliminarReporte(reporteId, publicId) {
+    try {
+        const response = await fetch(`/eliminarReporte/${reporteId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            publicId: publicId
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            createToast(
+                "success",
+                "fa-solid fa-check-circle",
+                "Éxito",
+                "Reporte eliminado correctamente"
+            );
+            cerrarModal();
+            fetchReportes(); // Recargar la lista
+        } else {
+            throw new Error(data.error || "Error al eliminar");
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        createToast(
+            "error",
+            "fa-solid fa-circle-exclamation",
+            "Error",
+            error.message || "Error al eliminar el reporte"
+        );
+    }
+}
+
+// Manejar la actualización del reporte
+document.getElementById('form-editar-reporte').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const id_reporte = document.getElementById('modal-id-reporte').value;
+    const id_tiporeporte = document.getElementById('modal-tipo-reporte').value;
+    const descripcion = document.getElementById('modal-descripcion').value;
+
+    console.log('Datos a actualizar:', { id_reporte, id_tiporeporte, descripcion });
+
+    try {
+        const response = await fetch('/actualizarReporte', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_reporte, id_tiporeporte, descripcion })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            createToast(
+                "success",
+                "fa-solid fa-check-circle",
+                "Éxito",
+                "Reporte actualizado correctamente"
+            );
+            cerrarModal();
+            fetchReportes(); // Recargar la lista
+        } else {
+            throw new Error(data.error || "Error al actualizar");
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        createToast(
+            "error",
+            "fa-solid fa-circle-exclamation",
+            "Error",
+            error.message || "Error al actualizar el reporte"
+        );
+    }
+});
+
 function cerrarModal() {
     const modal = document.getElementById('modal-reporte');
     const modalContent = document.querySelector('.modal-content');
@@ -476,25 +622,3 @@ function cerrarModal() {
         modal.classList.remove('show'); 
     }, 500); // Esperar la animación antes de ocultar
 }
-
-// Manejar la actualización del reporte
-document.getElementById('form-editar-reporte').addEventListener('submit', function (event) {
-    event.preventDefault(); // Evita el envío del formulario
-
-    const id_reporte = document.getElementById('modal-id-reporte').value;
-    const id_tiporeporte = document.getElementById('modal-tipo-reporte').value;
-    const descripcion = document.getElementById('modal-descripcion').value;
-
-    fetch('/actualizarReporte', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_reporte, id_tiporeporte, descripcion })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        cerrarModal(); // Cerrar el modal después de la actualización
-        cargarReportes(); // Recargar la lista de reportes
-    })
-    .catch(error => console.error('Error al actualizar el reporte:', error));
-});

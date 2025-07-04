@@ -11,6 +11,10 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 
+import { v2 as cloudinary } from 'cloudinary';
+import multer from 'multer';
+import fs from 'fs';
+
 
 import bcrypt from 'bcrypt';
 
@@ -29,7 +33,7 @@ app.use(cookieParser());
 
 
 // Conexión a la base de datos
-/*
+
 const conexion = mysql.createPool({
     host: 'localhost',
     database: 'hojaprefectos',
@@ -38,13 +42,13 @@ const conexion = mysql.createPool({
     //password: 'n0m3l0'
     
 });
-*/
+
 import dotenv from 'dotenv';
 import { isErrored } from 'stream';
 
 dotenv.config();
 
-const conexion = mysql.createPool(process.env.MYSQL_URL);
+//const conexion = mysql.createPool(process.env.MYSQL_URL);
 
 conexion.getConnection(err => {
   if (err) {
@@ -53,6 +57,57 @@ conexion.getConnection(err => {
     console.log('Conectado a MySQL en Railway');
   } 
 });
+
+
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true // Para URLs HTTPS
+});
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true
+});
+
+// Configura Multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, 'uploads/evidencias');
+    fs.mkdir(dir, { recursive: true }, (err) => {
+      if (err) {
+        console.error('Error al crear directorio uploads:', err);
+        return cb(err);
+      }
+      cb(null, dir);
+    });
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+})
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Solo se permiten imágenes (JPEG, PNG, etc.)'), false);
+  }
+};
+
+const uploadMiddleware = multer({ 
+  storage, 
+  fileFilter,
+  limits: { 
+    fileSize: 10 * 1024 * 1024 // 10MB máximo
+  }
+}).single('evidencia');
+
 
 
 
@@ -692,12 +747,12 @@ app.post('/confirm-registration', async (req, res) => {
 app.get('/api/horarios', async (req, res) => {
     const diaActual = new Date().toLocaleDateString('es-MX', { weekday: 'long' });
     const diaCapitalizado = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
-    const diaPrueba = 'Viernes'; 
+    const diaPrueba = diaCapitalizado;
 
     const fechaActual = new Date();
     const anio = fechaActual.getFullYear();
     const mes = fechaActual.getMonth() + 1;
-    const periodo = mes >= 1 && mes <= 6 ? 1 : 2;
+const periodo = (mes >= 8 || mes <= 1) ? 1 : 2;
     const idEscuela = req.session.id_escuela;
 
     try {
@@ -732,6 +787,7 @@ app.get('/api/horarios', async (req, res) => {
                 h.dia_horario,
                 h.hora_inicio,
                 h.hora_final,
+                h.id_grupo,
                 m.nom_materia,
                 CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
                 g.sem_grupo,
@@ -810,88 +866,7 @@ app.get('/api/horarios/:id', async (req, res) => {
 });
 // --------------------------------  FIN RUTA HORARIOS POR ID  -------------------------
 
-// ----------------------------- RUTAS PARA MANEJO DE FALTAS CON OTP -----------------------------
 
-// Generar y enviar OTP para falta
-app.post('/generate-falta-otp', async (req, res) => {
-    if (!req.session.loggedin) {
-        return res.status(401).json({ success: false, message: 'No autorizado' });
-    }
-
-    try {
-        // Generar código OTP de 6 dígitos
-        const otpCode = Math.floor(100000 + Math.random() * 900000);
-        req.session.faltaOTP = otpCode;
-        req.session.faltaData = req.body; // Guardamos los datos de la falta temporalmente
-
-        console.log("Código OTP para falta generado en la sesión:", req.session.faltaOTP);
-
-        // Obtener el correo del usuario (prefecto) desde la sesión o base de datos
-        const userResults = await query('SELECT correo FROM usuario WHERE ID_usuario = ?', [req.session.userId]);
-        const user = userResults[0];
-
-        if (!user || !user.correo) {
-            return res.json({ success: false, message: 'No se encontró el correo del usuario.' });
-        }
-
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: user.correo,
-            subject: "Código de verificación para registrar falta",
-            text: `Tu código de verificación para registrar la falta es: ${otpCode}`
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        res.json({ 
-            success: true, 
-            message: "Se ha enviado un código de verificación a tu correo.",
-            requiresOTP: true
-        });
-    } catch (err) {
-        console.error('Error al generar OTP para falta:', err);
-        return res.status(500).json({ success: false, message: 'Error al generar código de verificación.' });
-    }
-});
-
-// Verificar OTP para falta
-app.post('/verify-falta-otp', async (req, res) => {
-    let idEscuela = req.session.id_escuela;
-    if (!req.session.loggedin) {
-        return res.status(401).json({ success: false, message: 'No autorizado' });
-    }
-
-    const { otpCode } = req.body;
-
-    console.log("OTP recibido para falta:", otpCode);
-    console.log("OTP almacenado en la sesión:", req.session.faltaOTP);
-
-    if (!req.session.faltaOTP || req.session.faltaOTP != otpCode) {
-        return res.json({ success: false, message: "Código incorrecto." });
-    }
-
-    try {
-        // Si el OTP es correcto, procedemos a registrar la falta
-        const { validacion_falta, id_horario } = req.session.faltaData;
-
-        // Insertar datos en la tabla falta
-        await insertarFalta(validacion_falta, id_horario, idEscuela);
-
-        // Limpiar la sesión
-        delete req.session.faltaOTP;
-        delete req.session.faltaData;
-
-        res.json({ 
-            success: true, 
-            message: "Falta registrada correctamente."
-        });
-    } catch (error) {
-        console.error('Error al registrar falta después de OTP:', error);
-        return res.status(500).json({ success: false, message: 'Error al registrar la falta.' });
-    }
-});
-
-// --------------------------------  FIN RUTAS FALTAS CON OTP  -------------------------
 
 
 
@@ -1339,35 +1314,108 @@ ORDER BY
 
 // ------------------------------- RUTA DE REPORTES --------------------------------
 
-app.post('/agregarReporte', (req, res) => {
-    // Obtener los datos del cuerpo de la solicitud
+app.post('/agregarReporte', uploadMiddleware, async (req, res) => {
+  try {
     const { id_tiporeporte, descripcion } = req.body;
-    const ID_usuario = req.session.userId;  
-    const nom_usuario = req.session.userName; 
-    let idEscuela = req.session.id_escuela;
+    const ID_usuario = req.session.userId;
+    const nom_usuario = req.session.userName;
+    const id_escuela = req.session.id_escuela;
 
-    console.log('Datos recibidos en /agregarReporte:', { id_tiporeporte, descripcion, ID_usuario, nom_usuario, idEscuela });
-
-    if (!id_tiporeporte || !descripcion || !ID_usuario || !nom_usuario || !idEscuela) {
-        console.error(' ERROR: Datos incompletos:', { id_tiporeporte, descripcion, ID_usuario, nom_usuario });
-        return res.status(400).json({ success: false, message: 'Faltan datos para registrar el reporte.' });
+    if (!id_tiporeporte || !descripcion || !ID_usuario || !nom_usuario || !id_escuela) {
+      // Limpiar archivo temporal si existe
+      if (req.file?.path) {
+        try { fs.unlinkSync(req.file.path); } catch (e) { console.error('Error al limpiar archivo:', e); }
+      }
+      return res.status(400).json({ success: false, message: 'Faltan datos para registrar el reporte.' });
     }
 
+    let cloudinaryResult = null;
+    let filePath = req.file?.path;
+    
+    try {
+      if (req.file) {
+        cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+          folder: `prefect_app/escuela_${id_escuela}/reportes`,
+          resource_type: 'auto',
+          quality: 'auto:good',
+          format: 'webp'
+        });
+      }
 
-    const query = `
-        INSERT INTO reportes (id_tiporeporte, descripcion, ID_usuario, fecha_reporte, id_escuela)
-        VALUES (?, ?, ?, NOW(), ?)
-    `;
+      // Verificar que la conexión a la base de datos está bien
+      const query = `
+        INSERT INTO reportes (
+          id_tiporeporte, 
+          descripcion, 
+          ID_usuario, 
+          id_escuela, 
+          fecha_reporte, 
+          ruta_imagen,
+          cloudinary_public_id
+        ) VALUES (?, ?, ?, ?, NOW(), ?, ?)
+      `;
 
-    conexion.execute(query, [id_tiporeporte, descripcion, ID_usuario, idEscuela], (err, result) => {
-        if (err) {
-            console.error(' ERROR en la consulta SQL:', err);
-            return res.status(500).json({ success: false, message: 'Hubo un error al agregar el reporte.' });
+      // Usar conexion.query en lugar de conexion.execute si es necesario
+      const result = await new Promise((resolve, reject) => {
+        conexion.query(query, [
+          id_tiporeporte, 
+          descripcion, 
+          ID_usuario, 
+          id_escuela,
+          cloudinaryResult?.secure_url || null,
+          cloudinaryResult?.public_id || null
+        ], (err, result) => {
+          if (err) reject(err);
+          else resolve(result);
+        });
+      });
+
+      // Eliminar archivo temporal solo si existe y se subió correctamente
+      if (filePath && fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Reporte agregado exitosamente.', 
+        reporteId: result.insertId,
+        imageUrl: cloudinaryResult?.secure_url || null
+      });
+
+    } catch (error) {
+      console.error('Error en el proceso:', error);
+      
+      // Limpiar archivo temporal si existe
+      if (filePath && fs.existsSync(filePath)) {
+        try { fs.unlinkSync(filePath); } catch (e) { console.error('Error al limpiar archivo:', e); }
+      }
+      
+      // Limpiar de Cloudinary si hubo error después de subir
+      if (cloudinaryResult?.public_id) {
+        try {
+          await cloudinary.uploader.destroy(cloudinaryResult.public_id);
+        } catch (e) {
+          console.error('Error al limpiar Cloudinary:', e);
         }
+      }
 
-        return res.status(200).json({ success: true, message: 'Reporte agregado exitosamente.', reporteId: result.insertId });
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Hubo un error al agregar el reporte.',
+        error: error.message 
+      });
+    }
+
+  } catch (err) {
+    console.error('Error general:', err);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Error interno del servidor' 
     });
+  }
 });
+
+
 
 app.get('/obtenerUsuario', (req, res) => {
     if (!req.session.userId) {
@@ -1383,8 +1431,7 @@ app.get('/obtenerUsuario', (req, res) => {
 });
 
 
-
-// Ruta para obtener todos los reportes con el nombre del usuario
+// Ruta para obtener reportes (modificada)
 app.get('/obtenerReportes', (req, res) => {
     let idEscuela = req.session.id_escuela;
     const query = `
@@ -1393,6 +1440,7 @@ app.get('/obtenerReportes', (req, res) => {
             r.descripcion, 
             r.id_tiporeporte, 
             r.fecha_reporte,
+            r.ruta_imagen,
             u.nom_usuario, 
             t.tipo AS tipo_reporte
         FROM reportes r
@@ -1411,25 +1459,129 @@ app.get('/obtenerReportes', (req, res) => {
     });
 });
 
-
-// Ruta para actualizar un reporte
-app.put('/actualizarReporte', (req, res) => {
-    const { id_reporte, id_tiporeporte, descripcion } = req.body;
-
+// Nueva ruta para obtener detalles completos de un reporte
+app.get('/obtenerReporte/:id', (req, res) => {
     const query = `
-        UPDATE reportes SET id_tiporeporte = ?, descripcion = ?
-        WHERE id_reporte = ?
+        SELECT 
+            r.*,
+            t.tipo AS tipo_reporte,
+            u.nom_usuario
+        FROM reportes r
+        JOIN tiporeportes t ON r.id_tiporeporte = t.id_tiporeporte
+        JOIN usuario u ON r.id_usuario = u.id_usuario
+        WHERE r.id_reporte = ?
     `;
 
-    conexion.query(query, [id_tiporeporte, descripcion, id_reporte], (err) => {
+    conexion.query(query, [req.params.id], (err, results) => {
         if (err) {
             console.error(err);
-            return res.status(500).json({ error: 'Error al actualizar el reporte' });
+            return res.status(500).json({ error: 'Error al obtener el reporte' });
         }
-        res.json({ message: 'Reporte actualizado correctamente' });
+        res.json(results[0] || null);
     });
 });
 
+// Ruta para actualizar un reporte (modificada para manejar imágenes)
+app.put('/actualizarReporte', async (req, res) => {
+    const { id_reporte, id_tiporeporte, descripcion, public_id } = req.body;
+
+    console.log('Datos recibidos en /actualizarReporte:', { id_reporte, id_tiporeporte, descripcion, public_id });
+
+    try {
+        // 1. Actualizar los datos básicos del reporte
+        const query = `
+            UPDATE reportes 
+            SET id_tiporeporte = ?, descripcion = ?
+            WHERE id_reporte = ?
+        `;
+
+        await conexion.execute(query, [id_tiporeporte, descripcion, id_reporte]);
+
+        res.json({ 
+            success: true,
+            message: 'Reporte actualizado correctamente' 
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ 
+            success: false,
+            error: 'Error al actualizar el reporte' 
+        });
+    }
+});
+
+// Nueva ruta para eliminar reporte
+app.delete('/eliminarReporte/:id', async (req, res) => {
+    const { id } = req.params;
+
+    // Validar que el ID sea numérico
+    if (isNaN(id)) {
+        return res.status(400).json({ 
+            success: false,
+            error: 'ID de reporte inválido' 
+        });
+    }
+
+    try {
+        // 1. Obtener información del reporte (forma más segura)
+        const [rows] = await conexion.promise().query(
+            'SELECT cloudinary_public_id FROM reportes WHERE id_reporte = ?', 
+            [id]
+        );
+
+        // Verificar si se encontró el reporte
+        if (!rows || rows.length === 0) {
+            return res.status(404).json({ 
+                success: false,
+                error: 'Reporte no encontrado' 
+            });
+        }
+
+        const reporte = rows[0];
+
+        // 2. Eliminar la imagen de Cloudinary si existe
+        if (reporte.cloudinary_public_id) {
+            try {
+                const cloudinaryResult = await cloudinary.uploader.destroy(reporte.cloudinary_public_id);
+                if (cloudinaryResult.result !== 'ok') {
+                    console.warn('Cloudinary no pudo eliminar la imagen:', cloudinaryResult);
+                }
+            } catch (cloudinaryError) {
+                console.error('Error al eliminar de Cloudinary:', cloudinaryError);
+                // Continuamos aunque falle Cloudinary
+            }
+        }
+
+        // 3. Eliminar el reporte de la base de datos
+        const [deleteResult] = await conexion.promise().query(
+            'DELETE FROM reportes WHERE id_reporte = ?', 
+            [id]
+        );
+
+        // Verificar si se eliminó correctamente (depende del driver de MySQL)
+        const affectedRows = deleteResult?.affectedRows ?? deleteResult;
+
+        if (affectedRows === 0) {
+            return res.status(404).json({ 
+                success: false,
+                error: 'No se pudo eliminar el reporte (ninguna fila afectada)' 
+            });
+        }
+
+        return res.json({ 
+            success: true,
+            message: 'Reporte eliminado correctamente' 
+        });
+
+    } catch (err) {
+        console.error('Error en eliminarReporte:', err);
+        return res.status(500).json({ 
+            success: false,
+            error: 'Error interno al eliminar el reporte',
+            ...(process.env.NODE_ENV === 'development' && { details: err.message })
+        });
+    }
+});
 
 // ------------------------------- FIN RUTA REPORTES --------------------------------
 
@@ -1542,7 +1694,7 @@ app.post('/agregar-horario', async (req, res) => {
     const fechaActual = new Date();
     const anio = fechaActual.getFullYear();
     const mes = fechaActual.getMonth() + 1;
-    const periodo = mes >= 1 && mes <= 6 ? 1 : 2; // 1er semestre (Ene-Jun), 2do semestre (Jul-Dic)
+const periodo = (mes >= 8 || mes <= 1) ? 1 : 2;
     let idEscuela = req.session.id_escuela;
     const id_Escuela = req.session.id_escuela;
     console.log('Datos recibidos en /agregar-horario:', { dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona });
@@ -3319,6 +3471,65 @@ app.post('/api/registrar-jefe', async (req, res) => {
     res.json({ success: false, message: 'Error al registrar jefe' });
   }
 });
+
+// ruta empresa para el no de escuelas
+
+app.get('/api/numero-escuelas', async (req, res) => {
+    try {
+        const [result] = await conexion.promise().query('SELECT COUNT(*) AS total FROM escuela');
+        const totalEscuelas = result[0].total;
+        res.json({ totalEscuelas });
+    } catch (error) {
+        console.error('Error al obtener el número de escuelas:', error);
+        res.status(500).json({ message: 'Error al obtener el número de escuelas' });
+    }
+});
+
+
+
+
+app.post('/verificar-codigo-jefe', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
+
+    if (!req.session.loggedin) {
+        return res.status(401).json({ success: false, message: 'No autorizado' });
+    }
+
+    const { codigo_jefe, id_grupo, id_horario, validacion_falta } = req.body;
+    const validacion_asistencia = 0; // Asumimos que la asistencia es válida
+    const validacion_retardo = 0; // Asumimos que el retardo es
+
+    console.log("OTP recibido para falta:", codigo_jefe);
+    console.log("ID de grupo recibido para falta:", id_grupo);
+    console.log("ID de horario recibido para falta:", id_horario);
+
+    const [codigoFila] = await query('SELECT codigo_jefe FROM jefegrupo WHERE id_grupo = ?', [id_grupo]);
+if (!codigoFila || codigoFila.codigo_jefe !== codigo_jefe){
+        return res.status(404).json({ success: false, message: 'Código de jefe no valido.' });
+    }
+
+    try {
+        // Si el OTP es correcto, procedemos a registrar la falta
+        // Insertar datos en la tabla falta
+ await insertarAsistencia(validacion_asistencia, id_horario, idEscuela);
+
+        // Insertar datos en la tabla retardo
+        await insertarRetardo(validacion_retardo, id_horario , idEscuela);
+
+        // Insertar datos en la tabla falta
+        await insertarFalta(validacion_falta, id_horario , idEscuela);        
+        res.json({ 
+            success: true, 
+            message: "Falta registrada correctamente."
+        });
+    } catch (error) {
+        console.error('Error al registrar falta después de OTP:', error);
+        return res.status(500).json({ success: false, message: 'Error al registrar la falta.' });
+    }
+});
+
+// --------------------------------  FIN RUTAS FALTAS CON OTP  -------------------------
+
 
 
 

@@ -1,84 +1,264 @@
-document.addEventListener("DOMContentLoaded", async () => {
-
-    try {
-        const response = await fetch('/api/filtros');
-        const data = await response.json();
+ let turnoSeleccionado = null;
+let salonSeleccionado = 'todas';
+let grupoSeleccionado = 'todas';
+let profesorSeleccionado = 'todas';
+let materiaSeleccionada = 'todas';
+let horaInicioSeleccionada = 'todas';
+let horaFinSeleccionada = 'todas';
+        // Selectores
+        const contenedorTurno = document.querySelector('.contenedor-select');
+        const contenedorSalon = document.querySelector('.contenedor-select[data-type="salon"]');
+        const contenedorGrupo = document.querySelector('.contenedor-select[data-type="grupo"]');
+        const contenedorProfesor = document.querySelector('.contenedor-select[data-type="profesor"]');
+        const contenedorMateria = document.querySelector('.contenedor-select[data-type="materia"]');
+        const contenedorHoraInicio = document.querySelector('.contenedor-select[data-type="horaInicio"]');
+        const contenedorHoraFin = document.querySelector('.contenedor-select[data-type="horaFin"]');
+        const horarioContainer = document.getElementById('horario');
+        const filterBtn = document.getElementById('filterBtn');
         
-        console.log("Datos recibidos:", data);
+        // Inicialización al cargar la página
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const response = await fetch("/api/filtros");
+                const data = await response.json();
+        
+                if (!data || Object.keys(data).length === 0) {
+                    mostrarError("No se encontraron datos para llenar los filtros.");
+                    return;
+                }
+        
+                // Llenar los selects con datos
+                llenarSelect("salon", data.salones);
+                llenarSelect("grupo", data.grupos);
+                llenarSelect("profesor", data.profesores);
+                llenarSelect("materia", data.materias);
+                llenarSelect("horaInicio", data.horasInicio);
+                llenarSelect("horaFin", data.horasFin);
+        
+                // Inicializar eventos
+                inicializarEventosTurno();
+                inicializarEventosFiltros();
+                
+                // Cargar horarios
+                await fetchHorarios();
+                
+            } catch (error) {
+                mostrarError("Hubo un problema al cargar los filtros.");
+                console.error("Error:", error);
+            }
+        });
+        
+        // Función para llenar selects
+        function llenarSelect(tipo, datos) {
+            const contenedor = document.querySelector(`.contenedor-select[data-type="${tipo}"]`);
+            if (!contenedor) {
+                console.error(`No se encontró el select con tipo: ${tipo}`);
+                return;
+            }
+        
+            const opciones = contenedor.querySelector('.opciones');
+            opciones.innerHTML = '';
 
-        if (!data || Object.keys(data).length === 0) {
-            createToast(
-                "error",
-                "fa-solid fa-circle-exclamation",
-                "Error",
-                `No se encontraron datos para llenar los filtros.`
-              );
-            console.error("Los datos están vacíos o no tienen la estructura esperada.");
-            return;
+              if (tipo !== 'turno') {
+        const limpiarLi = document.createElement('li');
+        limpiarLi.className = 'limpiar-seleccion';
+        limpiarLi.innerHTML = '<i class="fas fa-times-circle"></i> Limpiar selección';
+        limpiarLi.onclick = function() {
+            limpiarFiltro(tipo, contenedor);
+        };
+        opciones.appendChild(limpiarLi);
+    }
+        
+            datos.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                li.setAttribute('data-value', item);
+                li.onclick = function() {
+                    seleccionarOpcionFiltro(this, tipo);
+                };
+                opciones.appendChild(li);
+            });
         }
-
-        llenarSelect('salon', data.salones);
-        llenarSelect('grupo', data.grupos);
-        llenarSelect('profesor', data.profesores);
-        llenarSelect('materia', data.materias);
-        llenarSelect('horaInicio', data.horasInicio);
-        llenarSelect('horaFin', data.horasFin);
-
-    } catch (error) {
-        createToast(
-            "error",
-            "fa-solid fa-circle-exclamation",
-            "Error",
-            `Hubo un problema al cargar los filtros.`
-          );
-        console.error('Error al cargar los filtros:', error);
-    }
-});
-
-// ✅ Función para llenar selects
-function llenarSelect(id, datos) {
-    const select = document.getElementById(id);
-    if (!select) {
-        console.error(`No se encontró el select con ID: ${id}`);
-        return;
-    }
-
-    // Aquí cambiamos el texto que aparece en la opción por defecto
-    let label = '';
-    switch (id) {
-        case 'salon':
-            label = 'Seleccione un SALÓN';
-            break;
-        case 'grupo':
-            label = 'Seleccione un GRUPO';
-            break;
-        case 'profesor':
-            label = 'Seleccione un PROFESOR';
-            break;
-        case 'materia':
-            label = 'Seleccione una MATERIA';
-            break;
-        case 'horaInicio':
-            label = 'Seleccione la HORA INICIO';
-            break;
-        case 'horaFin':
-            label = 'Seleccione la HORA FIN';
-            break;
-        default:
-            label = 'Seleccione una opción';
-    }
-
-    // Agregamos la opción por defecto con el texto correcto
-    select.innerHTML = `<option value="">${label}</option>`;
-
-    // Llenamos el select con las opciones recibidas
-    datos.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item;
-        option.textContent = item;
-        select.appendChild(option);
+        
+        // Función para seleccionar turno
+        function seleccionarTurno(opcion) {
+            // Animación
+            opcion.style.transform = 'scale(0.98)';
+            setTimeout(() => opcion.style.transform = '', 150);
+            
+            // Actualizar variable y UI
+            turnoSeleccionado = opcion.dataset.value;
+            contenedorTurno.querySelector('.boton-select span').textContent = opcion.textContent;
+            
+            // Marcar como seleccionado
+            contenedorTurno.querySelectorAll('.opciones li').forEach(li => {
+                li.classList.remove('seleccionado');
+            });
+            opcion.classList.add('seleccionado');
+            
+            // Cerrar select
+            cerrarSelect(contenedorTurno);
+            
+            // Filtrar horarios
+            filtrarPorTurno(turnoSeleccionado);
+        }
+        
+        // Función para seleccionar opción en filtros
+        function seleccionarOpcionFiltro(opcion, tipo) {
+            // Animación
+            opcion.style.transform = 'scale(0.98)';
+            setTimeout(() => opcion.style.transform = '', 150);
+            
+            // Actualizar variable correspondiente
+            switch(tipo) {
+                case 'salon': salonSeleccionado = opcion.dataset.value; break;
+                case 'grupo': grupoSeleccionado = opcion.dataset.value; break;
+                case 'profesor': profesorSeleccionado = opcion.dataset.value; break;
+                case 'materia': materiaSeleccionada = opcion.dataset.value; break;
+                case 'horaInicio': horaInicioSeleccionada = opcion.dataset.value; break;
+                case 'horaFin': horaFinSeleccionada = opcion.dataset.value; break;
+            }
+            
+            // Actualizar UI
+            const contenedor = opcion.closest('.contenedor-select');
+            contenedor.querySelector('.boton-select span').textContent = opcion.textContent;
+            
+            // Marcar como seleccionado
+            contenedor.querySelectorAll('.opciones li').forEach(li => {
+                li.classList.remove('seleccionado');
+            });
+            opcion.classList.add('seleccionado');
+            contenedor.classList.add('filtro-activo');
+            
+            // Cerrar select
+            cerrarSelect(contenedor);
+        }
+        
+        // Función para inicializar eventos del select de turno
+       function inicializarEventosTurno() {
+    const botonSelect = contenedorTurno.querySelector('.boton-select');
+    const contenidoSelect = contenedorTurno.querySelector('.contenido-select');
+    
+    // Evento para abrir/cerrar el select
+    botonSelect.addEventListener("click", (e) => {
+        e.stopPropagation();
+        contenedorTurno.classList.toggle("activo");
+    });
+    
+    // Asegúrate que las opciones tienen el evento onclick correcto
+    const opcionesTurno = contenedorTurno.querySelectorAll('.opciones li');
+    opcionesTurno.forEach(opcion => {
+        opcion.onclick = function() {
+            seleccionarTurno(this);
+        };
     });
 }
+        function limpiarFiltro(tipo, contenedor) {
+    const defaultText = `Seleccione ${tipo === 'salon' ? 'un SALÓN' : 
+                      tipo === 'grupo' ? 'un GRUPO' : 
+                      tipo === 'profesor' ? 'un PROFESOR' : 
+                      tipo === 'materia' ? 'una MATERIA' : 
+                      tipo === 'horaInicio' ? 'HORA INICIO' : 'HORA FIN'}`;
+    
+    // Actualizar UI
+    contenedor.querySelector('.boton-select span').textContent = defaultText;
+    
+    // Limpiar variable
+    switch(tipo) {
+        case 'salon': salonSeleccionado = 'todas'; break;
+        case 'grupo': grupoSeleccionado = 'todas'; break;
+        case 'profesor': profesorSeleccionado = 'todas'; break;
+        case 'materia': materiaSeleccionada = 'todas'; break;
+        case 'horaInicio': horaInicioSeleccionada = 'todas'; break;
+        case 'horaFin': horaFinSeleccionada = 'todas'; break;
+    }
+
+    // Limpiar selección visual
+    contenedor.querySelectorAll('.opciones li').forEach(li => {
+        li.classList.remove('seleccionado');
+    });
+    contenedor.classList.remove('filtro-activo');
+    
+    // Cerrar el select
+    cerrarSelect(contenedor);
+    
+    // Opcional: volver a filtrar automáticamente
+    if (turnoSeleccionado) {
+        filtrarHorarios();
+    }
+}
+        // Función para inicializar eventos de los filtros
+        function inicializarEventosFiltros() {
+            const contenedores = [
+                contenedorSalon, contenedorGrupo, contenedorProfesor, 
+                contenedorMateria, contenedorHoraInicio, contenedorHoraFin
+            ];
+        
+            contenedores.forEach(contenedor => {
+                if (!contenedor) return;
+        
+                const botonSelect = contenedor.querySelector('.boton-select');
+                const inputBusqueda = contenedor.querySelector('.buscador input');
+                const opciones = contenedor.querySelector('.opciones');
+                const tipo = contenedor.dataset.type;
+        
+                // Abrir/cerrar select
+                botonSelect.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    contenedor.classList.toggle('activo');
+                    
+                    if (contenedor.classList.contains('activo') && inputBusqueda) {
+                        inputBusqueda.focus();
+                    }
+                });
+        
+                // Búsqueda
+                if (inputBusqueda) {
+                    inputBusqueda.addEventListener('input', () => {
+                        const busqueda = inputBusqueda.value.toLowerCase();
+                        const items = opciones.querySelectorAll('li');
+                        
+                        items.forEach(item => {
+                            const texto = item.textContent.toLowerCase();
+                            item.style.display = texto.includes(busqueda) ? 'flex' : 'none';
+                        });
+                    });
+                }
+        
+                // Limpiar selección (doble clic)
+               
+            });
+        
+            // Cerrar selects al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                [contenedorTurno, ...contenedores].forEach(contenedor => {
+                    if (!contenedor.contains(e.target)) {
+                        cerrarSelect(contenedor);
+                    }
+                });
+            });
+            
+            // Evento para filtrar
+            filterBtn.addEventListener('click', filtrarHorarios);
+        }
+        
+        // Función para cerrar select
+        function cerrarSelect(contenedor) {
+            if (!contenedor) return;
+            
+            const contenidoSelect = contenedor.querySelector('.contenido-select');
+            if (!contenidoSelect) return;
+            
+            contenidoSelect.style.opacity = '0';
+            contenidoSelect.style.transform = 'translateY(-15px)';
+            
+            setTimeout(() => {
+                contenedor.classList.remove("activo");
+                contenidoSelect.style.opacity = '';
+                contenidoSelect.style.transform = '';
+            }, 300);
+        }
+
 
 let alerta = document.querySelector(".alerta");
 
@@ -278,10 +458,7 @@ async function fetchHorarios() {
     todosLosHorarios = await response.json();
     
     // Escuchamos cambios en el select de turno
-    document.querySelector('select[name="turno"]').addEventListener('change', function() {
-      const turnoSeleccionado = this.value;
-      filtrarPorTurno(turnoSeleccionado);
-    });
+   
     
   } catch (error) {
     console.error("Error al obtener los horarios:", error);
@@ -357,7 +534,7 @@ function filtrarPorTurno(turnoId) {
                             </label>
 
                             <label class="container">
-                                <input type="checkbox" class="checkbox" id="validacion_falta_${horario.id_horario}" data-tipo="falta" data-id="${horario.id_horario}">
+                                <input type="checkbox" class="checkbox" id="validacion_falta_${horario.id_horario}" data-tipo="falta" data-id="${horario.id_horario}" data-id-grupo="${horario.id_grupo}">
                                 <div class="checkmark"></div>
                                 Falta
                             </label>
@@ -376,90 +553,76 @@ function filtrarPorTurno(turnoId) {
     document.getElementById("filterBtn").replaceWith(document.getElementById("filterBtn").cloneNode(true));
     document.getElementById("filterBtn").addEventListener("click", filtrarHorarios);
 
-    const filtros = [
-      "salon",
-      "grupo",
-      "profesor",
-      "materia",
-      "horaInicio",
-      "horaFin",
-    ];
-  
-    filtros.forEach((id) => {
-      const select = document.getElementById(id);
-      select.addEventListener("change", () => {
-        if (select.value !== "") {
-          select.classList.add("filtro-activo");
-        } else {
-          select.classList.remove("filtro-activo");
-        }
-      });
-    });
-  
+   
     
     async function filtrarHorarios() {
 
-      const turno = document.querySelector('select[name="turno"]').value;
+    const turno = turnoSeleccionado; 
   if (!turno) {
     createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Atención', 'Debes seleccionar un turno primero');
     return;
   }
 
-        const salon = document.getElementById("salon").value.trim();
-        const grupo = document.getElementById("grupo").value;
-        const profesor = document.getElementById("profesor").value;
-        const materia = document.getElementById("materia").value;
-        const horaInicio = document.getElementById("horaInicio").value;
-        const horaFin = document.getElementById("horaFin").value;
-    
-        try {
-            const response = await fetch("/api/horarios");
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud: ${response.status}`);
-            }
-            const horarios = await response.json();
-    
-            const horariosSemestre2 = horarios.filter(
-                (horario) => horario.sem_grupo === 2
-            );
-    
-            const horariosFiltrados = todosLosHorarios.filter((horario) => {
-              return (
-                horario.sem_grupo === 2 &&
-                horario.id_turno == turno &&
-                    (!salon || String(horario.id_salon).trim() === String(salon).trim()) &&
-                    (!grupo || horario.nom_grupo === grupo) &&
-                    (!profesor || horario.nombre_persona === profesor) &&
-                    (!materia || horario.nom_materia === materia) &&
-                    (!horaInicio || horario.hora_inicio === horaInicio) &&
-                    (!horaFin || horario.hora_final === horaFin)
+
+  
+    try {
+      const response = await fetch("/api/horarios");
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.status}`);
+      }
+      const horarios = await response.json();
+
+      const horariosSemestre2 = horarios.filter(
+        (horario) => horario.sem_grupo === 2
+      );
+
+      console.log("turnoSeleccionado:", turnoSeleccionado);
+      console.log("salonSeleccionado:", salonSeleccionado);
+      console.log("grupoSeleccionado:", grupoSeleccionado);
+      console.log("profesorSeleccionado:", profesorSeleccionado);
+      console.log("materiaSeleccionada:", materiaSeleccionada);
+      console.log("horaInicioSeleccionada:", horaInicioSeleccionada);
+      console.log("horaFinSeleccionada:", horaFinSeleccionada);
+      const horariosFiltrados = todosLosHorarios.filter(horario => {
+                return (
+                    horario.sem_grupo === 2 &&
+                    horario.id_turno == turnoSeleccionado &&
+                    (salonSeleccionado === 'todas' || String(horario.id_salon).trim() === String(salonSeleccionado).trim()) &&
+                    (grupoSeleccionado === 'todas'  || horario.nom_grupo === grupoSeleccionado) &&
+                    (profesorSeleccionado === 'todas'  || horario.nombre_persona === profesorSeleccionado) &&
+                    (materiaSeleccionada === 'todas' || horario.nom_materia === materiaSeleccionada) &&
+                    (horaInicioSeleccionada === 'todas'  || horario.hora_inicio === horaInicioSeleccionada) &&
+                    (horaFinSeleccionada === 'todas' || horario.hora_final === horaFinSeleccionada)
                 );
             });
-    
-            if (horariosFiltrados.length === 0) {
-                console.log("No se encontraron horarios que coincidan con los filtros.");
-                createToast(
-                    "advertencia",
-                    "fa-solid fa-triangle-exclamation",
-                    "Aguas",
-                    "No se encontraron horarios que coincidan con los filtros seleccionados."
-                );
-                return;  // 👈 Evita ejecutar más código
-            }
-    
-            mostrar(horariosFiltrados);
-        } catch (error) {
-            console.error("Error al obtener los horarios:", error);
-            createToast(
-                "error",
-                "fa-solid fa-circle-exclamation",
-                "Error",
-                "Hubo un problema al cargar los horarios."
-            );
-            document.getElementById("horario").innerHTML =
-                '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
-        }
+        
+
+      if (horariosFiltrados.length === 0) {
+        console.log(
+          "No se encontraron horarios que coincidan con los filtros."
+        );
+        createToast(
+          "advertencia",
+          "fa-solid fa-triangle-exclamation",
+          "Aguas",
+          "No se encontraron horarios que coincidan con los filtros seleccionados."
+        );
+        return; // 👈 Evita ejecutar más código
+      }
+
+      mostrar(horariosFiltrados);
+    } catch (error) {
+      console.error("Error al obtener los horarios:", error);
+      createToast(
+        "error",
+        "fa-solid fa-circle-exclamation",
+        "Error",
+        "Hubo un problema al cargar los horarios."
+      );
+      document.getElementById("horario").innerHTML =
+        '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
     }
+  }
     
 
     window.onload();
@@ -494,6 +657,15 @@ const closeModal = document.querySelector('.btn-cancelar');
 // Función para abrir el modal
 // Función para abrir el modal y solicitar OTP al servidor
 async function openOTPModal(checkbox) {
+
+    console.log("Datos del checkbox al abrir modal:", {
+        id: checkbox.dataset.id,
+        idGrupo: checkbox.dataset.idGrupo,
+        id_grupo: checkbox.dataset.id_grupo,
+        getAttribute: checkbox.getAttribute('data-id-grupo'),
+        outerHTML: checkbox.outerHTML
+    });
+
     const id_horario = checkbox.dataset.id;
     
     // Mostrar el modal
@@ -513,15 +685,13 @@ async function openOTPModal(checkbox) {
 
 
 
-// Función para verificar el OTP con el servidor
 async function verifyOTP() {
-    // Construir el código ingresado
-    let enteredOTP = '';
+let codigo_jefe = '';
     document.querySelectorAll('.otp-input').forEach(input => {
-        enteredOTP += input.value;
+        codigo_jefe += input.value;
     });
     
-    if (enteredOTP.length !== 6) {
+    if (codigo_jefe.length !== 6) {
         createToast(
             "error",
             "fa-solid fa-circle-exclamation",
@@ -532,13 +702,31 @@ async function verifyOTP() {
     }
     
     try {
-        const response = await fetch('/verify-falta-otp', {
+         const checkbox = otpModal.currentCheckbox;
+    const id_grupo = checkbox.getAttribute('data-id-grupo') || 
+                        checkbox.dataset.idGrupo || 
+                        checkbox.dataset.id_grupo;
+        
+        const id_horario = checkbox.dataset.id;
+
+        if (!id_grupo || id_grupo === 'undefined') {
+            console.error("No se pudo obtener id_grupo del checkbox:", checkbox);
+            throw new Error("No se pudo identificar el grupo para esta falta");
+        }
+
+
+
+        const response = await fetch('/verificar-codigo-jefe', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                otpCode: enteredOTP
+                codigo_jefe: codigo_jefe,
+                id_grupo: id_grupo ,
+                id_horario: id_horario,
+                validacion_falta: document.getElementById(`validacion_falta_${id_horario}`).checked,
+
             })
         });
         
@@ -549,7 +737,7 @@ async function verifyOTP() {
                 "error",
                 "fa-solid fa-circle-exclamation",
                 "Error",
-                data.message || "El código OTP ingresado no es válido."
+                data.message || "El código ingresado no es válido."
             );
         }
         
