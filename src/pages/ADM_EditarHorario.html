@@ -151,20 +151,21 @@
 		<div class="form-group">
 			<h3>Buscar horarios</h3>
 			<label for="grupo">Grupo:</label>
-			<select id="grupo" name="grupo">
-				<option selected disabled>Seleccione un grupo</option>
-				<!-- Opciones dinámicas -->
-			</select>
-			<label for="dia">Día:</label>
-			<select id="dia" name="dia">
-				<option selected disabled>Seleccione un día</option>
-				<option value="Lunes">Lunes</option>
-				<option value="Martes">Martes</option>
-				<option value="Miércoles">Miércoles</option>
-				<option value="Jueves">Jueves</option>
-				<option value="Viernes">Viernes</option>
-			</select>
-			<button id="btnBuscar">Buscar</button>
+<select id="grupo" name="grupo">
+    <option selected disabled>Seleccione un grupo</option>
+</select>
+
+<label for="dia">Día:</label>
+<select id="dia" name="dia">
+    <option selected disabled>Seleccione un día</option>
+    <option value="Lunes">Lunes</option>
+    <option value="Martes">Martes</option>
+    <option value="Miércoles">Miércoles</option>
+    <option value="Jueves">Jueves</option>
+    <option value="Viernes">Viernes</option>
+</select>
+
+<button id="btnBuscar">Buscar</button>
 		</div>
 	</section>
 
@@ -244,40 +245,36 @@
 		
 
     <!-- FORMULARIO DE EDICIÓN -->
-    <section id="formularioEdicion" class="hidden" >
-		<div class="form-group">
-			<h3>Editar horario seleccionado</h3>
-			<label for="grupo">Grupo:</label>
-			<select id="grupoEdicion" name="grupoEdicion">
-				<option disabled selected>Seleccione un grupo</option>
-				<!-- Opciones dinámicas -->
-			</select>
-			<label for="dia">Día:</label>
-			<select id="diaEdicion" name="diaEdicion">
-				<option disabled selected>Seleccione un día</option>
-				<option value="Lunes">Lunes</option>
-				<option value="Martes">Martes</option>
-				<option value="Miércoles">Miércoles</option>
-				<option value="Jueves">Jueves</option>
-				<option value="Viernes">Viernes</option>
-			</select>
-			<label for="salon">Salón:</label>
-			<select id="salon" name="salon">
-				<option disabled selected>Seleccione un salón</option>
-			</select>
-</select>
-			<label for="materia">Materia:</label>
-			<select id="materia" name="materia">
-				<option disabled selected>Seleccione una materia</option>
-			</select>
-			<label for="persona">Profesor:</label>
-			<select id="persona" name="persona">
-				<option disabled selected>Seleccione un profesor</option>
-			</select>
-			<input type="hidden" id="idHorario">
-			<button id="btnGuardar">Guardar Cambios</button>
-		</div>
-	</section>
+    <section id="formularioEdicion" class="hidden">
+  <div class="form-group">
+    <h3>Editar horario seleccionado</h3>
+
+	<p id="grupoTexto"><b>Grupo:</b> <span id="grupoLabel"></span></p>
+	<p id="diaTexto"><b>Día:</b> <span id="diaLabel"></span></p>
+
+
+    <label for="horaEdicion">Hora:</label>
+    <input type="text" id="horaEdicion" disabled class="input-disabled" style="background-color: #e9ecef; border-radius: 6px; border: 1px solid #ccc; padding: 10px;">
+
+    <label for="salon">Salón:</label>
+    <select id="salon" name="salon">
+      <option disabled selected>Seleccione un salón</option>
+    </select>
+
+    <label for="materia">Materia:</label>
+    <select id="materia" name="materia">
+      <option disabled selected>Seleccione una materia</option>
+    </select>
+
+    <label for="persona">Profesor:</label>
+    <select id="persona" name="persona">
+      <option disabled selected>Seleccione un profesor</option>
+    </select>
+
+    <input type="hidden" id="idHorario">
+    <button id="btnGuardar">Guardar Cambios</button>
+  </div>
+</section>
 
 
 </main>

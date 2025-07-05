@@ -102,8 +102,12 @@ async function filtrarHorarios(idContenedor) {
                         '${horario.id_materia}',
                         '${horario.id_persona}',
                         '${horario.nom_materia}',
-                        '${horario.nombre_completo}'
+                        '${horario.nombre_completo}',
+                        '${horario.hora_inicio}',
+                        '${horario.hora_final}',
+                        '${horario.nom_grupo}'
                     )">Editar</button>
+
                 </div>
             `;
             contenedorHorarios.appendChild(card);
@@ -130,25 +134,31 @@ async function obtenerOpcionesHorarios() {
     }
 }
 
-async function editarHorario(idHorario, idGrupo, dia, idSalon, idMateria, idPersona, nomMateria, nombreProfesor) {
+async function editarHorario(idHorario, idGrupo, dia, idSalon, idMateria, idPersona, nomMateria, nombreProfesor, horaInicio, horaFinal, nomGrupo) {
     document.getElementById('idHorario').value = idHorario;
 
     document.getElementById('formularioEdicion').classList.remove('hidden');
     document.getElementById('formularioEdicion').classList.add('visible');
 
+    document.getElementById('grupoLabel').innerText = nomGrupo || 'No definido';
+    document.getElementById('diaLabel').innerText = dia || 'No definido';
+    document.getElementById('horaEdicion').value = `${horaInicio || 'No definido'} - ${horaFinal || 'No definido'}`;
+
     await obtenerOpcionesHorarios();
 
-        const diaInput = document.getElementById('diaEdicion');
+    // Desactivar los selects de grupo y día para que no se puedan editar
+    const grupoEdicion = document.getElementById('grupoEdicion');
+    const diaEdicion = document.getElementById('diaEdicion');
+    if (grupoEdicion) grupoEdicion.disabled = true;
+    if (diaEdicion) diaEdicion.disabled = true;
+
     const salon = document.getElementById('salon');
     const materia = document.getElementById('materia');
     const persona = document.getElementById('persona');
 
-        diaInput.value = dia;
-    salon.value = idSalon;
-    materia.value = idMateria;
-    persona.value = idPersona;
-
-        diaInput.disabled = true;
+    salon.value = idSalon || '';
+    materia.value = idMateria || '';
+    persona.value = idPersona || '';
 
     horarioOriginal = {
         idSalon,
@@ -157,8 +167,9 @@ async function editarHorario(idHorario, idGrupo, dia, idSalon, idMateria, idPers
     };
 
     console.log(`📝 Editando horario:
-      Grupo: ${idGrupo},
+      Grupo: ${nomGrupo} (${idGrupo}),
       Día: ${dia},
+      Hora: ${horaInicio} - ${horaFinal},
       Salón: ${idSalon},
       Materia: ${nomMateria} (ID: ${idMateria}),
       Profesor: ${nombreProfesor} (ID: ${idPersona})`);
@@ -217,6 +228,8 @@ document.getElementById('btnGuardar').addEventListener('click', async (e) => {
 
         if (respuesta.ok) {
             createToast('correcto', 'fa-solid fa-circle-check', 'Actualizado', 'Horario actualizado correctamente.');
+        document.getElementById('formularioEdicion').classList.add('hidden');
+        document.getElementById('formularioEdicion').classList.remove('visible');
         } else {
             createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'No se pudo actualizar el horario.');
         }
@@ -225,4 +238,3 @@ document.getElementById('btnGuardar').addEventListener('click', async (e) => {
         createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Hubo un problema de conexión.');
     }
 });
-
