@@ -438,7 +438,13 @@ let todosLosHorarios = []; // Variable global para almacenar todos los horarios
 
 async function fetchHorarios() {
   try {
-    const response = await fetch("/api/horarios");
+
+     let url = "/api/horarios";
+    if (turnoSeleccionado) {
+      url += `?turno=${turnoSeleccionado}`;
+    }
+
+    const response = await fetch(url);
     if (!response.ok) throw new Error(`Error en la solicitud: ${response.status}`);
     
     todosLosHorarios = await response.json();
