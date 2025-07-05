@@ -138,20 +138,17 @@ async function editarHorario(idHorario, idGrupo, dia, idSalon, idMateria, idPers
 
     await obtenerOpcionesHorarios();
 
-    const grupo = document.getElementById('grupo');
-    const diaInput = document.getElementById('dia');
+        const diaInput = document.getElementById('diaEdicion');
     const salon = document.getElementById('salon');
     const materia = document.getElementById('materia');
     const persona = document.getElementById('persona');
 
-    grupo.value = idGrupo;
-    diaInput.value = dia;
+        diaInput.value = dia;
     salon.value = idSalon;
     materia.value = idMateria;
     persona.value = idPersona;
 
-    grupo.disabled = true;
-    diaInput.disabled = true;
+        diaInput.disabled = true;
 
     horarioOriginal = {
         idSalon,
@@ -228,3 +225,4 @@ document.getElementById('btnGuardar').addEventListener('click', async (e) => {
         createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Hubo un problema de conexión.');
     }
 });
+
