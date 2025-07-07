@@ -170,7 +170,8 @@ const protectedRoutesAdmin = [
     '/pages/ADM_datos.html',
     '/pages/ADM_consulta-datos.html',
     '/pages/registrar.html',
-    '/pages/ADM_jefegrupos.html'
+    '/pages/ADM_jefegrupos.html',
+    '/pages/ADM_IA.html'
 ];
 
 const protectedRoutesPrefecto = [
@@ -247,6 +248,10 @@ app.get('/pages/registrar.html', (req, res) => {
 
 app.get('/pages/ADM_jefegrupos.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'ADM_jefegrupos.html'));
+});
+
+app.get('/pages/ADM_IA.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'ADM_IA.html'));
 });
 
 // Rutas PREFECTO
@@ -752,7 +757,7 @@ app.post('/confirm-registration', async (req, res) => {
 app.get('/api/horarios', async (req, res) => {
     const diaActual = new Date().toLocaleDateString('es-MX', { weekday: 'long' });
     const diaCapitalizado = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
-    const diaPrueba = diaCapitalizado;
+    const diaPrueba = 'Lunes';
 
       const turno = req.query.turno;
     const fechaActual = new Date();
@@ -800,10 +805,8 @@ const periodo = (mes >= 8 || mes <= 1) ? 1 : 2;
                 g.nom_grupo,
                 s.id_salon,
                 g.id_turno,
-                t.nom_turno,
-                CASE WHEN a.id_asistencia IS NOT NULL THEN '✔' ELSE '' END AS asistencia,
-                CASE WHEN r.id_retardo IS NOT NULL THEN '✔' ELSE '' END AS retardo,
-                CASE WHEN f.id_falta IS NOT NULL THEN '✔' ELSE '' END AS falta
+                t.nom_turno
+             
             FROM
                 horario h
             INNER JOIN grupo g ON h.id_grupo = g.id_grupo
@@ -811,9 +814,6 @@ const periodo = (mes >= 8 || mes <= 1) ? 1 : 2;
             JOIN materia m ON h.id_materia = m.id_materia
             JOIN persona p ON h.id_persona = p.id_persona
             join turno t on g.id_turno = t.id_turno
-            LEFT JOIN asistencia a ON h.id_horario = a.id_horario
-            LEFT JOIN retardo r ON h.id_horario = r.id_horario
-            LEFT JOIN falta f ON h.id_horario = f.id_horario
             WHERE h.dia_horario = ? AND h.id_contenedor = ? AND h.id_escuela = ?
 `;
 
@@ -841,7 +841,7 @@ const periodo = (mes >= 8 || mes <= 1) ? 1 : 2;
 app.get('/api/horarios/:id', async (req, res) => {
     const id = req.params.id;
     const queryText = `
-          SELECT DISTINCT
+          SELECT 
                 h.id_horario,
                 h.dia_horario,
                 h.hora_inicio,
@@ -851,18 +851,14 @@ app.get('/api/horarios/:id', async (req, res) => {
                 g.sem_grupo,
                 g.nom_grupo,
                 s.id_salon,
-                CASE WHEN a.id_asistencia IS NOT NULL THEN '✔' ELSE '' END AS asistencia,
-                CASE WHEN r.id_retardo IS NOT NULL THEN '✔' ELSE '' END AS retardo,
-                CASE WHEN f.id_falta IS NOT NULL THEN '✔' ELSE '' END AS falta
+               
             FROM
                 horario h
             INNER JOIN grupo g ON h.id_grupo = g.id_grupo
             INNER JOIN salon s ON h.id_salon = s.id_salon
             JOIN materia m ON h.id_materia = m.id_materia
             JOIN persona p ON h.id_persona = p.id_persona
-            LEFT JOIN asistencia a ON h.id_horario = a.id_horario
-            LEFT JOIN retardo r ON h.id_horario = r.id_horario
-            LEFT JOIN falta f ON h.id_horario = f.id_horario
+         
         WHERE h.id_horario = ?;
     `;
 
@@ -890,7 +886,8 @@ app.post('/actualizarDatos', async function (req, res) {
 
     const { validacion_asistencia, validacion_retardo, validacion_falta, id_horario } = req.body;
 
-    console.log('El id del horario del checkbox es:', id_horario);
+    console.log('El id del horario del checkbox es:', req.body);
+
 
     try {
         // Insertar datos en la tabla asistencia
@@ -1221,7 +1218,7 @@ app.put('/api/editarsur/:id', async (req, res) => {
 app.get('/api/consulta', async (req, res) => {
     let idEscuela = req.session.id_escuela;
     const query = `
-        SELECT DISTINCT
+       SELECT 
             p.id_persona,
             CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
             g.nom_grupo AS grupo,
@@ -1229,12 +1226,16 @@ app.get('/api/consulta', async (req, res) => {
             h.dia_horario,
             h.hora_inicio,
             h.hora_final,
-            DATE_FORMAT(a.fecha_asistencia, '%d/%m/%y') AS fecha_asistencia, 
+           DATE_FORMAT(a.fecha_asistencia, '%Y-%m-%d') AS fecha_asistencia,
+DATE_FORMAT(r.fecha_retardo, '%Y-%m-%d') AS fecha_retardo,
+DATE_FORMAT(f.fecha_falta, '%Y-%m-%d') AS fecha_falta,
+
             a.validacion_asistencia AS asistencia,
             r.validacion_retardo AS retardo,
             f.validacion_falta AS falta,
             per.anio,
-            per.periodo
+            per.periodo,
+              (a.validacion_asistencia + r.validacion_retardo + f.validacion_falta) AS suma_validaciones
         FROM
             persona AS p
             JOIN horario AS h ON p.id_persona = h.id_persona
@@ -1246,10 +1247,13 @@ app.get('/api/consulta', async (req, res) => {
             LEFT JOIN retardo r ON h.id_horario = r.id_horario
             LEFT JOIN falta f ON h.id_horario = f.id_horario
         WHERE h.id_escuela = ?
+        AND date(a.fecha_asistencia) = date(r.fecha_retardo) AND date(a.fecha_asistencia) = date(f.fecha_falta)
         ORDER BY
+a.fecha_asistencia DESC,
             persona,
             dia_horario,
-            hora_inicio;
+            hora_inicio
+
     `;
 
     try {
@@ -1282,7 +1286,7 @@ app.get('/api/consulta', async (req, res) => {
 app.get('/api/consulta/:id', async (req, res) => {
     const id_persona = req.params.id;
     const query = `
-    SELECT DISTINCT
+    SELECT 
     p.id_persona,
     CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
     g.nom_grupo AS grupo,
@@ -1894,10 +1898,7 @@ app.get('/api/filtros', async (req, res) => {
     g.sem_grupo,
     g.nom_grupo,
     s.id_salon,
-    a.fecha_asistencia AS fecha_asistencia,
-    a.validacion_asistencia AS asistencia,
-    r.validacion_retardo AS retardo,
-    f.validacion_falta AS falta,
+   
     per.anio,
     per.periodo
 FROM
@@ -1906,9 +1907,7 @@ FROM
     INNER JOIN salon s ON h.id_salon = s.id_salon
     JOIN materia m ON h.id_materia = m.id_materia
     JOIN persona p ON h.id_persona = p.id_persona
-    LEFT JOIN asistencia a ON h.id_horario = a.id_horario
-    LEFT JOIN retardo r ON h.id_horario = r.id_horario
-    LEFT JOIN falta f ON h.id_horario = f.id_horario
+   
     JOIN contenedor c ON h.id_contenedor = c.id_contenedor
     JOIN periodos per ON c.id_periodo = per.id_periodo
 WHERE h.id_escuela = ?
@@ -3555,10 +3554,13 @@ app.post('/verificar-codigo-jefe', async (req, res) => {
     console.log("ID de grupo recibido para falta:", id_grupo);
     console.log("ID de horario recibido para falta:", id_horario);
 
-    const [codigoFila] = await conexion.promise().query('SELECT codigo_jefe FROM jefegrupo WHERE id_grupo = ?', [id_grupo]);
-if (!codigoFila || codigoFila.codigo_jefe !== codigo_jefe){
-        return res.status(404).json({ success: false, message: 'Código de jefe no valido.' });
-    }
+   const [resultados] = await conexion.promise().query('SELECT codigo_jefe FROM jefegrupo WHERE id_grupo = ?', [id_grupo]);
+console.log("Código de jefe encontrado en la base de datos:", resultados);
+
+// Verificar si hay resultados y extraer el código
+if (resultados.length === 0 || resultados[0].codigo_jefe !== codigo_jefe) {
+    return res.status(404).json({ success: false, message: 'Código de jefe no válido.' });
+}
 
     try {
         // Si el OTP es correcto, procedemos a registrar la falta
@@ -3805,3 +3807,6 @@ app.listen(app.get("port"), () => {
     console.log(`PUERTO:`, app.get("port"));
     console.log(`Server en http://localhost:${app.get("port")}`);
 });
+
+
+

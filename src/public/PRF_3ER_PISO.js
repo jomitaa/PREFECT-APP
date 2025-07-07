@@ -499,7 +499,7 @@ function filtrarPorTurno(turnoId) {
 
 
     const horariosSemestre2 = horarios.filter(
-      (horario) => horario.sem_grupo === 4
+      (horario) => horario.sem_grupo === 6
     );
 
     horariosSemestre2.forEach((horario) => {
