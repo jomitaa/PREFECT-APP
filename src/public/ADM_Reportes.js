@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             "Error",
             `Hubo un problema al cargar los filtros.`
           );
+        ocultarLoader();
         console.error('Error al cargar los filtros:', error);
     }
 });
@@ -280,6 +281,13 @@ function cargarReportes() {
 
  // Función para mostrar los datos de la consulta en la tabla
  function mostrar(consulta) {
+    console.log("Mostrando reportes:", consulta);
+    if (!Array.isArray(consulta) || consulta.length === 0) {
+        console.warn("No hay reportes para mostrar");
+        contenedor.innerHTML = '<li>No se encontraron reportes.</li>';
+        return;
+    }
+
      console.log("Mostrando usuarios:", consulta);
      resultados = '';
     /*
@@ -320,7 +328,7 @@ function cargarReportes() {
                     <span>Por: ${reporte.nom_usuario}</span>
                     <span>${new Date(reporte.fecha_reporte).toLocaleDateString()}</span>
                 </div>
-            </li>
+                </li>
         `;
     });
 
@@ -376,6 +384,7 @@ function cargarReportes() {
                  "Aguas",
                  "No se encontraron horarios que coincidan con los filtros seleccionados."
              );
+        ocultarLoader();
              return; 
          }
  
@@ -388,6 +397,7 @@ function cargarReportes() {
              "Error",
              "Hubo un problema al cargar los horarios."
          );
+        ocultarLoader();
          document.getElementById("horario").innerHTML =
              '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
      }
@@ -454,6 +464,7 @@ function cargarReportes() {
 
 async function abrirModal(reporteId) {
     try {
+        mostrarLoader();
         const response = await fetch(`/obtenerReporte/${reporteId}`);
         const reporte = await response.json();
         
@@ -462,14 +473,30 @@ async function abrirModal(reporteId) {
         }
 
         const modal = document.getElementById('modal-reporte');
-        const modalContent = document.querySelector('.modal-content');
-
+        
+        // Llenar los campos del modal
         document.getElementById('modal-id-reporte').value = reporte.id_reporte;
         document.getElementById('modal-tipo-reporte').value = reporte.tipo_reporte.toString();
+
+// Mostrar tipo de reporte visual arriba del select
+const tipoSelect = document.getElementById('modal-tipo-reporte');
+const oldTipo = document.querySelector('.tipo-reporte-display');
+if (oldTipo) oldTipo.remove();
+const tipoVisual = document.createElement('div');
+tipoVisual.className = 'tipo-reporte-display';
+
+let tipoTexto = "";
+if (tipoSelect && tipoSelect.options.length > 0 && tipoSelect.selectedIndex >= 0) {
+    tipoTexto = tipoSelect.options[tipoSelect.selectedIndex].text;
+} else {
+    tipoTexto = "Sin tipo de reporte asignado";
+}
+
+tipoVisual.textContent = `Tipo de Reporte: ${tipoTexto}`;
+tipoSelect.parentElement.insertBefore(tipoVisual, tipoSelect);
+
         document.getElementById('modal-nom-usuario').value = reporte.nom_usuario;
         document.getElementById('modal-descripcion').value = reporte.descripcion;
-
-        console.log('Datos del reporte:', reporte);
 
         // Manejar imagen
         const imagenContainer = document.getElementById('modal-imagen-container');
@@ -482,38 +509,38 @@ async function abrirModal(reporteId) {
             const imgElement = document.createElement('img');
             imgElement.src = reporte.ruta_imagen;
             imgElement.alt = `Evidencia del reporte ${reporte.id_reporte}`;
-            
             imgDiv.appendChild(imgElement);
             imagenContainer.appendChild(imgDiv);
+
+    // Agregar botones dentro del modal justo debajo de la imagen
+    const actions = document.createElement("div");
+    actions.className = "modal-actions";
+
+    const btnEliminar = document.createElement("button");
+    btnEliminar.className = "btn-delete";
+    btnEliminar.type = "button";
+    btnEliminar.innerHTML = '<i class="fas fa-trash"></i> Eliminar';
+    btnEliminar.onclick = () => confirmarEliminacion(reporte.id_reporte);
+    actions.appendChild(btnEliminar);
+
+    const btnGuardar = document.createElement("button");
+    btnGuardar.className = "btn-save";
+    btnGuardar.type = "submit";
+    btnGuardar.form = "form-editar-reporte";
+    btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar';
+    actions.appendChild(btnGuardar);
+
+    imagenContainer.appendChild(actions);
+
         }
 
-        // Mostrar botones de acción
-        const actionButtons = document.createElement('div');
-        actionButtons.className = 'modal-actions';
-        
-        // Botón Eliminar
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'btn-delete';
-        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar';
-        deleteBtn.onclick = () => confirmarEliminacion(reporte.id_reporte, reporte.cloudinary_public_id);
-        
-        // Botón Guardar
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'btn-save';
-        saveBtn.type = 'submit';
-        saveBtn.innerHTML = '<i class="fas fa-save"></i> Guardar';
-        
-        actionButtons.appendChild(deleteBtn);
-        actionButtons.appendChild(saveBtn);
-        imagenContainer.appendChild(actionButtons);
-
-        // Mostrar modal con animación
-        modal.style.display = "block";
+        // Mostrar modal
+        modal.style.display = "flex";
         setTimeout(() => {
             modal.classList.add('show');
-            modalContent.style.top = "50%";
-        }, 50);
-
+        }, 10);
+        
+        ocultarLoader();
     } catch (error) {
         console.error('Error:', error);
         createToast(
@@ -522,6 +549,7 @@ async function abrirModal(reporteId) {
             "Error",
             error.message || "Error al cargar el reporte"
         );
+        ocultarLoader();
     }
 }
 
@@ -536,6 +564,7 @@ function confirmarEliminacion(reporteId, publicId) {
 
 // Función para eliminar reporte
 async function eliminarReporte(reporteId, publicId) {
+    mostrarLoader();
     try {
         const response = await fetch(`/eliminarReporte/${reporteId}`, {
             method: 'DELETE',
@@ -546,12 +575,14 @@ async function eliminarReporte(reporteId, publicId) {
         const data = await response.json();
 
         if (data.success) {
-            createToast(
-                "success",
+            createToast("success",
                 "fa-solid fa-check-circle",
                 "Éxito",
                 "Reporte eliminado correctamente"
             );
+            ocultarLoader();
+            cerrarModal();
+            ocultarLoader();
             cerrarModal();
             fetchReportes(); // Recargar la lista
         } else {
@@ -565,11 +596,14 @@ async function eliminarReporte(reporteId, publicId) {
             "Error",
             error.message || "Error al eliminar el reporte"
         );
+        ocultarLoader();
+        ocultarLoader();
     }
 }
 
 // Manejar la actualización del reporte
 document.getElementById('form-editar-reporte').addEventListener('submit', async function (event) {
+    mostrarLoader();
     event.preventDefault();
 
     const id_reporte = document.getElementById('modal-id-reporte').value;
@@ -588,12 +622,13 @@ document.getElementById('form-editar-reporte').addEventListener('submit', async 
         const data = await response.json();
 
         if (data.success) {
-            createToast(
-                "success",
+            createToast("success",
                 "fa-solid fa-check-circle",
                 "Éxito",
                 "Reporte actualizado correctamente"
             );
+            cerrarModal();
+            ocultarLoader();
             cerrarModal();
             fetchReportes(); // Recargar la lista
         } else {
@@ -607,18 +642,34 @@ document.getElementById('form-editar-reporte').addEventListener('submit', async 
             "Error",
             error.message || "Error al actualizar el reporte"
         );
+        ocultarLoader();
     }
 });
 
+
 function cerrarModal() {
     const modal = document.getElementById('modal-reporte');
-    const modalContent = document.querySelector('.modal-content');
-
-    // Subir el modal antes de ocultarlo
-    modalContent.style.top = "-100%"; 
-
+    
+    // Eliminar el display del tipo de reporte si existe
+    const tipoDisplay = document.querySelector('.tipo-reporte-display');
+    if (tipoDisplay) {
+        tipoDisplay.remove();
+    }
+    
+    // Primero quitamos la clase show para la animación
+    modal.classList.remove('show');
+    
+    // Esperamos a que termine la animación antes de ocultar completamente
     setTimeout(() => {
-        modal.style.display = "none"; 
-        modal.classList.remove('show'); 
-    }, 500); // Esperar la animación antes de ocultar
+        modal.style.display = "none";
+    }, 300);
+}
+
+
+function mostrarLoader() {
+    document.getElementById("modal-loader").style.display = "flex";
+}
+
+function ocultarLoader() {
+    document.getElementById("modal-loader").style.display = "none";
 }
