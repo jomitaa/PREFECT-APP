@@ -481,7 +481,7 @@ main .breadcrumbs li.divider {
 }
 
 /* Contenedor del modal */
-#content main .modal-content {
+#content main .modal-dialog {
     position: absolute;
     top: -100%;  /* Inicia fuera de la pantalla */
     left: 50%;
@@ -496,7 +496,7 @@ main .breadcrumbs li.divider {
 }
 
 
-#content main .modal.show .modal-content {
+#content main .modal.show .modal-dialog {
     top: 50%; 
 }
 
@@ -1029,7 +1029,7 @@ main .breadcrumbs li.divider {
     overflow-y: auto;
 }
 
-.modal-content {
+.modal-dialog {
     background-color: #fefefe;
     margin: 5% auto;
     padding: 24px;
@@ -1151,4 +1151,8 @@ main .breadcrumbs li.divider {
 
 .modal-buttons button.secondary:hover {
     background-color: #f5f7fa;
+}
+#modal-reporte.show {
+    display: block !important;
+    z-index: 2000;
 }

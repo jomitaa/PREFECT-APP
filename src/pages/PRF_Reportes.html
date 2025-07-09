@@ -67,64 +67,55 @@
 
 		<!-- MAIN -->
 		<main>
-			<h1 class="title">Prefect APP</h1>
-			<ul class="breadcrumbs">
-				<li><a href="#">P.A</a></li>
-				<li>/</li>
-				<li>Inicio</li>
-
-			</ul>
-			<div class="info-data">
-    <div class="table-data">
-        <div class="order">
-            <div class="head">
-                <h3>Hacer Reporte</h3>
+  <div class=\"formulario-reportes\">
+    <div class="container-form">
+        <div class="information">
+            <div class="info-childs">
+                <h2>Hacer Reporte</h2>
+                <p>Llena el formulario para reportar incidencias o actividades</p>
             </div>
-            <form class="form form-register" id="form-reporte" enctype="multipart/form-data">
-                <div>
-                    <label>
-                        <i class="bx bxs-file"></i>
-                        <select name="tipo-reporte" id="tipo-reporte" placeholder="Tipo Reporte" required>
-                            <option disabled selected>Seleccione el tipo de Reporte:</option>
-                            <option value="1">Reportes Académicos</option>
-                            <option value="2">Reportes de Asistencia</option>
-                            <option value="3">Reportes Administrativos</option>
-                            <option value="4">Reportes de Actividades</option>
-                            <option value="5">Reportes de Evaluación</option>
-                            <option value="6">Reportes de Seguridad</option>
-                            <option value="7">Reportes de Mantenimiento</option>
-                        </select>
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <i class='bx bx-note'></i>
-                        <textarea id="detalle-reporte" name="detalle-reporte" rows="5" placeholder="Ingrese aquí el detalle del reporte..." required></textarea>
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <i class='bx bx-image-add'></i>
-                        <div class="file-input-container">
-                            <input type="file" id="evidencia" name="evidencia" accept="image/*" class="file-input">
-                            <label for="evidencia" class="file-input-label">
-                                <span id="file-name">Subir imagen de evidencia (opcional)</span>
-                                <i class='bx bx-upload'></i>
-                            </label>
-                        </div>
-                        <small class="form-text">Formatos aceptados: JPG, PNG, etc. (Máx. 10MB)</small>
-                    </label>
-                </div>
-                <div id="imagen-preview" style="margin-top: 10px;"></div>
-                <input type="submit" value="Registrar Reporte">
-                <div class="alerta-error">Todos los campos son obligatorios</div>
-                <div class="alerta-exito">Se registró correctamente el Reporte</div>
-            </form>                        
+        </div>
+        <div class="form-information">
+            <div class="form-information-childs">
+                <h2>Formulario</h2>
+                <form id="form-reporte" class="form" enctype="multipart/form-data">
+                    <div>
+                        <label>
+                            <i class="bx bxs-file"></i>
+                            <select name="tipo-reporte" id="tipo-reporte" required>
+                                <option disabled selected>Seleccione el tipo de Reporte:</option>
+                                <option value="1">Reportes Académicos</option>
+                                <option value="2">Reportes de Asistencia</option>
+                                <option value="3">Reportes Administrativos</option>
+                                <option value="4">Reportes de Actividades</option>
+                                <option value="5">Reportes de Evaluación</option>
+                                <option value="6">Reportes de Seguridad</option>
+                                <option value="7">Reportes de Mantenimiento</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <i class='bx bx-note'></i>
+                            <textarea id="detalle-reporte" name="detalle-reporte" rows="4" placeholder="Ingrese aquí el detalle del reporte..." required></textarea>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <i class='bx bx-image-add'></i>
+                            <input type="file" id="evidencia" name="evidencia" accept="image/*">
+                        </label>
+                    </div>
+                    <div id="imagen-preview" style="margin-top: 10px;"></div>
+                    <input type="submit" value="Registrar Reporte">
+                    <div class="alerta-error">Todos los campos son obligatorios</div>
+                    <div class="alerta-exito">Se registró correctamente el Reporte</div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-
-		</main>
+  </div>
+</main>
 		<!-- MAIN -->
 	</section>
 	<!-- NAVBAR -->
@@ -310,8 +301,41 @@
 			}
 		})
 
+	const profileImage = document.querySelector('.profile img');
+  	const dropdown = document.querySelector('.profile-link');
 
+  	profileImage?.addEventListener('click', () => {
+    	dropdown?.classList.toggle('show');
+  	});
 	</script>
+
+<script>
+  // SIDEBAR desplegable
+  document.querySelector('.toggle-sidebar')?.addEventListener('click', () => {
+    document.querySelector('#sidebar')?.classList.toggle('hide');
+  });
+
+  // Perfil desplegable
+  const profileImg = document.querySelector('.profile img');
+  const profileMenu = document.querySelector('.profile-link');
+  profileImg?.addEventListener('click', () => {
+    profileMenu?.classList.toggle('show');
+  });
+
+  // Cerrar menú de perfil al hacer clic fuera
+  window.addEventListener('click', function (e) {
+    if (!e.target.closest('.profile')) {
+      profileMenu?.classList.remove('show');
+    }
+  });
+
+  // Funcionalidad de cerrar sesión
+  document.querySelector('.cerrar-sesion')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    alert('Sesión cerrada correctamente');
+    window.location.href = '/login'; // Actualiza esta ruta según corresponda
+  });
+</script>
 </body>
 
-</html>
+</html>	
