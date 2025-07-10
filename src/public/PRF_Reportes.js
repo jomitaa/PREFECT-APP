@@ -1,64 +1,397 @@
-document.getElementById('form-reporte').addEventListener('submit', async function(event) {
-  event.preventDefault();
-  
-  const tipo_reporte = document.getElementById('tipo-reporte').value;
-  const detalle_reporte = document.getElementById('detalle-reporte').value;
-  const inputImagen = document.getElementById('evidencia');
-  const imagen = inputImagen.files[0];
+<!DOCTYPE html>
+<html lang="en">
 
-  // Validación básica
-  if (!tipo_reporte || !detalle_reporte) {
-    document.querySelector('.alerta-error').style.display = 'block';
-    return;
-  }
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="/css/PRF_Reportes.css">
+	<title>Prefect App 1.1</title>
+</head>
 
-  try {
-    // Obtener datos del usuario desde la sesión
-    const response = await fetch('/obtenerUsuario', {
-      method: 'GET',
-      credentials: 'include'
-    });
-    
-    const data = await response.json();
-    const id_usuario = data.ID_usuario;
-    const nom_usuario = data.nom_usuario;
-    const id_escuela = data.id_escuela;
+<body>
 
-    // Crear FormData para enviar la imagen
-    const formData = new FormData();
-    formData.append('id_tiporeporte', tipo_reporte);
-    formData.append('descripcion', detalle_reporte);
-    formData.append('ID_usuario', id_usuario);
-    formData.append('nom_usuario', nom_usuario);
-    formData.append('id_escuela', id_escuela);
-    
-    if (imagen) {
-      formData.append('evidencia', imagen);
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<a href="#" class="brand"><i class='bx bxs-parking icon'></i> PREFECT APP</a>
+		<ul class="side-menu">
+			<li><a href="#" class="active"><i class='bx bxs-dashboard icon'></i> PREFECTO</a></li><br>
+
+			<li><a href="./PRF_menu.html" class=""><i class='bx bx-table icon'></i> Inicio</a></li>
+
+			<li class="divider" data-text="Asistencias"></li>
+			<li>
+				<a href="#" class=""><i class='bx bxs-inbox icon'></i> Horarios <i
+						class='bx bx-chevron-right icon-right'></i></a>
+				<ul class="side-dropdown">
+					<li><a href="./PRF_1ER_PISO.html">1er Piso</a></li>
+					<li><a href="./PRF_2DO_PISO.html">2do Piso</a></li>
+					<li><a href="./PRF_3ER_PISO.html">3er Piso</a></li>
+				</ul>
+			</li>
+
+			<li class="divider" data-text="Reportes"></li>
+			<li><a class="active" href="./PRF_Reportes.html"><i class='bx bx-table icon'></i> Hacer Reporte</a></li>
+
+		</ul>
+
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- NAVBAR -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu toggle-sidebar'></i>
+
+			<form action="#">
+				<div class="form-group">
+					
+				</div>
+			</form>
+
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+			
+
+			<span class="divider"></span>
+			<div class="profile">
+				<img src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png" alt="">
+				<ul class="profile-link">
+					<li><a href="#"><i class='bx bxs-user-circle icon'></i> Perfil</a></li>
+					<li><a href="#" onclick="cerrarSesion()"><i class='bx bxs-log-out-circle'></i> Cerrar Sesión</a></li>
+				</ul>
+			</div>
+		</nav>
+		<!-- NAVBAR -->
+
+		<!-- MAIN -->
+		<main>
+  <div class=\"formulario-reportes\">
+    <div class="container-form">
+        <div class="information">
+            <div class="info-childs">
+                <h2>Hacer Reporte</h2>
+                <p>Llena el formulario para reportar incidencias o actividades</p>
+            </div>
+        </div>
+        <div class="form-information">
+            <div class="form-information-childs">
+                <h2>Formulario</h2>
+                <form id="form-reporte" class="form" enctype="multipart/form-data">
+                    <div>
+                        <label>
+                            <i class="bx bxs-file"></i>
+                            <select name="tipo-reporte" id="tipo-reporte" required>
+                                <option disabled selected>Seleccione el tipo de Reporte:</option>
+                                <option value="1">Reportes Académicos</option>
+                                <option value="2">Reportes de Asistencia</option>
+                                <option value="3">Reportes Administrativos</option>
+                                <option value="4">Reportes de Actividades</option>
+                                <option value="5">Reportes de Evaluación</option>
+                                <option value="6">Reportes de Seguridad</option>
+                                <option value="7">Reportes de Mantenimiento</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <i class='bx bx-note'></i>
+                            <textarea id="detalle-reporte" name="detalle-reporte" rows="4" placeholder="Ingrese aquí el detalle del reporte..." required></textarea>
+                        </label>
+                    </div>
+                    <div>
+                        <label>
+                            <i class='bx bx-image-add'></i>
+                            <input type="file" id="evidencia" name="evidencia" accept="image/*">
+                        </label>
+                    </div>
+                    <div id="imagen-preview" style="margin-top: 10px;"></div>
+                    <input type="submit" value="Registrar Reporte">
+                    <div class="alerta-error">Todos los campos son obligatorios</div>
+                    <div class="alerta-exito">Se registró correctamente el Reporte</div>
+                </form>
+            </div>
+        </div>
+    </div>
+  </div>
+</main>
+		<!-- MAIN -->
+	</section>
+	<!-- NAVBAR -->
+    <script src="/PRF_Reportes.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script>
+
+		function cerrarSesion() {
+			// Envía una solicitud al servidor para cerrar la sesión
+			fetch('/logout', {
+				method: 'POST',
+				credentials: 'same-origin' // Incluye las cookies en la solicitud
+			})
+				.then(response => {
+					// Si la solicitud fue exitosa, redirige al usuario a la página de inicio
+					if (response.ok) {
+						window.location.href = '/'; // Cambia esto según la ruta de tu página de inicio
+					} else {
+						console.error('Error al cerrar sesión:', response.statusText);
+					}
+				})
+				.catch(error => {
+					console.error('Error al cerrar sesión:', error);
+				});
+		}
+
+		// SIDEBAR DROPDOWN
+		const allDropdown = document.querySelectorAll('#sidebar .side-dropdown');
+		const sidebar = document.getElementById('sidebar');
+
+		allDropdown.forEach(item => {
+			const a = item.parentElement.querySelector('a:first-child');
+			a.addEventListener('click', function (e) {
+				e.preventDefault();
+
+				if (!this.classList.contains('active')) {
+					allDropdown.forEach(i => {
+						const aLink = i.parentElement.querySelector('a:first-child');
+
+						aLink.classList.remove('active');
+						i.classList.remove('show');
+					})
+				}
+
+				this.classList.toggle('active');
+				item.classList.toggle('show');
+			})
+		})
+
+
+
+
+
+		// SIDEBAR COLLAPSE
+		const toggleSidebar = document.querySelector('nav .toggle-sidebar');
+		const allSideDivider = document.querySelectorAll('#sidebar .divider');
+
+		if (sidebar.classList.contains('hide')) {
+			allSideDivider.forEach(item => {
+				item.textContent = '-'
+			})
+			allDropdown.forEach(item => {
+				const a = item.parentElement.querySelector('a:first-child');
+				a.classList.remove('active');
+				item.classList.remove('show');
+			})
+		} else {
+			allSideDivider.forEach(item => {
+				item.textContent = item.dataset.text;
+			})
+		}
+
+		toggleSidebar.addEventListener('click', function () {
+			sidebar.classList.toggle('hide');
+
+			if (sidebar.classList.contains('hide')) {
+				allSideDivider.forEach(item => {
+					item.textContent = '-'
+				})
+
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+			} else {
+				allSideDivider.forEach(item => {
+					item.textContent = item.dataset.text;
+				})
+			}
+		})
+
+
+
+
+		sidebar.addEventListener('mouseleave', function () {
+			if (this.classList.contains('hide')) {
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+				allSideDivider.forEach(item => {
+					item.textContent = '-'
+				})
+			}
+		})
+
+
+
+		sidebar.addEventListener('mouseenter', function () {
+			if (this.classList.contains('hide')) {
+				allDropdown.forEach(item => {
+					const a = item.parentElement.querySelector('a:first-child');
+					a.classList.remove('active');
+					item.classList.remove('show');
+				})
+				allSideDivider.forEach(item => {
+					item.textContent = item.dataset.text;
+				})
+			}
+		})
+
+
+
+
+		// PROFILE DROPDOWN
+		const profile = document.querySelector('nav .profile');
+		const imgProfile = profile.querySelector('img');
+		const dropdownProfile = profile.querySelector('.profile-link');
+
+		imgProfile.addEventListener('click', function () {
+			dropdownProfile.classList.toggle('show');
+		})
+
+
+
+
+		// MENU
+		const allMenu = document.querySelectorAll('main .content-data .head .menu');
+
+		allMenu.forEach(item => {
+			const icon = item.querySelector('.icon');
+			const menuLink = item.querySelector('.menu-link');
+
+			icon.addEventListener('click', function () {
+				menuLink.classList.toggle('show');
+			})
+		})
+
+
+
+		window.addEventListener('click', function (e) {
+			if (e.target !== imgProfile) {
+				if (e.target !== dropdownProfile) {
+					if (dropdownProfile.classList.contains('show')) {
+						dropdownProfile.classList.remove('show');
+					}
+				}
+			}
+
+			allMenu.forEach(item => {
+				const icon = item.querySelector('.icon');
+				const menuLink = item.querySelector('.menu-link');
+
+				if (e.target !== icon) {
+					if (e.target !== menuLink) {
+						if (menuLink.classList.contains('show')) {
+							menuLink.classList.remove('show')
+						}
+					}
+				}
+			})
+		})
+
+		const switchMode = document.getElementById('switch-mode');
+
+		switchMode.addEventListener('change', function () {
+			if (this.checked) {
+				document.body.classList.add('dark');
+			} else {
+				document.body.classList.remove('dark');
+			}
+		})
+
+	const profileImage = document.querySelector('.profile img');
+  	const dropdown = document.querySelector('.profile-link');
+
+  	profileImage?.addEventListener('click', () => {
+    	dropdown?.classList.toggle('show');
+  	});
+	</script>
+
+<script>
+  // SIDEBAR desplegable
+  document.querySelector('.toggle-sidebar')?.addEventListener('click', () => {
+    document.querySelector('#sidebar')?.classList.toggle('hide');
+  });
+
+  // Perfil desplegable
+  const profileImg = document.querySelector('.profile img');
+  const profileMenu = document.querySelector('.profile-link');
+  profileImg?.addEventListener('click', () => {
+    profileMenu?.classList.toggle('show');
+  });
+
+  // Cerrar menú de perfil al hacer clic fuera
+  window.addEventListener('click', function (e) {
+    if (!e.target.closest('.profile')) {
+      profileMenu?.classList.remove('show');
     }
+  });
 
-    // Enviar el reporte
-    const result = await fetch('/agregarReporte', {
-      method: 'POST',
-      body: formData,
-      credentials: 'include'
-    });
+  // Funcionalidad de cerrar sesión
+  document.querySelector('.cerrar-sesion')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    alert('Sesión cerrada correctamente');
+    window.location.href = '/login'; // Actualiza esta ruta según corresponda
+  });
+</script>
 
-    const resultData = await result.json();
-    
-    if (resultData.success) {
-      document.querySelector('.alerta-exito').style.display = 'block';
-      document.getElementById('form-reporte').reset();
-      
-      // Opcional: Mostrar vista previa de la imagen subida
-      if (resultData.imageUrl) {
-        const previewDiv = document.getElementById('imagen-preview');
-        previewDiv.innerHTML = `<img src="${resultData.imageUrl}" alt="Evidencia del reporte" style="max-width: 200px; margin-top: 10px;">`;
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.getElementById('sidebar');
+  const toggleSidebar = document.querySelector('.toggle-sidebar');
+  const allSideDivider = document.querySelectorAll('#sidebar .divider');
+  const allDropdown = document.querySelectorAll('#sidebar .side-dropdown');
+
+  // Mostrar/Ocultar submenús
+  allDropdown.forEach(item => {
+    const a = item.parentElement.querySelector('a:first-child');
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (!this.classList.contains('active')) {
+        allDropdown.forEach(i => {
+          const aLink = i.parentElement.querySelector('a:first-child');
+          aLink.classList.remove('active');
+          i.classList.remove('show');
+        });
       }
+      this.classList.toggle('active');
+      item.classList.toggle('show');
+    });
+  });
+
+  // Sidebar collapse
+  toggleSidebar?.addEventListener('click', () => {
+    sidebar.classList.toggle('hide');
+
+    if (sidebar.classList.contains('hide')) {
+      allSideDivider.forEach(item => item.textContent = '-');
+      allDropdown.forEach(item => {
+        const a = item.parentElement.querySelector('a:first-child');
+        a.classList.remove('active');
+        item.classList.remove('show');
+      });
     } else {
-      alert('Hubo un error al agregar el reporte: ' + (resultData.message || 'Error desconocido'));
+      allSideDivider.forEach(item => item.textContent = item.dataset.text);
     }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('Hubo un error en la comunicación con el servidor');
-  }
+  });
+
+  sidebar?.addEventListener('mouseenter', () => {
+    if (sidebar.classList.contains('hide')) {
+      allSideDivider.forEach(item => item.textContent = item.dataset.text);
+    }
+  });
+
+  sidebar?.addEventListener('mouseleave', () => {
+    if (sidebar.classList.contains('hide')) {
+      allSideDivider.forEach(item => item.textContent = '-');
+    }
+  });
 });
+</script>
+
+</body>
+
+</html>	
