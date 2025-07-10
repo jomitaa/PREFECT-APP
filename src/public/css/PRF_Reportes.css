@@ -19,6 +19,10 @@
 	--light-blue: #D0E4FF;
 	--dark-blue: #0C5FCD;
 	--red: #FC3B56;
+	--yellow: #FFCE26;
+	--light-yellow: #FFF2C6;
+	--orange: #FD7238;
+	--light-orange: #FFE0D3;
 }
 
 html {
@@ -68,9 +72,12 @@ li {
 	scrollbar-width: none;
 	transition: all .3s ease;
 	z-index: 200;
+  width: 260px; /* Ancho cuando está expandido */
+  transition: all 0.3s ease;
 }
 #sidebar.hide {
 	max-width: 60px;
+  overflow: hidden;
 }
 #sidebar.hide:hover {
 	max-width: 260px;
@@ -111,6 +118,10 @@ li {
 }
 #sidebar.hide .side-menu {
 	padding: 0 6px;
+}
+#sidebar.hide .brand,
+#sidebar.hide .side-menu li a .icon {
+    justify-content: center; /* Centra íconos cuando está contraído */
 }
 #sidebar.hide:hover .side-menu {
 	padding: 0 20px;
@@ -202,6 +213,10 @@ li {
 }
 #sidebar .ads .wrapper p span {
 	font-weight: 700;
+}
+#sidebar.hide .side-menu li a span,
+#sidebar.hide .divider {
+    display: none; /* Oculta textos e íconos laterales */
 }
 /* SIDEBAR */
 
@@ -357,7 +372,7 @@ nav .profile .profile-link a:hover {
 	position: absolute;
 	top: 2px;
 	left: 2px;
-	bottom: 2px;
+	bottom: 2px; 
 	width: calc(25px - 4px);
 	background: var(--blue);
 	border-radius: 50%;
@@ -376,6 +391,7 @@ nav .profile .profile-link a:hover {
 main {
 	width: 100%;
 	padding: 24px 20px 20px 20px;
+	height: 100vh;
 }
 main .title {
 	font-size: 28px;
@@ -398,918 +414,807 @@ main .breadcrumbs li.divider {
 	color: var(--dark-grey);
 	pointer-events: none;
 }
-main .info-data {
-	margin-top: 36px;
+
+#content main .box-info {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-	grid-gap: 20px;
+	grid-gap: 24px;
+	margin-top: 36px;
 }
-
-
-/* MAIN */
-/* CONTENT */
-
-.info-data,
-#formularioEdicion {
-	background-color: var(--light);
-	border-radius: 16px;
-	padding: 20px;
-	margin-top: 20px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-	transition: all 0.3s ease;
-}
-
-.hidden {
-    display: none;
-}
-
-/* Clase que muestra el formulario */
-.visible {
-    display: block;
-}
-
-.info-data label,
-label {
-	font-weight: 600;
-	color: var(--dark);
-	display: block;
-	margin-top: 16px;
-	margin-bottom: 6px;
-}
-
-.info-data select,
-#formularioEdicion select {
-	width: 100%;
-	padding: 10px 12px;
-	border: 1px solid var(--dark-grey);
-	border-radius: 10px;
-	background-color: var(--grey);
-	color: var(--dark);
-	font-size: 14px;
-	transition: all 0.2s ease;
-}
-
-.info-data select:focus,
-#formularioEdicion select:focus {
-	border-color: var(--blue);
-	box-shadow: 0 0 0 2px var(--light-blue);
-	outline: none;
-}
-
-#btnBuscar,
-#btnGuardar {
-	margin-top: 20px;
-	padding: 12px 20px;
-	border: none;
-	border-radius: 10px;
-	background-color: var(--blue);
-	color: var(--light);
-	font-size: 14px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-#btnBuscar:hover,
-#btnGuardar:hover {
-	background-color: var(--dark-blue);
-	transform: scale(1.03);
-}
-
-#btnBuscar:active,
-#btnGuardar:active {
-	transform: scale(0.98);
-}
-
-.table-data h3,
-#formularioEdicion h3 {
-	margin-top: 30px;
-	font-size: 22px;
-	color: var(--blue);
-}
-
-/* Contenedor de "Editar horario seleccionado" */
-#formularioEdicion {
-	background-color: #FFFFFF;
-	border-radius: 16px;
-	padding: 20px;
-	margin-top: 40px;
-	/* Asegura que haya espacio encima del formulario */
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-#formularioEdicion h3 {
-	font-size: 22px;
-	color: #0838B4;
-	margin-bottom: 16px;
-	text-align: center;
-}
-
-/* Agrupar los campos en una sola fila */
-#formularioEdicion .input-group {
+#content main .box-info li {
+	padding: 24px;
+	background: var(--light);
+	border-radius: 20px;
 	display: flex;
-	gap: 16px;
-	/* Espaciado entre los campos */
-	width: 100%;
+	align-items: center;
+	grid-gap: 24px;
+}
+#content main .box-info li .bx {
+	width: 80px;
+	height: 80px;
+	border-radius: 10px;
+	font-size: 36px;
+	display: flex;
+	justify-content: center;
 	align-items: center;
 }
-
-#formularioEdicion select,
-#formularioEdicion input {
-	flex: 1;
-	/* Los campos ocupan el mismo espacio */
-	padding: 10px 12px;
-	border: 1px solid #D9D9D9;
-	border-radius: 10px;
-	background-color: #F1F8FC;
-	color: #0838B4;
-	font-size: 14px;
-	transition: all 0.2s ease;
+#content main .box-info li:nth-child(1) .bx {
+	background: var(--light-blue);
+	color: var(--blue);
 }
-
-#formularioEdicion select:focus,
-#formularioEdicion input:focus {
-	border-color: #57AAF8;
-	box-shadow: 0 0 0 2px #D0E4FF;
-	outline: none;
+#content main .box-info li:nth-child(2) .bx {
+	background: var(--light-yellow);
+	color: var(--yellow);
 }
-
-#formularioEdicion button {
-	margin-top: 20px;
-	padding: 12px 20px;
-	border: none;
-	border-radius: 10px;
-	background-color: #57AAF8;
-	color: #FFFFFF;
-	font-size: 14px;
+#content main .box-info li:nth-child(3) .bx {
+	background: var(--light-orange);
+	color: var(--orange);
+}
+#content main .box-info li .text h3 {
+	font-size: 24px;
 	font-weight: 600;
-	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-#formularioEdicion button:hover {
-	background-color: #0838B4;
-	transform: scale(1.03);
-}
-
-#formularioEdicion button:active {
-	transform: scale(0.98);
-}
-
-/* Ajuste para pantallas pequeñas */
-@media (max-width: 768px) {
-	#formularioEdicion .input-group {
-		flex-direction: column;
-		/* Cambiar a columna en pantallas pequeñas */
-	}
-
-	#formularioEdicion select,
-	#formularioEdicion input,
-	#formularioEdicion button {
-		width: 100%;
-		/* Ancho completo para campos y botón */
-	}
-}
-
-/* Contenedor único para "Buscar horarios", "Grupo", "Día" y el botón */
-.info-data .form-group {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	background-color: #FFFFFF;
-	/* Fondo blanco */
-	padding: 20px;
-	border-radius: 10px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	/* Sombra suave */
-	align-items: stretch;
-	/* Asegura que los elementos ocupen todo el ancho */
-}
-
-/* Estilo del encabezado */
-.info-data .form-group h3 {
-	font-size: 18px;
-	font-weight: 600;
-	color: #0838B4;
-	/* Azul oscuro */
-	text-align: center;
-	margin: 0;
-	/* Elimina márgenes adicionales */
-}
-
-/* Estilo de los campos */
-.info-data .form-group label {
-	font-size: 14px;
-	color: #0838B4;
-	/* Azul oscuro */
-	margin-bottom: 6px;
-}
-
-.info-data .form-group select {
-	padding: 10px;
-	border: 1px solid #D9D9D9;
-	border-radius: 8px;
-	background-color: #F1F8FC;
-	color: #0838B4;
-	font-size: 14px;
-}
-
-/* Estilo del botón */
-.info-data .form-group button {
-	padding: 12px 20px;
-	border: none;
-	border-radius: 8px;
-	background-color: #57AAF8;
-	color: #FFFFFF;
-	font-size: 14px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-/* Hover y active para el botón */
-.info-data .form-group button:hover {
-	background-color: #0838B4;
-	transform: scale(1.03);
-}
-
-.info-data .form-group button:active {
-	transform: scale(0.98);
-}
-
-/* Ajuste para pantallas pequeñas */
-@media (max-width: 768px) {
-	.info-data .form-group {
-		gap: 12px;
-	}
-
-	.info-data .form-group select,
-	.info-data .form-group button {
-		width: 100%;
-		/* Ocupan todo el ancho en pantallas pequeñas */
-	}
-}
-
-.contenedorHorarios {
-	margin-top: 16px;
-	padding: 16px;
-	background-color: var(--light-blue);
-	border-radius: 10px;
 	color: var(--dark);
-	font-size: 14px;
-	transition: background 0.3s ease;
+}
+#content main .box-info li .text p {
+	color: var(--dark);	
 }
 
 
-@media (max-width: 768px) {
 
-	.info-data,
-	#formularioEdicion {
-		padding: 16px;
-	}
 
-	#btnBuscar,
-	#btnGuardar {
-		width: 100%;
-	}
 
-	#formularioEdicion .input-group {
-		flex-direction: column;
-		/* Cambiar a columna en pantallas pequeñas */
-	}
+#content main .table-data {
+	display: flex;
+	flex-wrap: wrap;
+	grid-gap: 24px;
+	margin-top: 24px;
+	width: 100%;
+	color: var(--dark);
+}
+#content main .table-data > div {
+	border-radius: 20px;
+	background: var(--light);
+	padding: 24px;
+	overflow-x: auto;
+}
+#content main .table-data .head {
+	display: flex;
+	align-items: center;
+	grid-gap: 16px;
+	margin-bottom: 24px;
+}
+#content main .table-data .head h3 {
+	margin-right: auto;
+	font-size: 24px;
+	font-weight: 600;
+}
+#content main .table-data .head .bx {
+	cursor: pointer;
 }
 
-.table-wrapper {
-	background-color: #FFFFFF;
-	padding: 16px;
-	border-radius: 10px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	margin-top: 20px;
-	margin-bottom: 40px;
-	/* Agrega espacio debajo de la tabla */
+#content main .table-data .order {
+	flex-grow: 1;
+	flex-basis: 500px;
 }
-
-.table-wrapper table {
+#content main .table-data .order table {
 	width: 100%;
 	border-collapse: collapse;
 }
-
-.table-wrapper th,
-.table-wrapper td {
-	padding: 12px 16px;
+#content main .table-data .order table th {
+	padding-bottom: 12px;
+	font-size: 13px;
 	text-align: left;
-	border-bottom: 1px solid #D9D9D9;
-	color: #0838B4;
-	font-size: 14px;
+	border-bottom: 1px solid var(--grey);
+}
+#content main .table-data .order table td {
+	padding: 16px 0;
+}
+#content main .table-data .order table tr td:first-child {
+	display: flex;
+	align-items: center;
+	grid-gap: 12px;
+	padding-left: 6px;
+}
+#content main .table-data .order table td img {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+#content main .table-data .order table tbody tr:hover {
+	background: var(--grey);
+}
+#content main .table-data .order table tr td .status {
+	font-size: 10px;
+	padding: 6px 16px;
+	color: var(--light);
+	border-radius: 20px;
+	font-weight: 700;
+}
+#content main .table-data .order table tr td .status.completed {
+	background: var(--blue);
+}
+#content main .table-data .order table tr td .status.process {
+	background: var(--yellow);
+}
+#content main .table-data .order table tr td .status.pending {
+	background: var(--orange);
 }
 
-.table-wrapper th {
-	background-color: #57AAF8;
-	/* Azul claro */
-	color: #FFFFFF;
-	font-weight: 600;
-}
 
-.table-wrapper tr:hover {
-	background-color: #F1F8FC;
-	/* Fondo claro */
-	cursor: pointer;
+#content main .table-data .todo {
+	flex-grow: 1;
+	flex-basis: 300px;
 }
-
-.table-wrapper td:last-child {
-	text-align: center;
+#content main .table-data .todo .todo-list {
+	width: 100%;
 }
-
-.table-wrapper .btn-editar {
-	background-color: #57AAF8;
-	/* Azul claro */
-	color: #FFFFFF;
-	border: none;
-	border-radius: 6px;
-	padding: 6px 12px;
-	cursor: pointer;
-	transition: background-color 0.3s;
-}
-
-.table-wrapper .btn-editar:hover {
-	background-color: #0838B4;
-	/* Azul oscuro */
-}
-
-/* Contenedor de "Editar horario seleccionado" */
-#formularioEdicion {
-	padding: 0;
-	/* Elimina el padding que crea espacio adicional */
-	background-color: transparent;
-	/* Elimina el fondo */
-	box-shadow: none;
-	/* Elimina la sombra */
-	border-radius: 0;
-	/* Elimina los bordes redondeados */
-	margin-top: 0;
-	/* Elimina el margen superior */
-}
-
-#formularioEdicion h3 {
-	font-size: 22px;
-	color: #0838B4;
+#content main .table-data .todo .todo-list li {
+	width: 100%;
 	margin-bottom: 16px;
-	text-align: center;
-}
-
-/* Agrupar los campos en una sola fila */
- .input-group {
+	background: var(--grey);
+	border-radius: 10px;
+	padding: 14px 20px;
 	display: flex;
-	gap: 16px;
-	/* Espaciado entre los campos */
-	width: 100%;
+	justify-content: space-between;
 	align-items: center;
 }
-
-#formularioEdicion select,
-#formularioEdicion input {
-	flex: 1;
-	/* Los campos ocupan el mismo espacio */
-	padding: 10px 12px;
-	border: 1px solid #D9D9D9;
-	border-radius: 10px;
-	background-color: #F1F8FC;
-	color: #0838B4;
-	font-size: 14px;
-	transition: all 0.2s ease;
-}
-
-#formularioEdicion select:focus,
-#formularioEdicion input:focus {
-	border-color: #57AAF8;
-	box-shadow: 0 0 0 2px #D0E4FF;
-	outline: none;
-}
-
-#formularioEdicion button {
-	margin-top: 20px;
-	padding: 12px 20px;
-	border: none;
-	border-radius: 10px;
-	background-color: #57AAF8;
-	color: #FFFFFF;
-	font-size: 14px;
-	font-weight: 600;
+#content main .table-data .todo .todo-list li .bx {
 	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+#content main .table-data .todo .todo-list li.completed {
+	border-left: 10px solid var(--blue);
+}
+#content main .table-data .todo .todo-list li.not-completed {
+	border-left: 10px solid var(--orange);
+}
+#content main .table-data .todo .todo-list li:last-child {
+	margin-bottom: 0;
 }
 
-#formularioEdicion button:hover {
-	background-color: #0838B4;
-	transform: scale(1.03);
+/* MAIN */
+/* CONTENT */
+/* --- Reporte Gráfica Asistencias --- */
+.reporte-section {
+  background: var(--light);
+  padding: 20px;
+  border-radius: 15px;
+  margin-top: 30px;
 }
 
-#formularioEdicion button:active {
-	transform: scale(0.98);
+.filtros-reporte {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
-/* Ajuste para pantallas pequeñas */
-@media (max-width: 768px) {
-	#formularioEdicion .input-group {
-		flex-direction: column;
-		/* Cambiar a columna en pantallas pequeñas */
-	}
-
-	#formularioEdicion select,
-	#formularioEdicion input,
-	#formularioEdicion button {
-		width: 100%;
-		/* Ancho completo para campos y botón */
-	}
+.filtros-reporte label {
+  font-weight: 600;
+  margin-right: 5px;
 }
 
-/* Contenedor único para "Grupo", "Día" y el botón */
-.info-data .form-group {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	background-color: #FFFFFF;
-	/* Fondo blanco */
-	padding: 20px;
-	border-radius: 10px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	/* Sombra suave */
-	align-items: stretch;
-	/* Asegura que los elementos ocupen todo el ancho */
+.filtros-reporte select,
+.filtros-reporte button {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--grey);
+  font-size: 14px;
 }
 
-/* Estilo de los campos y el botón */
-.info-data .input-group {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+
+
+/* Estilo para el contenedor del gráfico */
+#chart-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+  margin: 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.info-data select {
-	padding: 10px;
-	border: 1px solid #D9D9D9;
-	border-radius: 8px;
-	background-color: #F1F8FC;
-	color: #0838B4;
-	font-size: 14px;
+/* Leyenda del gráfico */
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 14px;
+  background: #f8f9fa;
+  border-radius: 4px;
 }
 
-.info-data button {
-	padding: 12px 20px;
-	border: none;
-	border-radius: 8px;
-	background-color: #57AAF8;
-	color: #FFFFFF;
-	font-size: 14px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease;
+.legend-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-/* Hover y active para el botón */
-.info-data button:hover {
-	background-color: #0838B4;
-	transform: scale(1.03);
+.legend-item:hover {
+  background: rgba(0,0,0,0.05);
 }
 
-.info-data button:active {
-	transform: scale(0.98);
+.legend-item span:first-child {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 2px;
 }
 
-/* Ajuste para pantallas pequeñas */
-@media (max-width: 768px) {
-	.info-data .form-group {
-		gap: 12px;
-	}
-
-	.info-data .input-group {
-		flex-direction: column;
-	}
-
-	.info-data select,
-	.info-data button {
-		width: 100%;
-		/* Ocupan todo el ancho en pantallas pequeñas */
-	}
+.legend-value {
+  margin-left: 5px;
+  font-weight: bold;
+  min-width: 20px;
+  text-align: right;
 }
 
-.alerta {
-	display: grid;
-	position: fixed;
-	top: 30px;
-	right: 20px;
-	z-index: 300;
+/* Mensajes de estado */
+.no-data {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  background: #f8f9fa;
+  border-radius: 4px;
 }
 
-.toast {
-	position: relative;
-	margin-bottom: 10px;
-	color: #000000;
-	width: 400px;
-	display: grid;
-	grid-template-columns: 70px 1fr 70px;
-	border-radius: 5px;
-	--color: #0abf30;
-	background-color: rgba(240, 240, 240, 0.808);
-	animation: show_toast 0.3s ease forwards;
-	box-shadow: #22242f48 0px 0px 5px;
+.error-message {
+  padding: 20px;
+  text-align: center;
+  color: #d32f2f;
+  background: #ffebee;
+  border-radius: 4px;
 }
 
-.icono {
-	position: relative;
-	/* Necesario para colocar el pseudo-elemento */
-	display: flex;
-	margin-right: 10px;
-	border-end-end-radius: 20px;
-	border-start-end-radius: 20px;
-	justify-content: center;
-	align-items: center;
-
+#chart-container {
+    position: relative;
+    width: 100%;
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.icono::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	/* Hace que ocupe todo el área del icono */
-	background-color: var(--color);
-	opacity: 0.4;
-	/* Opacidad reducida solo para el fondo */
-	border-end-end-radius: 20px;
-	border-start-end-radius: 20px;
-	z-index: -1;
-	/* Asegura que el fondo esté detrás del icono */
+
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 14px;
+    background: #f8f9fa;
+    border-radius: 4px;
 }
 
-.content {
-	padding: 10px;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: flex-start;
+.legend-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
-.toast i {
-	color: var(--color);
+.legend-item span:first-child {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+    border-radius: 2px;
 }
 
-.toast .title {
-	font-size: 20px;
-	font-weight: bold;
+.legend-value {
+    margin-left: 5px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: right;
 }
 
-.toast i {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 20px;
+.no-data {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    background: #f8f9fa;
+    border-radius: 4px;
 }
 
-.toast span,
-.toast .close {
-	font-size: small;
-	opacity: 0.7;
-	color: #000000
+/* Estilo para el botón de cambio */
+.chart-toggle-btn {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s;
 }
 
-@keyframes show_toast {
-	0% {
-		transform: translateX(100%);
-	}
-
-	40% {
-		transform: translateX(-5%);
-	}
-
-	80% {
-		transform: translateX(0%);
-	}
-
-	100% {
-		transform: translateX(-10%);
-	}
+.chart-toggle-btn:hover {
+  background-color: #45a049;
 }
 
-.toast::before {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	background-color: var(--color);
-	box-shadow: 0 0 10px var(--color);
-	content: '';
-	width: 100%;
-	height: 3px;
-	animation: timeOut 5s linear 1 forwards;
+/* Contenedor del gráfico */
+#chart-container {
+  position: relative;
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-@keyframes timeOut {
-	to {
-		width: 0%;
-	}
+/* Leyenda del gráfico */
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 14px;
+  background: #f8f9fa;
+  border-radius: 4px;
 }
 
-.toast.error {
-	--color: #f24d4c;
+.legend-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
 }
 
-.toast.advertencia {
-	--color: #f2a74c;
+.legend-item span:first-child {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 2px;
 }
 
-/* Eliminar estilos innecesarios de .info-data */
-.info-data {
-	padding: 0;
-	/* Elimina el padding que crea espacio adicional */
-	background-color: transparent;
-	/* Elimina el fondo */
-	box-shadow: none;
-	/* Elimina la sombra */
-	border-radius: 0;
-	/* Elimina los bordes redondeados */
-	margin-top: 0;
-	/* Elimina el margen superior */
+.legend-value {
+  margin-left: 5px;
+  font-weight: bold;
 }
 
-/* Contenedor único para "Buscar horarios", "Grupo", "Día" y el botón */
-.info-data .form-group {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	background-color: #FFFFFF;
-	/* Fondo blanco */
-	padding: 20px;
-	border-radius: 10px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	/* Sombra suave */
-	align-items: stretch;
-	/* Asegura que los elementos ocupen todo el ancho */
+/* Mensajes de error */
+.error-message {
+  padding: 15px;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  margin-top: 10px;
 }
 
-/* Estilo del encabezado */
-.info-data .form-group h3 {
-	font-size: 18px;
-	font-weight: 600;
-	color: #0838B4;
-	/* Azul oscuro */
-	text-align: center;
-	margin: 0;
-	/* Elimina márgenes adicionales */
+.chart-toggle-btn {
+  padding: 8px 16px;
+  background-color: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 10px 0;
+  transition: background-color 0.3s;
 }
 
-/* Estilo de los campos */
-.info-data .form-group label {
-	font-size: 14px;
-	color: #0838B4;
-	/* Azul oscuro */
-	margin-bottom: 6px;
+.chart-toggle-btn:hover {
+  background-color: var(--dark-blue);
 }
 
-.info-data .form-group select {
-	padding: 10px;
-	border: 1px solid #D9D9D9;
-	border-radius: 8px;
-	background-color: #F1F8FC;
-	color: #0838B4;
-	font-size: 14px;
+#tabla-oculta-pdf table {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+}
+#tabla-oculta-pdf th {
+    background-color: #f2f2f2;
+    padding: 8px;
+    text-align: left;
+}
+#tabla-oculta-pdf td {
+    padding: 6px;
+    border: 1px solid #ddd;
 }
 
-/* Estilo del botón */
-.info-data .form-group button {
-	padding: 12px 20px;
-	border: none;
-	border-radius: 8px;
-	background-color: #57AAF8;
-	color: #FFFFFF;
-	font-size: 14px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease;
+
+
+
+
+
+
+
+
+.contenedor-select {
+    width: 100%;
+    position: relative;
+    font-size: 14px;
 }
 
-/* Hover y active para el botón */
-.info-data .form-group button:hover {
-	background-color: #0838B4;
-	transform: scale(1.03);
+.turno {
+       
+    grid-column: 1/4;
 }
 
-.info-data .form-group button:active {
-	transform: scale(0.98);
+.boton-select, .opciones li {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 }
 
-/* Ajuste para pantallas pequeñas */
-@media (max-width: 768px) {
-	.info-data .form-group {
-		gap: 12px;
-	}
-
-	.info-data .form-group select,
-	.info-data .form-group button {
-		width: 100%;
-		/* Ocupan todo el ancho en pantallas pequeñas */
-	}
+.boton-select {
+    height: 40px;
+    padding: 0 15px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    justify-content: space-between;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 100%;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    color: #333;
 }
 
-/* Contenedor único para "Editar horario seleccionado", los campos y el botón */
+.boton-select:hover {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.boton-select i {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+    color: #666;
+}
+
+.contenedor-select.activo .boton-select i {
+    transform: rotate(-180deg);
+}
+
+.contenido-select {
+    opacity: 0;
+    visibility: hidden;
+    padding: 15px;
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.contenedor-select.activo .contenido-select {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.buscador {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.buscador i {
+    top: 50%;
+    left: 15px;
+    color: #666;
+    font-size: 14px;
+    pointer-events: none;
+    transform: translateY(-50%);
+    position: absolute;
+}
+
+.buscador input {
+    height: 40px;
+    width: 100%;
+    outline: none;
+    font-size: 13px;
+    border-radius: 20px;
+    padding: 0 15px 0 40px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+.buscador input:focus {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(66, 133, 244, 0.5);
+    box-shadow: 0 2px 15px rgba(66, 133, 244, 0.2);
+}
+
+.buscador input::placeholder {
+    color: #999;
+}
+
+.opciones {
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.opciones::-webkit-scrollbar {
+    width: 5px;
+}
+
+.opciones::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+.opciones::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.opciones::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.opciones li {
+    height: 40px;
+    padding: 0 15px;
+    font-size: 13px;
+    border-radius: 15px;
+    margin-bottom: 5px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    color: #333;
+}
+
+.opciones li:last-child {
+    margin-bottom: 0;
+}
+
+.opciones li:hover, li.seleccionado {
+    background: rgba(66, 133, 244, 0.1);
+    color: #4285f4;
+}
+
+.opciones p {
+    font-size: 13px;
+    padding: 10px;
+    color: #666;
+    text-align: center;
+}
+
+.limpiar-seleccion {
+    color: #e74c3c;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .limpiar-seleccion:hover {
+    background-color: #f8f8f8;
+  }
+  
+  .limpiar-seleccion i {
+    font-size: 1.1em;
+  }
+  
+  .contenedor-select .opciones li.seleccionado {
+    background-color: #f0f7ff;
+  }
+
+.select-custom {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas internas */
+    width: 100%;
+    gap: 10px;
+}
+
+
+
+/* ===== FORMULARIO REPORTE ESTILO BONITO ===== */
+.container-form {
+  display: flex;
+  max-width: 1000px;
+  width: 100%;
+  background: var(--light);
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin: 40px auto;
+}
+
+.information {
+  width: 40%;
+  background: var(--blue);
+  color: white;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 20px 0 0 20px;
+}
+
+.information h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.information p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.form-information {
+  width: 60%;
+  padding: 40px 30px;
+  background-color: var(--grey);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 0 20px 20px 0;
+}
+
+.form-information h2 {
+  color: #333;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .form-group {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	background-color: #FFFFFF;
-	/* Fondo blanco */
-	padding: 20px;
-	border-radius: 10px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	/* Sombra suave */
-	align-items: stretch;
-	/* Asegura que los elementos ocupen todo el ancho */
+  display: flex;
+  flex-direction: column;
 }
 
-/* Estilo del encabezado */
-#formularioEdicion .form-group h3 {
-	font-size: 18px;
-	font-weight: 600;
-	color: #0838B4;
-	/* Azul oscuro */
-	text-align: center;
-	margin: 0;
-	/* Elimina márgenes adicionales */
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
 }
 
-/* Estilo de los campos */
-#formularioEdicion .form-group label {
-	font-size: 14px;
-	color: #0838B4;
-	/* Azul oscuro */
-	margin-bottom: 6px;
+.form select,
+.form textarea,
+.form input[type="file"] {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background: white;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-#formularioEdicion .form-group select {
-	padding: 10px;
-	border: 1px solid #D9D9D9;
-	border-radius: 8px;
-	background-color: #F1F8FC;
-	color: #0838B4;
-	font-size: 14px;
+.form select:focus,
+.form textarea:focus,
+.form input[type="file"]:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(23, 117, 241, 0.2);
+  outline: none;
 }
 
-/* Estilo del botón */
-#formularioEdicion .form-group button {
-	padding: 12px 20px;
-	border: none;
-	border-radius: 8px;
-	background-color: #57AAF8;
-	color: #FFFFFF;
-	font-size: 14px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease;
+.form textarea {
+  resize: vertical;
+  min-height: 120px;
 }
 
-/* Hover y active para el botón */
-#formularioEdicion .form-group button:hover {
-	background-color: #0838B4;
-	transform: scale(1.03);
+.form input[type="submit"] {
+  background-color: var(--blue);
+  color: white;
+  border: none;
+  padding: 14px;
+  font-size: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 600;
 }
 
-#formularioEdicion .form-group button:active {
-	transform: scale(0.98);
+.form input[type="submit"]:hover {
+  background-color: var(--dark-blue);
 }
 
-/* Ajuste para pantallas pequeñas */
-@media (max-width: 768px) {
-	#formularioEdicion .form-group {
-		gap: 12px;
-	}
-
-	#formularioEdicion .form-group select,
-	#formularioEdicion .form-group button {
-		width: 100%;
-		/* Ocupan todo el ancho en pantallas pequeñas */
-	}
+/* Input file personalizado */
+input[type="file"]::-webkit-file-upload-button {
+  visibility: hidden;
 }
 
-.contenedor-horario {
-	position: relative;
+input[type="file"]::before {
+  content: '📎 Elegir archivo';
+  display: inline-block;
+  background: var(--blue);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
 }
 
-.horarios-list {
-	display: flex;
-	flex-direction: column;
-	gap: 15px;
-	max-height: 425px;
-	margin-top: 40px;
-	overflow-y: auto;
-	position: relative;
+input[type="file"]:hover::before {
+  background-color: var(--dark-blue);
 }
 
-.blur-overlay {
-	position: absolute;
-	left: 0;
-	right: 0;
-	height: 50px;
-	background-color: rgba(255, 255, 255, 0.8);
-	backdrop-filter: blur(7px);
-	z-index: 1;
+input[type="file"]:focus::before {
+  outline: 1px dotted #000;
+  outline: -webkit-focus-ring-color auto 5px;
 }
 
-.blur-overlay.top {
-	border-start-start-radius: 20px;
-	border-start-end-radius: 20px;
-	top: -35px;
+
+
+/* ALERTAS con tamaño compacto y visibilidad controlada */
+.alerta-error,
+.alerta-exito {
+  display: none;
+  max-width: 400px;
+  margin: 16px auto 0 auto;
+  text-align: center;
+  padding: 10px 14px;
+  font-size: 13px;
+  border-radius: 8px;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.blur-overlay.bottom {
-	bottom: -30px;
-	border-end-start-radius: 20px;
-	border-end-end-radius: 20px;
-
+.alerta-error {
+  background: #ffdddd;
+  color: #c62828;
+  border: 1px solid #f44336;
 }
 
-.horario-card {
-	background: #FFFFFF;
-	padding: 15px;
-	border-radius: 15px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-	display: flex;
-	flex-direction: column;
+.alerta-exito {
+  background: #ddffea;
+  color: #2e7d32;
+  border: 1px solid #4caf50;
 }
 
-.horario-header,
-.horario-content {
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-	gap: 10px;
-	align-items: center;
-	padding: 10px;
+
+
+/* === DROPDOWNS DESPLEGABLES === */
+.side-dropdown {
+  display: none;
+  padding-left: 20px;
+  flex-direction: column;
 }
 
-.horario-header {
-	background: #007BFF;
-	border-radius: 10px;
-	color: white;
-	font-weight: bold;
-	text-align: center;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+.side-dropdown.show {
+  display: flex;
 }
 
-.horario-content {
-	text-align: center;
+#sidebar ul.side-menu li a.active + .side-dropdown {
+  display: flex;
 }
 
-.asis {
-	background-color: #86e49d;
-	color: #006b21;
-	padding: 5px;
-	border-radius: 5px;
+#sidebar.hide .brand span {
+  display: none;
 }
 
-.falta {
-	background-color: #d893a3;
-	color: #b30021;
-	padding: 5px;
-	border-radius: 5px;
+
+/* Estilo para el texto de PREFECT APP */
+#sidebar .brand span {
+  margin-left: 12px;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
-.ret {
-	background-color: #f4e0b7;
-	color: #7a560e;
-	padding: 5px;
-	border-radius: 5px;
-}
-
-/* Agregar margen inferior a la sección de horarios disponibles */
-.table-data {
-	margin-bottom: 60px;
-	/* Espacio debajo de los horarios disponibles */
-}
-
-/* Agregar margen superior al formulario de edición */
-#formularioEdicion {
-	margin-top: 40px;
-	/* Espacio encima del formulario */
-}
-
-/* Estilo del botón "Editar" */
-.horario-content .btn-editar {
-	padding: 10px 20px;
-	border: none;
-	border-radius: 8px;
-	background-color: #57AAF8;
-	/* Azul claro */
-	color: #FFFFFF;
-	font-size: 14px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-/* Hover y active para el botón "Editar" */
-.horario-content .btn-editar:hover {
-	background-color: #0838B4;
-	/* Azul oscuro */
-	transform: scale(1.03);
-}
-
-.horario-content .btn-editar:active {
-	transform: scale(0.98);
+#sidebar.hide .brand span {
+  display: none;
 }
