@@ -845,77 +845,44 @@ btnPDF.addEventListener("click", async () => {
     }
 });
 
-// Función para obtener datos detallados para la tabla
-async function obtenerDatosParaTabla() {
-    const idProfesor = profesorSeleccc.id || "todos";
-    const idMateria = materiaSeleccc.id || "todas";
-    const periodo = periodoSeleccc;
-    
-    try {
-        // Usamos el mismo endpoint que para la gráfica pero podrías crear uno específico
-        const res = await fetch(`/api/reporteGrafica?profesor=${idProfesor}&materia=${idMateria}&periodo=${periodo}`);
-        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
-        
-        const response = await res.json();
-        
-        // Verificar que los datos tengan la estructura correcta
-        if (!response || !response.fechas || !Array.isArray(response.fechas)) {
-            throw new Error("Formato de datos incorrecto");
-        }
-        
-        // Asegurarnos de que todos los arrays tengan la misma longitud
-        const maxLength = response.fechas.length;
-        const asistencias = response.asistencias || Array(maxLength).fill(0);
-        const faltas = response.faltas || Array(maxLength).fill(0);
-        const retardos = response.retardos || Array(maxLength).fill(0);
-        
-        return {
-            fechas: response.fechas,
-            asistencias: asistencias.slice(0, maxLength),
-            faltas: faltas.slice(0, maxLength),
-            retardos: retardos.slice(0, maxLength)
-        };
-        
-    } catch (err) {
-        console.error("Error al obtener datos para tabla:", err);
-        return { 
-            fechas: [], 
-            asistencias: [], 
-            faltas: [], 
-            retardos: [] 
-        };
-    }
-}
-
 // Función para crear la tabla oculta (mejorada)
 function crearTablaOculta() {
     const div = document.createElement('div');
     div.id = 'tabla-oculta-pdf';
     div.style.position = 'absolute';
     div.style.left = '-9999px';
-    div.style.width = '800px';
-    div.style.backgroundColor = '#FFFFFF'; // Fondo blanco para el PDF
+    div.style.width = '900px'; // Aumenté el ancho para mejor visualización
+    div.style.backgroundColor = '#FFFFFF';
     
     div.innerHTML = `
-        <table border="1" style="width:100%; border-collapse: collapse; margin-top: 20px; font-family: Arial, sans-serif;">
+        <table border="0" style="width:100%; border-collapse: collapse; margin-top: 20px; font-family: Arial, sans-serif; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
             <thead>
-                <tr style="background-color: #f2f2f2;">
-                    <th style="padding: 8px; text-align: left;">Fecha</th>
-                    <th style="padding: 8px; text-align: center;">Asistencias</th>
-                    <th style="padding: 8px; text-align: center;">Faltas</th>
-                    <th style="padding: 8px; text-align: center;">Retardos</th>
+                <tr style="background-color: #4a6baf; color: white;">
+                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Fecha</th>
+                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Materia</th>
+                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Horas</th>
+                    <th style="padding: 10px; text-align: center; border-bottom: 2px solid #ddd;">Asistencias</th>
+                    <th style="padding: 10px; text-align: center; border-bottom: 2px solid #ddd;">Faltas</th>
+                    <th style="padding: 10px; text-align: center; border-bottom: 2px solid #ddd;">Retardos</th>
+                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Detalles</th>
                 </tr>
             </thead>
             <tbody id="tabla-oculta-body" style="font-size: 12px;">
                 <!-- Datos se llenarán dinámicamente -->
             </tbody>
+            <tfoot>
+                <tr style="background-color: #f8f9fa;">
+                    <td colspan="7" style="padding: 8px; font-size: 11px; text-align: center; border-top: 2px solid #ddd;">
+                        Reporte generado el ${new Date().toLocaleDateString()}
+                    </td>
+                </tr>
+            </tfoot>
         </table>
     `;
     
     return div;
 }
 
-// Función para llenar la tabla oculta (mejorada)
 function llenarTablaOculta(tablaOculta, datos) {
     const tbody = tablaOculta.querySelector('#tabla-oculta-body');
     tbody.innerHTML = '';
@@ -924,7 +891,7 @@ function llenarTablaOculta(tablaOculta, datos) {
     if (datos.fechas.length === 0) {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td colspan="4" style="padding: 8px; text-align: center;">No hay datos disponibles para el período seleccionado</td>
+            <td colspan="7" style="padding: 12px; text-align: center; border-bottom: 1px solid #ddd;">No hay datos disponibles para el período seleccionado</td>
         `;
         tbody.appendChild(row);
         return;
@@ -933,30 +900,96 @@ function llenarTablaOculta(tablaOculta, datos) {
     // Agregar filas con datos
     datos.fechas.forEach((fecha, index) => {
         const row = document.createElement('tr');
+        row.style.borderBottom = '1px solid #eee';
+        row.style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#f9f9f9';
+        
+        // Obtener datos formateados
+        const nombreMateria = datos.materias && datos.materias[index] ? datos.materias[index] : materiaSeleccc.nombre || 'Todas las materias';
+        const horarios = datos.horarios && datos.horarios[index] ? datos.horarios[index].replace(/;/g, ', ') : 'No especificado';
+        const detalles = datos.detalles && datos.detalles[index] ? 
+            datos.detalles[index]
+                .replace(/;/g, ', ')
+                .replace(/Asistencia/g, 'Asis.')
+                .replace(/Falta/g, 'Falta.')
+                .replace(/Retardo/g, 'Ret.') : '';
+        
         row.innerHTML = `
-            <td style="padding: 6px; border: 1px solid #ddd;">${new Date(fecha).toLocaleDateString()}</td>
-            <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${datos.asistencias[index] || 0}</td>
-            <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${datos.faltas[index] || 0}</td>
-            <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${datos.retardos[index] || 0}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; vertical-align: middle;">${new Date(fecha).toLocaleDateString()}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; vertical-align: middle;">${nombreMateria}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; vertical-align: middle;">${horarios}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center; vertical-align: middle; color: #28a745;">${datos.asistencias[index] || 0}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center; vertical-align: middle; color: #dc3545;">${datos.faltas[index] || 0}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center; vertical-align: middle; color: #ffc107;">${datos.retardos[index] || 0}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd; vertical-align: middle; font-size: 11px;">${detalles}</td>
         `;
         tbody.appendChild(row);
     });
     
-    // Agregar fila de totales
-    const totalAsistencias = datos.asistencias.reduce((a, b) => a + b, 0);
-    const totalFaltas = datos.faltas.reduce((a, b) => a + b, 0);
-    const totalRetardos = datos.retardos.reduce((a, b) => a + b, 0);
+    // Calcular totales correctamente
+    const totalAsistencias = datos.asistencias.reduce((a, b) => Number(a) + Number(b), 0);
+    const totalFaltas = datos.faltas.reduce((a, b) => Number(a) + Number(b), 0);
+    const totalRetardos = datos.retardos.reduce((a, b) => Number(a) + Number(b), 0);
+    const totalClases = totalAsistencias + totalFaltas + totalRetardos;
+    const porcentajeAsistencia = totalClases > 0 ? Math.round((totalAsistencias / totalClases) * 100) : 0;
+    const porcentajeFaltas = totalClases > 0 ? Math.round((totalFaltas / totalClases) * 100) : 0;
+    const porcentajeRetardos = totalClases > 0 ? Math.round((totalRetardos / totalClases) * 100) : 0;
     
+    // Agregar fila de totales con porcentaje
     const totalRow = document.createElement('tr');
     totalRow.style.fontWeight = 'bold';
-    totalRow.style.backgroundColor = '#f9f9f9';
+    totalRow.style.backgroundColor = '#e9ecef';
+    totalRow.style.borderTop = '2px solid #dee2e6';
     totalRow.innerHTML = `
-        <td style="padding: 6px; border: 1px solid #ddd;">Total</td>
-        <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${totalAsistencias}</td>
-        <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${totalFaltas}</td>
-        <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${totalRetardos}</td>
+        <td colspan="3" style="padding: 10px; border-bottom: 1px solid #ddd;">
+            Total General (${porcentajeAsistencia}% de asistencia), (${porcentajeFaltas}% de faltas), (${porcentajeRetardos}% de retardos)
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center; color: #28a745;">${totalAsistencias}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center; color: #dc3545;">${totalFaltas}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center; color: #ffc107;">${totalRetardos}</td>
+        <td style="padding: 10px; border-bottom: 1px solid #ddd;"></td>
     `;
-    tbody.appendChild(totalRow);
+    tbody.appendChild(totalRow); 
+}
+
+async function obtenerDatosParaTabla() {
+    const idProfesor = profesorSeleccc.id || "todos";
+    const idMateria = materiaSeleccc.id || "todas";
+    const periodo = periodoSeleccc;
+    
+    try {
+        const res = await fetch(`/api/reporteGrafica?profesor=${idProfesor}&materia=${idMateria}&periodo=${periodo}&detallado=true`);
+        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+        
+        const response = await res.json();
+        
+        if (!response || !response.fechas || !Array.isArray(response.fechas)) {
+            throw new Error("Formato de datos incorrecto");
+        }
+        
+        const maxLength = response.fechas.length;
+        
+        return {
+            fechas: response.fechas,
+            materias: response.materias || Array(maxLength).fill(materiaSeleccc.nombre || 'Todas las materias'),
+            horarios: response.horarios || Array(maxLength).fill('No especificado'),
+            detalles: response.detalles || Array(maxLength).fill(''),
+            asistencias: response.asistencias ? response.asistencias.map(Number) : Array(maxLength).fill(0),
+            faltas: response.faltas ? response.faltas.map(Number) : Array(maxLength).fill(0),
+            retardos: response.retardos ? response.retardos.map(Number) : Array(maxLength).fill(0)
+        };
+        
+    } catch (err) {
+        console.error("Error al obtener datos para tabla:", err);
+        return { 
+            fechas: [], 
+            materias: [],
+            horarios: [],
+            detalles: [],
+            asistencias: [], 
+            faltas: [], 
+            retardos: [] 
+        };
+    }
 }
 
   // Event listeners

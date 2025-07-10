@@ -2804,7 +2804,7 @@ app.get('/api/profes', async (req, res) => {
     const [profesores] = await conexion.promise().query(`
       SELECT id_persona, CONCAT(nom_persona, ' ', appat_persona, ' ', apmat_persona) AS nombre_completo 
       FROM persona 
-      WHERE id_rol = 1 AND id_escuela = ?
+      WHERE id_escuela = ?
       ORDER BY nom_persona, appat_persona, apmat_persona
     `, [req.session.id_escuela]); // Solo profesores de su escuela
     res.json(profesores);
@@ -2848,7 +2848,7 @@ app.get('/api/materias/:id', async (req, res) => {
 });
 
 app.get('/api/reporteGrafica', async (req, res) => {
-  const { profesor, materia, periodo } = req.query;
+  const { profesor, materia, periodo, detallado } = req.query;
   const idEscuela = req.session.id_escuela;
 
   try {
@@ -2866,62 +2866,82 @@ app.get('/api/reporteGrafica', async (req, res) => {
       rangoFecha = `AND fecha >= CURDATE() - INTERVAL ${periodos[periodo]}`;
     }
 
-    // Consulta optimizada que considera los campos de validación
+    // Consulta detallada que incluye información de materias y horarios
     const query = `
       SELECT 
         fecha,
+        GROUP_CONCAT(DISTINCT nom_materia SEPARATOR '; ') AS materias,
+        GROUP_CONCAT(DISTINCT hora_inicio SEPARATOR '; ') AS horarios,
         SUM(asistencias) AS asistencias,
         SUM(faltas) AS faltas,
-        SUM(retardos) AS retardos
+        SUM(retardos) AS retardos,
+        GROUP_CONCAT(
+          CASE 
+            WHEN asistencias > 0 THEN CONCAT('Asistencia(', hora_inicio, ')')
+            WHEN faltas > 0 THEN CONCAT('Falta(', hora_inicio, ')')
+            WHEN retardos > 0 THEN CONCAT('Retardo(', hora_inicio, ')')
+            ELSE ''
+          END
+          SEPARATOR '; '
+        ) AS detalles
       FROM (
-        -- Asistencias (solo contar donde validacion_asistencia = 1)
+        -- Asistencias con información de materia y horario
         SELECT 
           DATE(a.fecha_asistencia) AS fecha,
+          m.nom_materia,
+          h.hora_inicio,
           SUM(a.validacion_asistencia) AS asistencias,
           0 AS faltas,
           0 AS retardos
         FROM asistencia a
         JOIN horario h ON a.id_horario = h.id_horario
         JOIN persona p ON h.id_persona = p.id_persona
+        JOIN materia m ON h.id_materia = m.id_materia
         WHERE h.id_escuela = ?
         ${profesor !== 'todos' ? 'AND h.id_persona = ?' : ''}
         ${materia && materia !== 'todas' ? 'AND h.id_materia = ?' : ''}
         ${rangoFecha.replace('fecha', 'a.fecha_asistencia')}
-        GROUP BY DATE(a.fecha_asistencia)
+        GROUP BY DATE(a.fecha_asistencia), m.nom_materia, h.hora_inicio
         
         UNION ALL
         
-        -- Faltas (solo contar donde validación_falta = 1)
+        -- Faltas con información de materia y horario
         SELECT 
           DATE(f.fecha_falta) AS fecha,
+          m.nom_materia,
+          h.hora_inicio,
           0 AS asistencias,
           SUM(f.validacion_falta) AS faltas,
           0 AS retardos
         FROM falta f
         JOIN horario h ON f.id_horario = h.id_horario
         JOIN persona p ON h.id_persona = p.id_persona
+        JOIN materia m ON h.id_materia = m.id_materia
         WHERE h.id_escuela = ?
         ${profesor !== 'todos' ? 'AND h.id_persona = ?' : ''}
         ${materia && materia !== 'todas' ? 'AND h.id_materia = ?' : ''}
         ${rangoFecha.replace('fecha', 'f.fecha_falta')}
-        GROUP BY DATE(f.fecha_falta)
+        GROUP BY DATE(f.fecha_falta), m.nom_materia, h.hora_inicio
         
         UNION ALL
         
-        -- Retardos (solo contar donde validación_retardo = 1)
+        -- Retardos con información de materia y horario
         SELECT 
           DATE(r.fecha_retardo) AS fecha,
+          m.nom_materia,
+          h.hora_inicio,
           0 AS asistencias,
           0 AS faltas,
           SUM(r.validacion_retardo) AS retardos
         FROM retardo r
         JOIN horario h ON r.id_horario = h.id_horario
         JOIN persona p ON h.id_persona = p.id_persona
+        JOIN materia m ON h.id_materia = m.id_materia
         WHERE h.id_escuela = ?
         ${profesor !== 'todos' ? 'AND h.id_persona = ?' : ''}
         ${materia && materia !== 'todas' ? 'AND h.id_materia = ?' : ''}
         ${rangoFecha.replace('fecha', 'r.fecha_retardo')}
-        GROUP BY DATE(r.fecha_retardo)
+        GROUP BY DATE(r.fecha_retardo), m.nom_materia, h.hora_inicio
       ) AS combined_data
       GROUP BY fecha
       ORDER BY fecha ASC
@@ -2941,6 +2961,9 @@ app.get('/api/reporteGrafica', async (req, res) => {
     // Formatear la respuesta
     const result = {
       fechas: rows.map(row => row.fecha),
+      materias: rows.map(row => row.materias || ''),
+      horarios: rows.map(row => row.horarios || ''),
+      detalles: rows.map(row => row.detalles || ''),
       asistencias: rows.map(row => row.asistencias),
       faltas: rows.map(row => row.faltas),
       retardos: rows.map(row => row.retardos)
@@ -3802,6 +3825,69 @@ app.post('/csv/horarios-nombres', async (req, res) => {
 });
 
 // ------Fin de csv
+
+
+
+//------ IA ---------
+
+app.get('/api/predicciones', async (req, res) => {
+    const idEscuela = req.session.id_escuela;
+
+    const query = `
+        SELECT 
+            p.id_persona,
+            CONCAT(p.nom_persona, ' ', p.appat_persona) AS persona,
+            h.dia_horario,
+            h.hora_inicio,
+            h.hora_final,
+           DATE_FORMAT(pr.fecha_prediccion, '%Y-%m-%d') AS fecha_prediccion,
+            pr.resultado_prediccion,
+            m.nom_materia,
+            g.nom_grupo
+        FROM 
+            predicciones AS pr
+            JOIN persona AS p ON pr.id_persona = p.id_persona
+            JOIN horario AS h ON pr.id_horario = h.id_horario
+            join materia AS m ON h.id_materia = m.id_materia
+            JOIN grupo AS g ON h.id_grupo = g.id_grupo
+        WHERE 
+            pr.id_escuela = ?
+            AND DATE(pr.fecha_prediccion) = CURDATE()
+        ORDER BY 
+            resultado_prediccion DESC, 
+            h.dia_horario, 
+            h.hora_inicio
+    `;
+
+    try {
+        const [results] = await conexion.promise().query(query, [idEscuela]);
+
+        res.status(200).json({
+            success: true,
+            data: results,
+            message: results.length > 0 ? 'Predicciones obtenidas correctamente' : 'No hay predicciones para hoy',
+            count: results.length
+        });
+
+    } catch (err) {
+        console.error('Error al obtener predicciones:', err);
+        res.status(500).json({
+            success: false,
+            data: null,
+            message: 'Error en el servidor al consultar predicciones',
+            error: err.message
+        });
+    }
+});
+
+// ------ Fin IA ---------
+
+
+
+
+
+
+
 
 app.listen(app.get("port"), () => {
     console.log(`PUERTO:`, app.get("port"));

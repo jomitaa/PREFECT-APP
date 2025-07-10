@@ -14,7 +14,7 @@
 
 
     <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="/css/ADM_menu.css" />
+    <link rel="stylesheet" href="/css/ADM_IA.css" />
 	
 
     <title>Prefect App 1.1</title>
@@ -165,16 +165,96 @@
 
       <!-- MAIN -->
       <main>
+        <div class="alerta">
+
+			</div>
         <h1 class="title">Prefect APP</h1>
         <ul class="breadcrumbs">
           <li><a href="#">P.A</a></li>
           <li>/</li>
           <li>Prediccion con IA</li>
         </ul>
-        <div class="info-data">
-         
-          
-        </div>
+        
+
+        <div class="contenedor-horario">
+				<div class="blur-overlay top"></div>
+				<div class="horarios-list" id="horario">
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Salón</b></span>
+						<span><b>Grupo</b></span>
+						<span><b>Profesor</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Hora</b></span>
+						<span><b>Acciones</b></span>
+					</div>
+					<div class="horario-content">
+						<span>1</span>
+						<span>XIV1</span>
+						<span>Profesor</span>
+						<span>Materia</span>
+						<span>00:00 - 01:00</span>
+						<div class="acciones">
+							<label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Asis.
+							  </label>
+	
+							  <label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Retardo
+							  </label>
+	
+							  <label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Falta
+							  </label>
+							
+						   
+						</div>
+					</div>
+				</div>
+				<div class="horario-card">
+					<div class="horario-header">
+						<span><b>Salón</b></span>
+						<span><b>Grupo</b></span>
+						<span><b>Profesor</b></span>
+						<span><b>Materia</b></span>
+						<span><b>Hora</b></span>
+						<span><b>Acciones</b></span>
+					</div>
+					<div class="horario-content">
+						<span>1</span>
+						<span>XIV1</span>
+						<span>Profesor</span>
+						<span>Materia</span>
+						<span>00:00 - 01:00</span>
+						<div class="acciones">
+							<label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Asis.
+							  </label>
+	
+							  <label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Retardo
+							  </label>
+	
+							  <label class="container">
+								<input type="checkbox">
+								<div class="checkmark"></div>
+								Falta
+							  </label>
+						</div>
+					</div>
+				</div>
+				
+			</div>
 
        
       </main>
@@ -184,7 +264,7 @@
 
     <script src="https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
 
-	<script src="/ADM_menu.js"></script> 
+	<script src="/ADM_IA.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
         window.addEventListener("DOMContentLoaded", async () => {
