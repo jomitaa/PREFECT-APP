@@ -1245,3 +1245,25 @@ main .breadcrumbs li.divider {
 .crear:hover {
   background-color: var(--dark-blue);
 }
+/* Corrección para el select con ícono */
+.form-register label select {
+  width: 100%;
+  padding: 12px 15px 12px 45px;
+  border: 1px solid var(--grey);
+  border-radius: 8px;
+  background: var(--grey);
+  font-size: 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='16' height='16' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5l6 6 6-6' stroke='%23666' stroke-width='2' fill='none' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+.form-register label select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(23, 117, 241, 0.1);
+  outline: none;
+}
