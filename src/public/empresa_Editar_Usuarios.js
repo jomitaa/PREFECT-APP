@@ -79,6 +79,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // Expresión regular para correos institucionales del IPN
+const emailRegexIPN = /^[a-zA-Z0-9_.+-]+@(alumno\.)?ipn\.mx$/i;
+
+
+
   window.abrirModal = (id, nombre, correo = '', escuela = '') => {
     usuarioSeleccionadoId = id;
     inputNombre.value = nombre;
@@ -104,9 +109,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     modal.classList.remove('modal--show');
   });
 
+// Expresión regular para correos institucionales del IPN
+
   btnEditar.addEventListener('click', async () => {
     const nuevoNombre = inputNombre.value.trim();
     const nuevoCorreo = inputCorreo.value.trim();
+    if ( nuevoCorreo && !emailRegexIPN.test(nuevoCorreo)) {
+      alertaError.textContent = 'El correo debe ser institucional del IPN'
+      alertaError.classList.add('show');
+      setTimeout(() => alertaError.classList.remove('show'), 3000);
+      return;
+    }
     const nuevaEscuela = selectEscuela.value;
     const nuevaContrasena = inputContrasena.value.trim();
 
