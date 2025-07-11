@@ -137,7 +137,7 @@ app.use(session({
     cookie: { 
         secure: false, 
         httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: null,
         expires: false
      } // Usa secure: true si usas HTTPS
 }));
@@ -349,6 +349,8 @@ app.post('/login', async (req, res) => {
     console.log("Cuerpo recibido en /login:", req.body); 
     const { userName, userPassword, rememberMe } = req.body;
 
+    console.log("Datos de inicio de sesión:", { userName, userPassword, rememberMe });
+
     if (!userName || !userPassword) {
         return res.json({ success: false, message: 'Nombre de usuario o contraseña no proporcionados.' });
     }
@@ -402,12 +404,18 @@ app.post('/login', async (req, res) => {
         req.session.cargo = user.cargo.trim();
         req.session.id_escuela = user.id_escuela;
 
-        if (rememberMe) {
+        
+
+        const remember = rememberMe === true || rememberMe === 'true';
+
+        console.log("Recordar sesión:", remember);
+        
+        if (remember) {
             req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 días
-            console.log("Sesión configurada para 30 días.");
+            req.session.cookie.expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
         } else {
-            req.session.cookie.expires = false; // Hasta que cierre el navegador
-            console.log("Sesión configurada para durar solo mientras el navegador esté abierto.");
+            req.session.cookie.expires = false;
+            req.session.cookie.maxAge = null;
         }
 
         console.log(`OTP generado para ${userName}:`, otpCode);

@@ -10,7 +10,6 @@ registroAsistenciaSeleccionado = '';
 
 
 
-// Función para mostrar/ocultar el spinner
 function showLoading(show) {
   if (show) {
     const overlay = document.createElement('div');
