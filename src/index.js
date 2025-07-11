@@ -178,6 +178,7 @@ const protectedRoutesAdmin = [
 const protectedRoutesPrefecto = [
     '/pages/PRF_menu.html',
     '/pages/PRF_1ER_PISO.html',
+    '/pages/PRF_1_piso.html', 
     '/pages/PRF_2DO_PISO.html',
     '/pages/PRF_3ER_PISO.html',
     '/pages/PRF_Reportes.html'
@@ -258,6 +259,10 @@ app.get('/pages/ADM_IA.html', (req, res) => {
 // Rutas PREFECTO
 app.get('/pages/PRF_menu.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'pages', 'PRF_menu.html'));
+});
+
+app.get('/pages/PRF_1_piso.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'pages', 'PRF_1_piso.html'));
 });
 
 app.get('/pages/PRF_1ER_PISO.html', (req, res) => {
