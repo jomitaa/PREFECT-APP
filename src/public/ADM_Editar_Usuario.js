@@ -27,7 +27,7 @@ const estadoValidacionCampos = {
     console.log("Alerta de éxito edición:", alertaExitoEdit);
   
     const userNameRegex = /^[a-zA-Z0-9\_\-]{4,16}$/;
-    const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+const emailRegexIPN = /^[a-zA-Z0-9_.+-]+@(alumno\.)?ipn\.mx$/i;
     const passwordRegex = /^.{4,12}$/;
   
     const cargoValidos = ['prefecto', 'admin'];
@@ -37,8 +37,12 @@ const estadoValidacionCampos = {
     });
   
     inputEmail.addEventListener("input", () => {
-      validarCampo(emailRegex, inputEmail, "El correo solo puede contener letras, números, puntos, guiones y guión bajo.");
-    });
+    validarCampo(
+        emailRegexIPN, 
+        inputEmail, 
+        "Solo se permiten correos institucionales del IPN (ejemplo: usuario@ipn.mx o usuario@alumno.ipn.mx)"
+    );
+});
   
     inputPass.addEventListener("input", () => {
       validarCampo(passwordRegex, inputPass, "La contraseña tiene que ser de 4 a 12 dígitos");
