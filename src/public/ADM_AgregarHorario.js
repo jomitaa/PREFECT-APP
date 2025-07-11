@@ -487,6 +487,12 @@ document.getElementById('btnEnviar').addEventListener('click', async (e) => {
         });
 
         const resultado = await respuesta.json();
+        if (resultado.message === "Horario guardado correctamente") {
+            createToast('Correcto', 'fa-solid fa-circle-check', 'Éxito', 'Horario guardado correctamente.');
+        } else {
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', resultado.message || 'Error al guardar el horario.');
+        }
+
 
         if (resultado.success) {
             createToast('Correcto', 'fa-solid fa-circle-check', 'Éxito', 'Horario guardado correctamente.');
@@ -569,3 +575,9 @@ function createToast(tipo, icono, titulo, mensaje) {
     toast.remove();
   }, 5000); // duración del toast
 }
+// Mostrar nombre del archivo CSV seleccionado
+document.getElementById('csvHorariosNombres').addEventListener('change', function () {
+  const archivo = this.files[0];
+  const nombre = archivo ? archivo.name : 'Ningún archivo seleccionado';
+  document.getElementById('nombreArchivoCSV').textContent = `Archivo seleccionado: ${nombre}`;
+});
