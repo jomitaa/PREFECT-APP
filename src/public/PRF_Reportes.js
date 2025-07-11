@@ -52,6 +52,8 @@ document.getElementById('form-reporte').addEventListener('submit', async functio
       alertaExito.style.display = 'block';
       setTimeout(() => { alertaExito.style.display = 'none'; }, 4000);
       document.getElementById('form-reporte').reset();
+      document.getElementById('imagen-preview').innerHTML = '';
+
       
       // Opcional: Mostrar vista previa de la imagen subida
       if (resultData.imageUrl) {
