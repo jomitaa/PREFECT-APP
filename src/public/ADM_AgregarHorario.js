@@ -544,3 +544,28 @@ document.getElementById("btnCargarHorariosNombresCSV").addEventListener("click",
     );
   }
 });
+function createToast(tipo, icono, titulo, mensaje) {
+  const alerta = document.querySelector('.alerta');
+  const toast = document.createElement('div');
+  toast.classList.add('toast');
+  if (tipo) toast.classList.add(tipo);
+
+  toast.innerHTML = `
+    <div class="icono">
+      <i class="${icono}"></i>
+    </div>
+    <div class="content">
+      <span class="title">${titulo}</span>
+      <span>${mensaje}</span>
+    </div>
+    <div class="close">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+  `;
+
+  alerta.appendChild(toast);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 5000); // duración del toast
+}
