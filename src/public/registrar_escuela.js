@@ -9,6 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const nom_escuela = form.nom_escuela.value.trim();
       const CCT = form.CCT.value.trim();
       const telefono_escuela = form.telefono_escuela.value.trim();
+
+      if (!/^\d{7,15}$/.test(telefono_escuela)) {
+        mostrarMensaje(alertaError, "El teléfono debe contener solo números (7 a 15 dígitos).", false);
+        return;
+      }
+
   
       // Validaciones básicas
       if (!nom_escuela || !CCT || !telefono_escuela) {

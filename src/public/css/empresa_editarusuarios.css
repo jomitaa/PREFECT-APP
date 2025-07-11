@@ -1267,3 +1267,20 @@ main .breadcrumbs li.divider {
   box-shadow: 0 0 0 3px rgba(23, 117, 241, 0.1);
   outline: none;
 }
+.fixed-alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 9999;
+  display: none;
+  transition: opacity 0.3s ease;
+}
+
+.fixed-alert.show {
+  display: block;
+}

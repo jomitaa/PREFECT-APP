@@ -560,10 +560,11 @@ app.post('/api/escuelas', async (req, res) => {
 //---------------------------------EDITSR ESCUELAS -----------------------------
 // Traer escuela por ID (para cargar en el modal de edición)
 // Obtener TODAS las escuelas
+// Obtener TODAS las escuelas (menos la 2)
 app.get('/api/escuelas', async (req, res) => {
   try {
     const [rows] = await conexion.promise().query(
-      'SELECT ID_escuela, nom_escuela FROM escuela WHERE ID_escuela != 2'
+      'SELECT ID_escuela, nom_escuela, CCT, telefono_escuela FROM escuela WHERE ID_escuela != 2'
     );
     res.json(rows);
   } catch (err) {
@@ -572,21 +573,27 @@ app.get('/api/escuelas', async (req, res) => {
   }
 });
 
+
   
   // Obtener una escuela por su ID
-  app.get('/api/escuelas/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-      const [rows] = await conexion.promise().query('SELECT ID_escuela, nom_escuela, CCT, telefono_escuela FROM escuela WHERE ID_escuela = ?', [id]);
-      if (rows.length === 0) {
-        return res.status(404).json({ message: 'Escuela no encontrada' });
-      }
-      res.json(rows[0]);
-    } catch (error) {
-      console.error('Error obteniendo escuela por ID:', error);
-      res.status(500).json({ message: 'Error interno del servidor' });
+app.get('/api/escuelas/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await conexion.promise().query(
+      'SELECT ID_escuela, nom_escuela, CCT, telefono_escuela FROM escuela WHERE ID_escuela = ?',
+      [id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Escuela no encontrada' });
     }
-  });
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error obteniendo escuela por ID:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+
   
   // Actualizar una escuela
   app.put('/api/escuelas/:id', async (req, res) => {
@@ -1034,10 +1041,11 @@ async function actualizarFalta(validacion_falta, id_horario) {
 app.get('/api/usuarios', async (req, res) => {
     try {
         const [rows] = await conexion.promise().query(`
-            SELECT ID_usuario, nom_usuario, cargo, contraseña 
-            FROM usuario 
-            WHERE cargo = 'admin'
-        `);
+            SELECT usuario.*, escuela.nom_escuela
+            FROM usuario
+            LEFT JOIN escuela ON usuario.id_escuela = escuela.ID_escuela
+            WHERE usuario.cargo = "admin"
+         `);
 
         if (rows.length === 0) {
             return res.status(404).json({ message: 'No hay administradores registrados.' });
@@ -1085,36 +1093,114 @@ app.get('/api/usuarios/:id', async (req, res) => {
 
 // Ruta para actualizar administrador
 app.put('/api/usuarios/:id', async (req, res) => {
-    const { id } = req.params;
-    const { nom_usuario, contrasena } = req.body;
+  const id = req.params.id;
+  const { nom_usuario, correo, id_escuela, contrasena } = req.body;
 
-    try {
-        // Si no envían contraseña nueva
-        if (!contrasena || contrasena.trim() === '') {
-            // Solo actualizar nombre de usuario
-            await conexion.promise().query(`
-                UPDATE usuario
-                SET nom_usuario = ?
-                WHERE ID_usuario = ? AND cargo = 'admin'
-            `, [nom_usuario, id]);
-        } else {
-            // Si envían nueva contraseña, la encriptamos
-            const hashedPassword = await bcrypt.hash(contrasena, 10);
+  // ✅ Paso 1: Verificar que el usuario tenga cargo 'admin'
+  try {
+    const [rows] = await conexion.promise().query(
+      'SELECT cargo FROM usuario WHERE ID_usuario = ?',
+      [id]
+    );
 
-            await conexion.promise().query(`
-                UPDATE usuario
-                SET nom_usuario = ?, contraseña = ?
-                WHERE ID_usuario = ? AND cargo = 'admin'
-            `, [nom_usuario, hashedPassword, id]);
-        }
-
-        res.json({ message: 'Administrador actualizado exitosamente.' });
-
-    } catch (error) {
-        console.error('Error actualizando administrador:', error);
-        res.status(500).json({ message: 'Error interno del servidor.' });
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado.' });
     }
+
+    if (rows[0].cargo !== 'admin') {
+      return res.status(403).json({ error: 'Solo se pueden editar usuarios con cargo admin.' });
+    }
+  } catch (err) {
+    console.error('Error al verificar el cargo:', err);
+    return res.status(500).json({ error: 'Error al verificar el cargo del usuario.' });
+  }
+
+  // ✅ Paso 2: Validar que haya al menos un campo para actualizar
+  if (!nom_usuario && !correo && !id_escuela && !contrasena) {
+    return res.status(400).json({ error: 'No se enviaron datos para actualizar.' });
+  }
+
+  // ✅ Paso 3: Armar dinámicamente el query
+  const campos = [];
+  const valores = [];
+
+  if (nom_usuario) {
+    campos.push('nom_usuario = ?');
+    valores.push(nom_usuario);
+  }
+
+  if (correo) {
+    campos.push('correo = ?');
+    valores.push(correo);
+  }
+
+  if (id_escuela) {
+    campos.push('id_escuela = ?');
+    valores.push(id_escuela);
+  }
+
+  if (contrasena) {
+    const hashed = await bcrypt.hash(contrasena, 10);
+    campos.push('contraseña = ?');
+    valores.push(hashed);
+  }
+
+  // ✅ Siempre forzamos que el cargo se mantenga como 'admin'
+  campos.push('cargo = ?');
+  valores.push('admin');
+
+  valores.push(id); // El ID va al final para el WHERE
+
+  const query = `UPDATE usuario SET ${campos.join(', ')} WHERE ID_usuario = ?`;
+
+  try {
+    const [result] = await conexion.promise().query(query, valores);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado.' });
+    }
+
+    res.status(200).json({ message: 'Usuario actualizado correctamente.' });
+  } catch (err) {
+    console.error('Error al actualizar usuario:', err);
+    res.status(500).json({ error: 'Error en el servidor.' });
+  }
 });
+
+app.delete('/api/usuarios/:id', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    // Verificar si el usuario existe y es admin
+    const [rows] = await conexion.promise().query(
+      'SELECT cargo FROM usuario WHERE ID_usuario = ?',
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado.' });
+    }
+
+    if (rows[0].cargo !== 'admin') {
+      return res.status(403).json({ error: 'Solo se pueden eliminar usuarios con cargo admin.' });
+    }
+
+    // Eliminar usuario
+    const [result] = await conexion.promise().query(
+      'DELETE FROM usuario WHERE ID_usuario = ?',
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'No se pudo eliminar el usuario.' });
+    }
+
+    res.status(200).json({ message: 'Usuario eliminado correctamente.' });
+  } catch (err) {
+    console.error('Error al eliminar usuario:', err);
+    res.status(500).json({ error: 'Error en el servidor.' });
+  }
+});
+
 
 // ------------------------------- RUTA DE MOSTRAR USUARIOS  --------------------------------
 

@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         divDetails.innerHTML = `
           <h3>${usuario.nom_usuario}</h3>
           <p>Cargo: ${usuario.cargo}</p>
+          <p>Escuela: ${usuario.nom_escuela || 'No asignada'}</p>
         `;
 
         divUser.appendChild(divImgBx);
@@ -109,66 +110,83 @@ document.addEventListener('DOMContentLoaded', async () => {
     const nuevaEscuela = selectEscuela.value;
     const nuevaContrasena = inputContrasena.value.trim();
 
-    if (!nuevoNombre || !nuevoCorreo || !nuevaEscuela) {
-      alertaError.textContent = 'Todos los campos son obligatorios.';
+    const datos = {};
+    if (nuevoNombre) datos.nom_usuario = nuevoNombre;
+    if (nuevoCorreo) datos.correo = nuevoCorreo;
+    if (nuevaEscuela) datos.id_escuela = nuevaEscuela;
+    if (nuevaContrasena) datos.contrasena = nuevaContrasena;
+
+    if (Object.keys(datos).length === 0) {
+      alertaError.textContent = 'Debes modificar al menos un campo.';
       alertaError.classList.add('show');
+      setTimeout(() => alertaError.classList.remove('show'), 3000);
       return;
     }
 
     try {
-      alertaError.classList.remove('show');
-      alertaExito.classList.remove('show');
-
-      const res = await fetch(`/api/editarsur/${usuarioSeleccionadoId}`, {
+      const res = await fetch(`/api/usuarios/${usuarioSeleccionadoId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userName: nuevoNombre,
-          userEmail: nuevoCorreo,
-          userCargo: nuevaEscuela,
-          userPassword: nuevaContrasena,
-          confirmar_contrasena: nuevaContrasena
-        })
+        body: JSON.stringify(datos)
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        alertaExito.textContent = 'Usuario editado exitosamente.';
-        alertaExito.classList.add('show');
-        modal.classList.remove('modal--show');
-        cargarUsuarios();
+        const alertaGlobal = document.getElementById('alertaGlobal');
+        const mensajeToast = document.getElementById('mensajeToast');
+
+        mensajeToast.textContent = data.message || 'Usuario editado exitosamente';
+        alertaGlobal.style.display = 'grid';
+
+        setTimeout(() => {
+          alertaGlobal.style.display = 'none';
+        }, 4000);
+
       } else {
-        alertaError.textContent = data.error || 'Error inesperado al editar.';
+        alertaError.textContent = data.error || 'Error inesperado.';
         alertaError.classList.add('show');
+        setTimeout(() => alertaError.classList.remove('show'), 3000);
       }
-    } catch (error) {
-      alertaError.textContent = 'Error de conexión al editar.';
+    } catch (err) {
+      alertaError.textContent = 'Error de conexión.';
       alertaError.classList.add('show');
     }
   });
 
 
+
   btnBorrar.addEventListener('click', async () => {
+    const alertaGlobal = document.getElementById('alertaGlobal');
+    const mensajeToast = document.getElementById('mensajeToast');
+
     try {
-      const res = await fetch(`/api/editarsur/${usuarioSeleccionadoId}`, {
+      const res = await fetch(`/api/usuarios/${usuarioSeleccionadoId}`, {
         method: 'DELETE'
       });
 
       if (res.ok) {
-        alertaExito.textContent = 'Usuario eliminado.';
-        alertaExito.classList.add('show');
+        mensajeToast.textContent = 'Usuario eliminado correctamente.';
+        alertaGlobal.style.display = 'grid';
+
         modal2.classList.remove('modal--show2');
         cargarUsuarios();
+
+        setTimeout(() => {
+          alertaGlobal.style.display = 'none';
+        }, 4000);
       } else {
         alertaError.textContent = 'No se pudo eliminar el usuario.';
         alertaError.classList.add('show');
+        setTimeout(() => alertaError.classList.remove('show'), 3000);
       }
     } catch (err) {
       alertaError.textContent = 'Error de conexión al borrar.';
       alertaError.classList.add('show');
+      setTimeout(() => alertaError.classList.remove('show'), 3000);
     }
   });
+
 
   window.cerrarSesion = async () => {
     try {

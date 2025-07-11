@@ -8,6 +8,15 @@
   <link rel="stylesheet" href="/css/empresa_editarusuarios.css">
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
+<div class="alerta fixed-alert" id="alertaGlobal">
+  <div class="toast">
+    <div class="icono"><i class="bx bx-check-circle"></i></div>
+    <div class="content">
+      <span class="title">Éxito</span>
+      <span class="mensaje-toast" id="mensajeToast">Usuario editado exitosamente</span>
+    </div>
+  </div>
+</div>
 <body>
 <section id="sidebar">
       <a href="#" class="brand"><i class="bx bxs-parking icon"></i> PREFECT APP</a>
@@ -95,7 +104,6 @@
               <input type="password" id="contrasenaEditar" placeholder="Nueva contraseña (opcional)"></label>
             <button type="button" class="btnEditar">Confirmar Edición</button>
             <div class="alerta-error"></div>
-            <div class="alerta-exito"></div>
           </form>
           <a href="#" class="modal__close2">Cancelar</a>
         </div>

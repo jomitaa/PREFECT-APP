@@ -9,7 +9,7 @@ async function obtenerNumeroEscuelas() {
             throw new Error('Error al obtener el número de escuelas');
         }
         const data = await response.json();
-        no_escuelas.textContent = `Hay ${data.totalEscuelas} escuelas registradas`;    } catch (error) {
+        no_escuelas.textContent = `Hay ${data.totalEscuelas -1} escuelas registradas`;    } catch (error) {
         console.error('Error:', error);
         no_escuelas.textContent = 'Error al cargar';
     }
