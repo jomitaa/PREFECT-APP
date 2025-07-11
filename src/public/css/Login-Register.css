@@ -174,11 +174,6 @@ body {
   font-size: 10px;
 }
 
-.form > .alerta-error,
-.form > .alerta-exito {
-  display: none;
-}
-
 .alerta .alertaError {
   display: block;
   background-color: #F66060;
@@ -646,3 +641,20 @@ button:hover {
         .rejected .view-terms-btn {
             display: block;
         }
+.alerta-error {
+  display: none;
+  background-color: #F66060;
+  color: white;
+  padding: 10px;
+  margin-top: 10px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.alerta-error.alertaError,
+.alerta-error.mostrar,
+.alerta-error.show {
+  display: block;
+}

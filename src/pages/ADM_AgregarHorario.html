@@ -165,7 +165,14 @@
           <li>/</li>
           <li>Horarios / Agregar Horarioso</li>
         </ul>
-
+        <div class="contenedor-csv">
+          <h3>Cargar horarios desde CSV</h3>
+            <label class="file-upload-label">
+            <input type="file" id="csvHorariosNombres" accept=".csv" />
+              Seleccionar archivo CSV
+            </label>
+            <button id="btnCargarHorariosNombresCSV" class="btn">Cargar CSV</button>
+        </div>
        <div class="filters">
   <!-- Select de Turno -->
   <div class="contenedor-select-persona">
@@ -880,14 +887,8 @@
           <div class="blur-overlay bottom"></div>
         </div>
         <button type="button" class="btnEnviar" id="btnEnviar">
-          enviarrrrrr
+          ENVIAR
         </button>
-
-        <div class="contenedor-csv">
-          <h3>Cargar horarios desde CSV</h3>
-          <input type="file" id="csvHorariosNombres" accept=".csv" />
-          <button id="btnCargarHorariosNombresCSV" class="btn">Cargar CSV</button>
-        </div>
 
 
       </main>

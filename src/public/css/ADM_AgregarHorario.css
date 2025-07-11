@@ -1123,3 +1123,135 @@ main .info-data {
 #btnCargarHorariosNombresCSV:active {
     transform: scale(0.98);
 }
+.modal-modo-inicio {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-contenido {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+}
+
+.modal-contenido h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.modo-btn {
+  background: var(--blue);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  margin: 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modo-btn:hover {
+  background: var(--dark-blue);
+}
+
+.instrucciones-csv {
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #333;
+  background: #f2f2f2;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-family: monospace;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.modal-modo-inicio {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-contenido {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+}
+
+.modal-contenido h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.modo-btn {
+  background: var(--blue);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  margin: 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modo-btn:hover {
+  background: var(--dark-blue);
+}
+
+.instrucciones-csv {
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #333;
+  background: #f2f2f2;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-family: monospace;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Input file estilizado */
+.file-upload-label {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: var(--blue);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+  margin-bottom: 15px;
+}
+.file-upload-label:hover {
+  background-color: var(--dark-blue);
+}
+.file-upload-label input[type="file"] {
+  display: none;
+}
+
+/* Corrección de transparencia exagerada en .horario-header */
+.horario-header {
+  background: var(--blue) !important;
+  opacity: 1 !important;
+}

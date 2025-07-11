@@ -1089,3 +1089,21 @@ input, select, textarea, button,
         max-width: 100%;
     }
 }
+input[type="date"] {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #333;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+input[type="date"]:hover,
+input[type="date"]:focus {
+  background: #fff;
+  border-color: var(--blue);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--light-blue);
+}

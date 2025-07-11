@@ -1015,3 +1015,23 @@ main .breadcrumbs li.divider {
   .contenedor-select .opciones li.seleccionado {
     background-color: #f0f7ff;
   }
+
+  /* Corrección visual para el campo de fecha */
+input[type="date"] {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #333;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+input[type="date"]:hover,
+input[type="date"]:focus {
+  background: #fff;
+  border-color: var(--blue);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--light-blue);
+}

@@ -86,13 +86,13 @@ const estadoValidacionCampos = {
   // Función para mostrar el formulario de OTP
   function mostrarFormularioOTP() {
     document.body.innerHTML = `
-        <div class="otp-container">
-            <h2>Verificación en dos pasos</h2>
-            <p>Ingresa el código enviado a tu correo:</p>
-            <input type="text" id="otp-input" placeholder="Código de Verificacion" required>
-            <button onclick="verificarOTP()">Verificar</button>
-            <div class="alerta-error"></div>
-        </div>
+      <div class="otp-container">
+          <h2>Verificación en dos pasos</h2>
+          <p>Ingresa el código enviado a tu correo:</p>
+          <input type="text" id="otp-input" placeholder="Código de Verificacion" required>
+          <button onclick="verificarOTP()">Verificar</button>
+          <div class="alerta-error" id="alerta-otp"></div>
+      </div>
     `;
   }
   
@@ -164,9 +164,9 @@ const estadoValidacionCampos = {
   
   // Función para mostrar mensajes de error generales
   function mostrarMensajeGeneral(referencia, mensaje) {
-    referencia.classList.add("alertaError"); 
+    referencia.classList.add("alertaError", "show");
     referencia.textContent = mensaje;
-  
+
     setTimeout(() => {
       eliminarMensajeGeneral(referencia);
     }, 3000);
@@ -175,17 +175,17 @@ const estadoValidacionCampos = {
   // Función para eliminar mensajes de error generales
   function eliminarMensajeGeneral(referencia) {
     referencia.textContent = "";
-    referencia.classList.remove("alertaError"); 
+    referencia.classList.remove("alertaError", "show");
   }
   
   // Función para mostrar mensajes en la verificación OTP
   function mostrarMensaje(elemento, mensaje) {
     elemento.textContent = mensaje;
-    elemento.classList.add("mostrar");
-  
+    elemento.classList.add("alertaError", "show");
+
     setTimeout(() => {
       elemento.textContent = "";
-      elemento.classList.remove("mostrar");
+      elemento.classList.remove("alertaError", "show");
     }, 3000);
   }
   

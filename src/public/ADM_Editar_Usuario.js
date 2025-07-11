@@ -299,7 +299,9 @@ const estadoValidacionCampos = {
                         <div class="details">
                             <h3>${usuario.nom_usuario}</h3>
                             <p>Cargo: ${usuario.cargo}</p>
-                            <p>Contraseña: ${usuario.contraseña}</p>
+                            <p>Contraseña: <span class="pw" data-real="${usuario.contraseña}">••••••••</span>
+  <button class="toggle-pw">👁️</button>
+</p>
                         </div>
                     </div>
                     <div class="navigation">
