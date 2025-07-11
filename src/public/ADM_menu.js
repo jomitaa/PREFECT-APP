@@ -6,7 +6,38 @@ const contenedorPeriodo = document.querySelector('.contenedor-select');
 const contenedorProfesor = document.querySelector('.contenedor-select[data-type="profesor"]');
 const contenedorMateria = document.querySelector('.contenedor-select[data-type="materia"]');
 
+function showLoading(show) {
+  if (show) {
+    const overlay = document.createElement('div');
+    overlay.className = 'loading-overlay';
+    overlay.innerHTML = '<div class="loading-spinner"></div>';
+    overlay.id = 'loading-overlay';
+    document.body.appendChild(overlay);
+  } else {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.remove();
+  }
+}
 
+
+const style = document.createElement('style');
+style.textContent = `
+  .no-horarios-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #666;
+    font-size: 1.2rem;
+  }
+  .no-horarios-message i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #aaa;
+  }
+`;
+document.head.appendChild(style);
 
 // --------------------------- selec periodos ---------------------------
 
@@ -756,6 +787,8 @@ function generarGraficaLineas(data) {
 
  // Evento para descargar PDF
 btnPDF.addEventListener("click", async () => {
+      showLoading(true);
+
     try {
         // Obtener información del profesor/materia seleccionada
         const profesorSeleccionado = profesorSeleccc.id === "todos" 
@@ -789,10 +822,65 @@ btnPDF.addEventListener("click", async () => {
         const fecha = new Date().toLocaleDateString();
         
         // Agregar título personalizado
-        let titulo = `Reporte de Asistencias - ${fecha}\n`;
-        titulo += `Profesor: ${profesorSeleccionado}\n`;
-        titulo += `Materia: ${materiaSeleccionada}\n`;
-        titulo += `Período: ${periodoSeleccionado}`;
+        // Función para calcular el rango de fechas según el período
+function calcularRangoFechas(periodo, fechaInicio = new Date()) {
+    const fechaInicioObj = new Date(fechaInicio);
+    const fechaFinObj = new Date(fechaInicioObj);
+    
+    switch(periodo.toLowerCase()) {
+        case 'día':
+        case 'dia':
+            // Mismo día
+            fechaFinObj.setDate(fechaInicioObj.getDate());
+            break;
+        case 'semana':
+            // 7 días después
+            fechaFinObj.setDate(fechaInicioObj.getDate() + 6);
+            break;
+        case 'mes':
+            // Fin de mes
+            fechaFinObj.setMonth(fechaInicioObj.getMonth() + 1);
+            fechaFinObj.setDate(0);
+            break;
+        case 'semestral':
+            // 6 meses después
+            fechaFinObj.setMonth(fechaInicioObj.getMonth() + 6);
+            break;
+        case 'año':
+        case 'anio':
+            // Fin de año
+            fechaFinObj.setFullYear(fechaInicioObj.getFullYear() + 1);
+            fechaFinObj.setMonth(0);
+            fechaFinObj.setDate(0);
+            break;
+        default:
+            // Por defecto, mismo día
+            fechaFinObj.setDate(fechaInicioObj.getDate());
+    }
+    
+    // Formatear fechas a string legible
+    const formatoFecha = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    };
+    
+    return {
+        inicio: fechaInicioObj.toLocaleDateString('es-MX', formatoFecha),
+        fin: fechaFinObj.toLocaleDateString('es-MX', formatoFecha)
+    };
+}
+
+// En tu código donde generas el título:
+let titulo = `Reporte de Asistencias - ${fecha}\n`;
+titulo += `Profesor: ${profesorSeleccionado}\n`;
+titulo += `Materia: ${materiaSeleccionada}\n`;
+
+// Calcular rango de fechas
+const rangoFechas = calcularRangoFechas(periodoSeleccionado, new Date());
+
+// Agregar período con rango de fechas
+titulo += `Período: ${periodoSeleccionado} (Del ${rangoFechas.inicio} al ${rangoFechas.fin})`;
         
         // Dividir el título en líneas
         const tituloLineas = doc.splitTextToSize(titulo, 180);
@@ -842,6 +930,8 @@ btnPDF.addEventListener("click", async () => {
     } catch (err) {
         console.error("Error al generar PDF:", err);
         mostrarError("Error al generar el PDF");
+    } finally {
+        showLoading(false);
     }
 });
 

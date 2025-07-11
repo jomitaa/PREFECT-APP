@@ -751,6 +751,7 @@ app.get('/api/escuelas/:id', async (req, res) => {
   
   
 // --------------------------------  REGISTRAR  --------------------------------
+
 const tokenStore = new Map();
 
 // 📩 Configuración de Nodemailer

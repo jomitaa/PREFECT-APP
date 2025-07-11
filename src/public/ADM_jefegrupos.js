@@ -587,13 +587,22 @@ btnCrear.addEventListener('click', () => {
     modal3.classList.remove('modal--show3');
   });
 
+  const emailRegexIPN = /^[a-zA-Z0-9_.+-]+@(alumno\.)?ipn\.mx$/i;
+
 
 
   btnEditar.addEventListener('click', async () => {
     const nuevoNombre = inputNombre.value.trim();
     const nuevoAppat = inputAppat.value.trim();
     const nuevoApmat = inputApmat.value.trim();
+
     const nuevoCorreo = inputCorreo.value.trim();
+    if ( nuevoCorreo && !emailRegexIPN.test(nuevoCorreo)) {
+      alertaError.textContent = 'El correo debe ser institucional del IPN'
+      alertaError.classList.add('show');
+      setTimeout(() => alertaError.classList.remove('show'), 3000);
+      return;
+    }
     const nuevaBoleta = inputBoleta.value.trim();
     const nuevoGrupo = grupoJefeSeleccionado.id;
 
@@ -698,11 +707,11 @@ document.getElementById('mandarCorreoJefe').addEventListener('click', async func
         return;
     }
 
-    if (!correo.includes('@') || !correo.includes('.')) {
-        alertaError.textContent = 'Por favor, ingrese un correo válido.';
-        alertaError.classList.add('show');
-        alertaExito.classList.remove('show');
-        return;
+   if ( correo && !emailRegexIPN.test(correo)) {
+      alertaError.textContent = 'El correo debe ser institucional del IPN'
+      alertaError.classList.add('show');
+      setTimeout(() => alertaError.classList.remove('show'), 3000);
+      return;
     }
 
     try {
