@@ -131,14 +131,15 @@ const query = (sql, params) => {
 app.set("port", 3000);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-    secret: 'jomitaaz',  // Cambia esto por un secreto seguro
+    secret: 'prefectapp-secret', 
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: false, 
+        secure: false, // true en producción con HTTPS
         httpOnly: true,
-        maxAge: null,
-        expires: false
+        sameSite: 'strict',
+        maxAge: null 
+        
      } // Usa secure: true si usas HTTPS
 }));
 
@@ -407,16 +408,20 @@ app.post('/login', async (req, res) => {
         
 
         const remember = rememberMe === true || rememberMe === 'true';
+    console.log(`Remember Me: ${remember}`);
 
-        console.log("Recordar sesión:", remember);
+  
+    if (remember) {
+        req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 días
+        req.session.cookie.expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    } else {
+        // Esto es lo más importante para tu caso
+        req.session.cookie.expires = false;
+        req.session.cookie.maxAge = null;
         
-        if (remember) {
-            req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 días
-            req.session.cookie.expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-        } else {
-            req.session.cookie.expires = false;
-            req.session.cookie.maxAge = null;
-        }
+        // Fuerza la cookie de sesión
+        req.session.cookie.originalMaxAge = null;
+    }
 
         console.log(`OTP generado para ${userName}:`, otpCode);
 
@@ -448,6 +453,12 @@ app.post('/verify-otp', async (req, res) => {
 
     if (!req.session.otp || req.session.otp != otpCode) {
         return res.json({ success: false, message: "Código incorrecto." });
+    }
+
+     if (!req.session.rememberMeConfigured && req.session.cookie) {
+        req.session.cookie.expires = false;
+        req.session.cookie.maxAge = null;
+        req.session.rememberMeConfigured = true;
     }
 
     req.session.loggedin = true;
