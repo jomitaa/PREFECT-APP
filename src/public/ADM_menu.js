@@ -1,6 +1,6 @@
-let periodoSeleccc = "dia"; 
-let profesorSeleccc = "todos";
-let materiaSeleccc = "todas";
+let profesorSeleccc = { id: "todos", nombre: "Todos" };
+let materiaSeleccc = { id: "todas", nombre: "Todas" };
+let periodoSeleccc = "dia";
 
 const contenedorPeriodo = document.querySelector('.contenedor-select');
 const contenedorProfesor = document.querySelector('.contenedor-select[data-type="profesor"]');
@@ -787,25 +787,25 @@ function generarGraficaLineas(data) {
 
  // Evento para descargar PDF
 btnPDF.addEventListener("click", async () => {
-      showLoading(true);
+    showLoading(true);
 
     try {
-        // Obtener información del profesor/materia seleccionada
-        const profesorSeleccionado = profesorSeleccc.id === "todos" 
-            ? "General" 
-            : profesorSeleccc.nombre;
+        // Obtener información del profesor/materia seleccionada con validaciones
+        const profesorSeleccionado = (profesorSeleccc && profesorSeleccc.id === "todos") 
+            ? "Todos los profesores" 
+            : (profesorSeleccc && profesorSeleccc.nombre) ? profesorSeleccc.nombre : "Profesor no especificado";
         
-        const materiaSeleccionada = materiaSeleccc.id === "todas" || !materiaSelect
+        const materiaSeleccionada = (materiaSeleccc && materiaSeleccc.id === "todas") 
             ? "Todas las materias" 
-            : materiaSeleccc.nombre;
+            : (materiaSeleccc && materiaSeleccc.nombre) ? materiaSeleccc.nombre : "Materia no especificada";
         
-        const periodoSeleccionado = periodoSeleccc;
+        const periodoSeleccionado = periodoSeleccc || "Período no especificado";
 
         // Crear tabla oculta con los datos
         const tablaOculta = crearTablaOculta();
         document.body.appendChild(tablaOculta);
         
-        // Obtener datos para la tabla (usamos la misma función que para la gráfica)
+        // Obtener datos para la tabla
         const datosTabla = await obtenerDatosParaTabla();
         
         // Llenar la tabla con los datos
@@ -819,68 +819,67 @@ btnPDF.addEventListener("click", async () => {
         
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const fecha = new Date().toLocaleDateString();
         
-        // Agregar título personalizado
-        // Función para calcular el rango de fechas según el período
-function calcularRangoFechas(periodo, fechaInicio = new Date()) {
-    const fechaInicioObj = new Date(fechaInicio);
-    const fechaFinObj = new Date(fechaInicioObj);
-    
-    switch(periodo.toLowerCase()) {
-        case 'día':
-        case 'dia':
-            // Mismo día
-            fechaFinObj.setDate(fechaInicioObj.getDate());
-            break;
-        case 'semana':
-            // 7 días después
-            fechaFinObj.setDate(fechaInicioObj.getDate() + 6);
-            break;
-        case 'mes':
-            // Fin de mes
-            fechaFinObj.setMonth(fechaInicioObj.getMonth() + 1);
-            fechaFinObj.setDate(0);
-            break;
-        case 'semestral':
-            // 6 meses después
-            fechaFinObj.setMonth(fechaInicioObj.getMonth() + 6);
-            break;
-        case 'año':
-        case 'anio':
-            // Fin de año
-            fechaFinObj.setFullYear(fechaInicioObj.getFullYear() + 1);
-            fechaFinObj.setMonth(0);
-            fechaFinObj.setDate(0);
-            break;
-        default:
-            // Por defecto, mismo día
-            fechaFinObj.setDate(fechaInicioObj.getDate());
-    }
-    
-    // Formatear fechas a string legible
-    const formatoFecha = { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-    };
-    
-    return {
-        inicio: fechaInicioObj.toLocaleDateString('es-MX', formatoFecha),
-        fin: fechaFinObj.toLocaleDateString('es-MX', formatoFecha)
-    };
-}
+        // Usar fecha actual con formato seguro
+        const fechaActual = new Date();
+        const fechaFormateada = fechaActual.toLocaleDateString('es-MX', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }) || "fecha-no-disponible";
+        
+        // Función para calcular el rango de fechas
+        function calcularRangoFechas(periodo, fechaInicio = new Date()) {
+            const fechaInicioObj = new Date(fechaInicio);
+            const fechaFinObj = new Date(fechaInicioObj);
+            
+            const periodoLower = (periodo || "").toLowerCase();
+            
+            switch(periodoLower) {
+                case 'día':
+                case 'dia':
+                    fechaFinObj.setDate(fechaInicioObj.getDate());
+                    break;
+                case 'semana':
+                    fechaFinObj.setDate(fechaInicioObj.getDate() + 6);
+                    break;
+                case 'mes':
+                    fechaFinObj.setMonth(fechaInicioObj.getMonth() + 1);
+                    fechaFinObj.setDate(0);
+                    break;
+                case 'semestral':
+                    fechaFinObj.setMonth(fechaInicioObj.getMonth() + 6);
+                    break;
+                case 'año':
+                case 'anio':
+                    fechaFinObj.setFullYear(fechaInicioObj.getFullYear() + 1);
+                    fechaFinObj.setMonth(0);
+                    fechaFinObj.setDate(0);
+                    break;
+                default:
+                    fechaFinObj.setDate(fechaInicioObj.getDate());
+            }
+            
+            const formatoFecha = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            
+            return {
+                inicio: fechaInicioObj.toLocaleDateString('es-MX', formatoFecha) || "Fecha inicio no disponible",
+                fin: fechaFinObj.toLocaleDateString('es-MX', formatoFecha) || "Fecha fin no disponible"
+            };
+        }
 
-// En tu código donde generas el título:
-let titulo = `Reporte de Asistencias - ${fecha}\n`;
-titulo += `Profesor: ${profesorSeleccionado}\n`;
-titulo += `Materia: ${materiaSeleccionada}\n`;
-
-// Calcular rango de fechas
-const rangoFechas = calcularRangoFechas(periodoSeleccionado, new Date());
-
-// Agregar período con rango de fechas
-titulo += `Período: ${periodoSeleccionado} (Del ${rangoFechas.inicio} al ${rangoFechas.fin})`;
+        // Generar título con validaciones
+        let titulo = `Reporte de Asistencias - ${fechaFormateada}\n`;
+        titulo += `Profesor: ${profesorSeleccionado}\n`;
+        titulo += `Materia: ${materiaSeleccionada}\n`;
+        
+        // Calcular rango de fechas con validación
+        const rangoFechas = calcularRangoFechas(periodoSeleccionado, fechaActual);
+        titulo += `Período: ${periodoSeleccionado} (Del ${rangoFechas.inicio} al ${rangoFechas.fin})`;
         
         // Dividir el título en líneas
         const tituloLineas = doc.splitTextToSize(titulo, 180);
@@ -889,10 +888,9 @@ titulo += `Período: ${periodoSeleccionado} (Del ${rangoFechas.inicio} al ${rang
         // Agregar cada línea del título
         tituloLineas.forEach(linea => {
             doc.text(linea, 10, yPos);
-            yPos += 7; // Espacio entre líneas
+            yPos += 7;
         });
         
-        // Ajustar posición después del título
         yPos += 5;
         
         // Procesar cada elemento
@@ -909,19 +907,23 @@ titulo += `Período: ${periodoSeleccionado} (Del ${rangoFechas.inicio} al ${rang
             const pdfWidth = doc.internal.pageSize.getWidth() - 20;
             const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
             
-            // Verificar si hay espacio en la página actual
             if (yPos + pdfHeight > doc.internal.pageSize.getHeight() - 20) {
                 doc.addPage();
                 yPos = 20;
             }
             
-            // Agregar imagen al PDF
             doc.addImage(imgData, "PNG", 10, yPos, pdfWidth, pdfHeight);
             yPos += pdfHeight + 10;
         }
         
-        // Generar nombre del archivo
-        const nombreArchivo = `Reporte_${profesorSeleccionado.replace(/\s+/g, '_')}_${materiaSeleccionada.replace(/\s+/g, '_')}_${fecha.replace(/\//g, '-')}.pdf`;
+        // Generar nombre del archivo con validaciones
+        const nombreArchivo = `Reporte_${
+            (profesorSeleccionado || "sin_profesor").toString().replace(/\s+/g, '_')
+        }_${
+            (materiaSeleccionada || "sin_materia").toString().replace(/\s+/g, '_')
+        }_${
+            fechaFormateada.replace(/\//g, '-')
+        }.pdf`;
         
         // Guardar y limpiar
         doc.save(nombreArchivo);
