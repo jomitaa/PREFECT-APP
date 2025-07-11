@@ -8,6 +8,21 @@ horaFinSeleccionada = '';
 diaSeleccionado = '';
 registroAsistenciaSeleccionado = '';
 
+
+
+function showLoading(show) {
+  if (show) {
+    const overlay = document.createElement('div');
+    overlay.className = 'loading-overlay';
+    overlay.innerHTML = '<div class="loading-spinner"></div>';
+    overlay.id = 'loading-overlay';
+    document.body.appendChild(overlay);
+  } else {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.remove();
+  }
+}
+
 const contenedorAsistencia = document.querySelector('.contenedor-select[data-type="asistencia"]');
 const contenedorAnio = document.querySelector('.contenedor-select[data-type="anio"]');
 const contenedorPeriodo = document.querySelector('.contenedor-select[data-type="periodo"]');
@@ -364,59 +379,43 @@ document.head.appendChild(style);
   
 `;
 
-    // Función para obtener los datos de la consulta
-    async function fetchConsulta() {
-        try {
+   window.horariosCache = null;
+
+async function fetchConsulta() {
+    showLoading(true);
+    
+    try {
+        if (!window.horariosCache) {
             const response = await fetch('/api/consulta');
-            const contentType = response.headers.get('content-type');
+            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
             
-            // Verificar si la respuesta es JSON válido
-            if (!contentType || !contentType.includes('application/json')) {
-                throw new Error('La respuesta no es JSON válido');
-            }
-    
             const result = await response.json();
+            if (!result?.success) throw new Error(result.message || 'Estructura inválida');
             
-            // Verificar estructura de respuesta
-            if (!result || typeof result !== 'object') {
-                throw new Error('Estructura de respuesta inválida');
-            }
-    
-            // Manejar errores del servidor
-            if (!result.success) {
-                throw new Error(result.message || 'Error en el servidor');
-            }
-    
-            // Caso sin datos
-            if (result.count === 0 || !result.data || result.data.length === 0) {
-                mostrarMensajeNoDatos(result.message || 'No hay registros disponibles');
-                return;
-            }
-    
-          // Detectar si hay filtros activos
-const hayFiltrosActivos =
-    grupoSeleccionado || diaSeleccionado || profesorSeleccionado ||
-    materiaSeleccionada || horaInicioSeleccionada || horaFinSeleccionada ||
-    registroAsistenciaSeleccionado || document.getElementById("fecha").value;
-
-// Si hay filtros activos, mostrar todos los datos filtrados
-if (hayFiltrosActivos) {
-    mostrar(result.data);
-} else {
-    // Mostrar solo los 50 más recientes (ordenados por fecha descendente)
-    const ordenados = result.data.sort(
-        (a, b) => new Date(b.fecha_asistencia) - new Date(a.fecha_asistencia)
-    );
-    mostrar(ordenados.slice(0, 50));
-}
-
+            // Guardar en caché los datos originales
+            window.horariosCache = result.data;
             
-        } catch (error) {
-            console.error('Error en fetchConsulta:', error);
-            mostrarMensajeError(error);
-            
+            // Ordenar y limitar los datos iniciales
+            const datosIniciales = result.data
+                .sort((a, b) => new Date(b.fecha_asistencia) - new Date(a.fecha_asistencia))
+                .slice(0, 50);
+                
+            mostrar(datosIniciales);
+        } else {
+            // Si ya tenemos caché, mostrar los 50 más recientes
+            const datosIniciales = window.horariosCache
+                .sort((a, b) => new Date(b.fecha_asistencia) - new Date(a.fecha_asistencia))
+                .slice(0, 50);
+                
+            mostrar(datosIniciales);
         }
+    } catch (error) {
+        console.error('Error en fetchConsulta:', error);
+        mostrarMensajeError(error);
+    } finally {
+        showLoading(false);
     }
+}
     
     // Nueva función para mostrar mensaje de "no hay datos"
     function mostrarMensajeNoDatos() {
@@ -511,89 +510,53 @@ if (hayFiltrosActivos) {
 
     
     
-    async function filtrarHorarios() {
-        const fecha = document.getElementById("fecha").value;
-      
-        const anioFiltro = contenedorAnio ? Number(contenedorAnio) : null;
-        const periodoFiltro = contenedorPeriodo ? Number(contenedorPeriodo) : null;
+   async function filtrarHorarios() {
+    showLoading(true);
     
-    
-        try {
-            const response = await fetch("/api/consulta");
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud: ${response.status}`);
-            }
-            const resultado = await response.json();
+    try {
+        // Verificar que tenemos datos en caché
+        if (!window.horariosCache) {
+            await fetchConsulta();
+            return;
+        }
         
-            // Verificar si la respuesta tiene la estructura esperada
-            if (!resultado.success || !Array.isArray(resultado.data)) {
-                throw new Error('Estructura de datos inválida');
-            }
-    
-            const consulta = resultado.data; // Accedemos al array dentro de data
+        const fechaInput = document.getElementById("fecha")?.value;
+        
+        // Filtrar sobre los datos en caché
+        let horariosFiltrados = window.horariosCache.filter(item => {
+            if (fechaInput && item.fecha_asistencia !== fechaInput) return false;
+            if (grupoSeleccionado && item.grupo !== grupoSeleccionado) return false;
+            if (diaSeleccionado && item.dia_horario !== diaSeleccionado) return false;
+            if (profesorSeleccionado && item.persona !== profesorSeleccionado) return false;
+            if (materiaSeleccionada && item.materia !== materiaSeleccionada) return false;
+            if (horaInicioSeleccionada && item.hora_inicio !== horaInicioSeleccionada) return false;
+            if (horaFinSeleccionada && item.hora_final !== horaFinSeleccionada) return false;
+            if (anioSeleccionado && item.anio !== anioSeleccionado) return false;
+            if (periodoSeleccionado && item.periodo !== periodoSeleccionado) return false;
+            if (registroAsistenciaSeleccionado === "asis" && item.asistencia !== 1) return false;
+            if (registroAsistenciaSeleccionado === "ret" && item.retardo !== 1) return false;
+            if (registroAsistenciaSeleccionado === "falt" && item.falta !== 1) return false;
             
-            
-    
-            const horariosFiltrados = consulta.filter(consulta => {
+            return true;
+        });
 
-                const fechaAsistencia = consulta.fecha_asistencia; 
-
-                const [year, month, day] = fecha.split("-"); 
-                const fechaUsuario = `${day}/${month}/${year.slice(-2)}`;
-
-
-                console.log("Fecha de asistencia:", fechaAsistencia);
-                console.log("Fecha convertida:", fechaUsuario);
-
-                const estadoAsistencia = consulta.asistencia; // 1 si tiene asistencia
-                const estadoRetardo = consulta.retardo; // 1 si tiene retardo
-                const estadoFalta = consulta.falta; // 1 si tiene falta
-
-                const filtroAsistencia = registroAsistenciaSeleccionado === "asis" ? estadoAsistencia === 1 :
-                                     registroAsistenciaSeleccionado === "ret" ? estadoRetardo === 1 :
-                                     registroAsistenciaSeleccionado === "falt" ? estadoFalta === 1 :
-                                     true;
-
-                return (
-                    (grupoSeleccionado === '' || consulta.grupo === grupoSeleccionado) &&
-                    (diaSeleccionado === '' || consulta.dia_horario === diaSeleccionado) &&
-                    (profesorSeleccionado === '' || consulta.persona === profesorSeleccionado) &&
-                    (!fecha || fechaAsistencia === fechaUsuario) && // Comparación de fechas sin la hora
-                    (materiaSeleccionada === '' || consulta.materia === materiaSeleccionada) &&
-                    (horaInicioSeleccionada === '' || consulta.hora_inicio === horaInicioSeleccionada) &&
-                    (horaFinSeleccionada === '' || consulta.hora_final === horaFinSeleccionada) &&
-                    (!anioFiltro || Number(consulta.anio) === anioFiltro) &&
-                    (!periodoFiltro || Number(consulta.periodo) === periodoFiltro) &&
-                    filtroAsistencia
-                );
-            });
-    
-            if (horariosFiltrados.length === 0) {
-                console.log("No se encontraron horarios que coincidan con los filtros.");
-                createToast(
-                    "advertencia",
-                    "fa-solid fa-triangle-exclamation",
-                    "Aguas",
-                    "No se encontraron horarios que coincidan con los filtros seleccionados."
-                );
-                return; 
-            }
-    
+        // Ordenar y limitar
+        horariosFiltrados = horariosFiltrados
+            .sort((a, b) => new Date(b.fecha_asistencia) - new Date(a.fecha_asistencia))
+            .slice(0, 50);
+        
+        if (horariosFiltrados.length === 0) {
+            mostrarMensajeNoDatos();
+        } else {
             mostrar(horariosFiltrados);
-        } catch (error) {
-            console.error("Error al obtener los horarios:", error);
-            createToast(
-                "error",
-                "fa-solid fa-circle-exclamation",
-                "Error",
-                "Hubo un problema al cargar los horarios."
-            );
-            document.getElementById("horario").innerHTML =
-                '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
         }
-
-
-        }
+    } catch (error) {
+        console.error("Error al filtrar:", error);
+        mostrarMensajeError(error);
+    } finally {
+        showLoading(false);
+    }
+}
 
    document.getElementById("resetFiltersButton").addEventListener("click", function() {
     // Limpiar variables
@@ -645,4 +608,3 @@ if (hayFiltrosActivos) {
 
     fetchConsulta();
 
-    //------------------------------------------------------------ FIN CODIGO CONSULTA -----------------------------------
