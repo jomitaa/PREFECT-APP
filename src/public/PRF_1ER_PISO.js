@@ -604,7 +604,7 @@ function filtrarPorTurno(turnoId) {
         createToast(
           "advertencia",
           "fa-solid fa-triangle-exclamation",
-          "Aguas",
+          "Aviso",
           "No se encontraron horarios que coincidan con los filtros seleccionados."
         );
         return; // 👈 Evita ejecutar más código

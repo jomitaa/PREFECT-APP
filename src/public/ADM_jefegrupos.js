@@ -932,7 +932,7 @@ async function filtrarJefes() {
             createToast(
                 "advertencia",
                 "fa-solid fa-triangle-exclamation",
-                "Aguas",
+                "Aviso",
                 "No se encontraron jefes que coincidan con los filtros seleccionados."
             );
             return;
