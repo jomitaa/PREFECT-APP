@@ -4142,10 +4142,15 @@ app.post('/csv/horarios-nombres', async (req, res) => {
       registrosInsertados++;
     }
 
-    res.json({
-      success: true,
-      message: `✅ Se insertaron ${registrosInsertados} horarios correctamente.`
-    });
+    if (registrosInsertados > 0) {
+  res.json({ success: true, message: `Se agregaron ${registrosInsertados} horarios` });
+} else {
+  res.status(400).json({
+    success: false,
+    message: '❌ No se insertaron horarios. Verifica que los nombres de grupo, materia, profesor y salón coincidan exactamente con los registrados en el sistema.'
+  });
+}
+
 
   } catch (err) {
     console.error('❌ Error al insertar horarios desde CSV:', err);
