@@ -4122,33 +4122,34 @@ app.post('/csv/horarios-nombres', async (req, res) => {
       }
 
       // === Insertar horario ===
-      await conexion.promise().query(
-        `INSERT INTO horario 
-        (dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona, id_contenedor, id_escuela)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 2, ?)`,
-        [
-          r.dia_horario,
-          r.hora_inicio,
-          r.hora_final,
-          idSalon,
-          grupo.id_grupo,
-          materia.id_materia,
-          persona.id_persona,
-          idEscuela
-        ]
-      );
+try {
+  const [result] = await conexion.promise().query(
+    `INSERT INTO horario 
+     (dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona, id_contenedor, id_escuela)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 2, ?)`,
+    [
+      r.dia_horario,
+      r.hora_inicio,
+      r.hora_final,
+      idSalon,
+      grupo.id_grupo,
+      materia.id_materia,
+      persona.id_persona,
+      idEscuela
+    ]
+  );
 
-      console.log(`✅ Horario insertado para ${r.dia_horario} ${r.hora_inicio}-${r.hora_final}`);
-      registrosInsertados++;
-    }
+  if (result.affectedRows > 0) {
+    console.log(`✅ Horario insertado para ${r.dia_horario} ${r.hora_inicio}-${r.hora_final}`);
+    registrosInsertados++;
+  } else {
+    console.warn(`⚠️ INSERT ejecutado pero no afectó filas para horario ${r.dia_horario} ${r.hora_inicio}-${r.hora_final}`);
+  }
 
-    if (registrosInsertados > 0) {
-  res.json({ success: true, message: `Se agregaron ${registrosInsertados} horarios` });
-} else {
-  res.status(400).json({
-    success: false,
-    message: '❌ No se insertaron horarios. Verifica que los nombres de grupo, materia, profesor y salón coincidan exactamente con los registrados en el sistema.'
-  });
+} catch (error) {
+  console.error(`❌ Error al insertar horario:`, error.message);
+}
+
 }
 
 
