@@ -1010,7 +1010,7 @@ app.post('/confirm-registration', async (req, res) => {
 app.get('/api/horarios', async (req, res) => {
     const diaActual = new Date().toLocaleDateString('es-MX', { weekday: 'long' });
     const diaCapitalizado = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
-    const diaPrueba = diaCapitalizado;
+    const diaPrueba = 'Viernes';
 
       const turno = req.query.turno;
     const fechaActual = new Date();
