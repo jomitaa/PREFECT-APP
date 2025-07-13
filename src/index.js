@@ -1236,7 +1236,7 @@ app.post('/actualizarDatosAdmin', async function (req, res) {
 
 async function actualizarAsistencia(validacion_asistencia, id_horario) {
     return new Promise((resolve, reject) => {
-        conexion.query('UPDATE asistencia SET validacion_asistencia = ?, fecha_asistencia = NOW() WHERE id_horario = ?',
+        conexion.query('UPDATE asistencia SET validacion_asistencia = ? WHERE id_horario = ?',
             [validacion_asistencia, id_horario],
             (error, results) => {
                 if (error) {
@@ -1252,7 +1252,7 @@ async function actualizarAsistencia(validacion_asistencia, id_horario) {
 
 async function actualizarRetardo(validacion_retardo, id_horario) {
     return new Promise((resolve, reject) => {
-        conexion.query('UPDATE retardo SET validacion_retardo = ?, fecha_retardo = NOW() WHERE id_horario = ?',
+        conexion.query('UPDATE retardo SET validacion_retardo = ?  WHERE id_horario = ?',
             [validacion_retardo, id_horario],
             (error, results) => {
                 if (error) {
@@ -1268,7 +1268,7 @@ async function actualizarRetardo(validacion_retardo, id_horario) {
 
 async function actualizarFalta(validacion_falta, id_horario) {
     return new Promise((resolve, reject) => {
-        conexion.query('UPDATE falta SET validacion_falta = ?, fecha_falta = NOW() WHERE id_horario = ?',
+        conexion.query('UPDATE falta SET validacion_falta = ? WHERE id_horario = ?',
             [validacion_falta, id_horario],
             (error, results) => {
                 if (error) {

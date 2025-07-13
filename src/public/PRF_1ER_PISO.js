@@ -5,6 +5,81 @@ let profesorSeleccionado = 'todas';
 let materiaSeleccionada = 'todas';
 let horaInicioSeleccionada = 'todas';
 let horaFinSeleccionada = 'todas';
+
+const mesActual = new Date().getMonth() + 1; // +1 para que sea 1-12
+
+// Determinar el semestre (4 para agosto-enero, 5 para febrero-julio)
+const semestre = (mesActual >= 8 || mesActual <= 1) ? 1 : 2;
+
+
+async function filtrarHorarios() {
+
+    const turno = turnoSeleccionado; 
+  if (!turno) {
+    createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Atención', 'Debes seleccionar un turno primero');
+    return;
+  }
+
+
+  
+    try {
+      const response = await fetch("/api/horarios");
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.status}`);
+      }
+      const horarios = await response.json();
+
+      const horariosSemestre2 = horarios.filter(
+        (horario) => horario.sem_grupo === semestre
+      );
+
+      console.log("turnoSeleccionado:", turnoSeleccionado);
+      console.log("salonSeleccionado:", salonSeleccionado);
+      console.log("grupoSeleccionado:", grupoSeleccionado);
+      console.log("profesorSeleccionado:", profesorSeleccionado);
+      console.log("materiaSeleccionada:", materiaSeleccionada);
+      console.log("horaInicioSeleccionada:", horaInicioSeleccionada);
+      console.log("horaFinSeleccionada:", horaFinSeleccionada);
+      const horariosFiltrados = todosLosHorarios.filter(horario => {
+                return (
+                    horario.sem_grupo === semestre &&
+                    horario.id_turno == turnoSeleccionado &&
+                    (salonSeleccionado === 'todas' || String(horario.id_salon).trim() === String(salonSeleccionado).trim()) &&
+                    (grupoSeleccionado === 'todas'  || horario.nom_grupo === grupoSeleccionado) &&
+                    (profesorSeleccionado === 'todas'  || horario.nombre_persona === profesorSeleccionado) &&
+                    (materiaSeleccionada === 'todas' || horario.nom_materia === materiaSeleccionada) &&
+                    (horaInicioSeleccionada === 'todas'  || horario.hora_inicio === horaInicioSeleccionada) &&
+                    (horaFinSeleccionada === 'todas' || horario.hora_final === horaFinSeleccionada)
+                );
+            });
+        
+
+      if (horariosFiltrados.length === 0) {
+        console.log(
+          "No se encontraron horarios que coincidan con los filtros."
+        );
+        createToast(
+          "advertencia",
+          "fa-solid fa-triangle-exclamation",
+          "Información ",
+          "No se encontraron horarios que coincidan con los filtros seleccionados."
+        );
+        return; // 👈 Evita ejecutar más código
+      }
+
+      mostrar(horariosFiltrados);
+    } catch (error) {
+      console.error("Error al obtener los horarios:", error);
+      createToast(
+        "error",
+        "fa-solid fa-circle-exclamation",
+        "Error",
+        "Hubo un problema al cargar los horarios."
+      );
+      document.getElementById("horario").innerHTML =
+        '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
+    }
+  }
         // Selectores
         const contenedorTurno = document.querySelector('.contenedor-select');
         const contenedorSalon = document.querySelector('.contenedor-select[data-type="salon"]');
@@ -15,10 +90,17 @@ let horaFinSeleccionada = 'todas';
         const contenedorHoraFin = document.querySelector('.contenedor-select[data-type="horaFin"]');
         const horarioContainer = document.getElementById('horario');
         const filterBtn = document.getElementById('filterBtn');
+
         
         // Inicialización al cargar la página
         document.addEventListener("DOMContentLoaded", async () => {
             try {
+
+              document.querySelectorAll('.contenedor-select:not([data-type="turno"])').forEach(select => {
+            select.style.display = 'none';
+        });
+            
+
                 const response = await fetch("/api/filtros");
                 const data = await response.json();
         
@@ -86,7 +168,6 @@ let horaFinSeleccionada = 'todas';
             opcion.style.transform = 'scale(0.98)';
             setTimeout(() => opcion.style.transform = '', 150);
             
-            // Actualizar variable y UI
             turnoSeleccionado = opcion.dataset.value;
             contenedorTurno.querySelector('.boton-select span').textContent = opcion.textContent;
             
@@ -98,6 +179,12 @@ let horaFinSeleccionada = 'todas';
             
             // Cerrar select
             cerrarSelect(contenedorTurno);
+
+            document.querySelectorAll('.contenedor-select:not([data-type="turno"])').forEach(select => {
+        select.style.display = 'block';
+    });
+    
+    // Mostrar el contenedor de horarios
             
             // Filtrar horarios
             filtrarPorTurno(turnoSeleccionado);
@@ -132,6 +219,10 @@ let horaFinSeleccionada = 'todas';
             
             // Cerrar select
             cerrarSelect(contenedor);
+
+              if (turnoSeleccionado) {
+        filtrarHorarios();
+    }
         }
         
         // Función para inicializar eventos del select de turno
@@ -258,7 +349,6 @@ let horaFinSeleccionada = 'todas';
                 contenidoSelect.style.transform = '';
             }, 300);
         }
-
 
 let alerta = document.querySelector(".alerta");
 
@@ -469,7 +559,7 @@ async function fetchHorarios() {
 function filtrarPorTurno(turnoId) {
   // Filtramos por semestre 2 Y por turno
   const horariosFiltrados = todosLosHorarios.filter(horario => 
-    horario.sem_grupo === 2 && horario.id_turno == turnoId
+    horario.sem_grupo === semestre && horario.id_turno == turnoId
   );
 
   if (horariosFiltrados.length === 0) {
@@ -499,7 +589,7 @@ function filtrarPorTurno(turnoId) {
 
 
     const horariosSemestre2 = horarios.filter(
-      (horario) => horario.sem_grupo === 2
+      (horario) => horario.sem_grupo === semestre
     );
 
     horariosSemestre2.forEach((horario) => {
@@ -550,79 +640,7 @@ function filtrarPorTurno(turnoId) {
 
     contenedor.innerHTML = resultados;
 
-    document.getElementById("filterBtn").replaceWith(document.getElementById("filterBtn").cloneNode(true));
-    document.getElementById("filterBtn").addEventListener("click", filtrarHorarios);
-
    
-    
-    async function filtrarHorarios() {
-
-    const turno = turnoSeleccionado; 
-  if (!turno) {
-    createToast('advertencia', 'fa-solid fa-triangle-exclamation', 'Atención', 'Debes seleccionar un turno primero');
-    return;
-  }
-
-
-  
-    try {
-      const response = await fetch("/api/horarios");
-      if (!response.ok) {
-        throw new Error(`Error en la solicitud: ${response.status}`);
-      }
-      const horarios = await response.json();
-
-      const horariosSemestre2 = horarios.filter(
-        (horario) => horario.sem_grupo === 2
-      );
-
-      console.log("turnoSeleccionado:", turnoSeleccionado);
-      console.log("salonSeleccionado:", salonSeleccionado);
-      console.log("grupoSeleccionado:", grupoSeleccionado);
-      console.log("profesorSeleccionado:", profesorSeleccionado);
-      console.log("materiaSeleccionada:", materiaSeleccionada);
-      console.log("horaInicioSeleccionada:", horaInicioSeleccionada);
-      console.log("horaFinSeleccionada:", horaFinSeleccionada);
-      const horariosFiltrados = todosLosHorarios.filter(horario => {
-                return (
-                    horario.sem_grupo === 2 &&
-                    horario.id_turno == turnoSeleccionado &&
-                    (salonSeleccionado === 'todas' || String(horario.id_salon).trim() === String(salonSeleccionado).trim()) &&
-                    (grupoSeleccionado === 'todas'  || horario.nom_grupo === grupoSeleccionado) &&
-                    (profesorSeleccionado === 'todas'  || horario.nombre_persona === profesorSeleccionado) &&
-                    (materiaSeleccionada === 'todas' || horario.nom_materia === materiaSeleccionada) &&
-                    (horaInicioSeleccionada === 'todas'  || horario.hora_inicio === horaInicioSeleccionada) &&
-                    (horaFinSeleccionada === 'todas' || horario.hora_final === horaFinSeleccionada)
-                );
-            });
-        
-
-      if (horariosFiltrados.length === 0) {
-        console.log(
-          "No se encontraron horarios que coincidan con los filtros."
-        );
-        createToast(
-          "advertencia",
-          "fa-solid fa-triangle-exclamation",
-          "Aviso",
-          "No se encontraron horarios que coincidan con los filtros seleccionados."
-        );
-        return; // 👈 Evita ejecutar más código
-      }
-
-      mostrar(horariosFiltrados);
-    } catch (error) {
-      console.error("Error al obtener los horarios:", error);
-      createToast(
-        "error",
-        "fa-solid fa-circle-exclamation",
-        "Error",
-        "Hubo un problema al cargar los horarios."
-      );
-      document.getElementById("horario").innerHTML =
-        '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
-    }
-  }
     
 
     window.onload();

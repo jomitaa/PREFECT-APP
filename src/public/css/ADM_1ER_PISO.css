@@ -409,6 +409,8 @@ main .breadcrumbs li.divider {
     margin: 20px 0;
 }
 
+
+
 .filters button,
 .filters select {
   padding: 10px;
@@ -451,7 +453,7 @@ main .breadcrumbs li.divider {
     display: flex;
     flex-direction: column;
     gap: 15px;
-	height: 425px; 
+	height: 450px; 
 	margin-top: 40px;
     overflow-y: auto;
 	position: relative;

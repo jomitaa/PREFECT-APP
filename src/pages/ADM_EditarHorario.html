@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
-    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-	<link rel="stylesheet" href="/css/ADM_EditarHorario.css">
-	<title>Prefect App 1.1</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/ADM_EditarHorario.css" />
+    <title>Prefect App 1.1</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
+  </head>
 
-<body>
-
-	<section id="sidebar">
+  <body>
+    <section id="sidebar">
       <a href="#" class="brand"
         ><i class="bx bxs-parking icon"></i> PREFECT APP</a
       >
@@ -26,7 +30,9 @@
         <br />
 
         <li>
-          <a href="./ADM_menu.html" class=""><i class="bx bx-table icon"></i> Inicio</a>
+          <a href="./ADM_menu.html" class=""
+            ><i class="bx bx-table icon"></i> Inicio</a
+          >
         </li>
 
         <li class="divider" data-text="Horarios"></li>
@@ -42,39 +48,29 @@
           </ul>
         </li>
         <li>
-           <a href="#" class="active"
+          <a href="#" class="active"
             ><i class="bx bx-table icon"></i> Gestion de Horarios
             <i class="bx bx-chevron-right icon-right"></i
           ></a>
-              <ul class="side-dropdown">
-            <li><a href="./ADM_AgregarHorario.html"
-            > Agregar Horarios</a
-          >
-          </li>
-        
-        <li>
-          <a href="./ADM_EditarHorario.html"
-            >Editar Horarios</a
-          >
-          </li>
+          <ul class="side-dropdown">
+            <li><a href="./ADM_AgregarHorario.html"> Agregar Horarios</a></li>
+
+            <li>
+              <a href="./ADM_EditarHorario.html">Editar Horarios</a>
+            </li>
           </ul>
         </li>
         <li>
-           <a href="#"
+          <a href="#"
             ><i class="bx bx-table icon"></i> Gestion Datos/Horario
             <i class="bx bx-chevron-right icon-right"></i
           ></a>
-              <ul class="side-dropdown">
-            <li><a href="./ADM_datos.html"
-            > Agregar Datos</a
-          >
-          </li>
-        
-        <li>
-          <a href="./ADM_consulta-datos.html"
-            >Consultar / Editar</a
-          >
-          </li>
+          <ul class="side-dropdown">
+            <li><a href="./ADM_datos.html"> Agregar Datos</a></li>
+
+            <li>
+              <a href="./ADM_consulta-datos.html">Consultar / Editar</a>
+            </li>
           </ul>
         </li>
 
@@ -110,377 +106,478 @@
           >
           <a href="./ADM_jefegrupos.html">
             <i class="bx bx-table icon"></i> Jefe de Grupos
-            
           </a>
         </li>
       </ul>
     </section>
 
+    <!-- NAVBAR -->
+    <section id="content">
+      <!-- NAVBAR -->
+      <nav>
+        <i class="bx bx-menu toggle-sidebar"></i>
 
-	<!-- NAVBAR -->
-	<section id="content">
-		<!-- NAVBAR -->
-		<nav>
-			<i class='bx bx-menu toggle-sidebar'></i>
+        <form action="#">
+          <div class="form-group"></div>
+        </form>
 
-			<form action="#">
-				<div class="form-group">
-				
-				</div>
-			</form>
+        <input type="checkbox" id="switch-mode" hidden />
+        <label for="switch-mode" class="switch-mode"></label>
 
-			<input type="checkbox" id="switch-mode" hidden>
-			<label for="switch-mode" class="switch-mode"></label>
-			
+        <span class="divider"></span>
+        <div class="profile">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png"
+            alt=""
+          />
+          <ul class="profile-link">
+            <li>
+              <a href="#" onclick="cerrarSesion()"
+                ><i class="bx bxs-log-out-circle"></i> Cerrar Sesión</a
+              >
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <!-- NAVBAR -->
 
-			<span class="divider"></span>
-			<div class="profile">
-				<img src="https://cdn-icons-png.flaticon.com/512/5400/5400308.png" alt="">
-				<ul class="profile-link">
-					<li><a href="#" onclick="cerrarSesion()"><i class='bx bxs-log-out-circle'></i> Cerrar Sesión</a>
-					</li>
-				</ul>
-			</div>
-		</nav>
-		<!-- NAVBAR -->
+      <main>
+        <div class="alerta"></div>
 
-		
+        <h1 class="title">Prefect APP</h1>
+        <ul class="breadcrumbs">
+          <li><a href="#">P.A</a></li>
+          <li>/</li>
+          <li>Horarios / Gestion de Horarios</li>
+        </ul>
+        <div class="filters">
+          <div class="contenedor-select turno">
+            <div class="boton-select">
+              <span>Seleccione lo que quiere consultar</span>
+              <i class="uil uil-angle-down"></i>
+            </div>
+            <div class="contenido-select">
+              <ul class="opciones">
+                <li onclick="seleccionarOpcion(this)" data-value="profesor">
+                  Profesores
+                </li>
+                <li onclick="seleccionarOpcion(this)" data-value="materia">
+                  Materias
+                </li>
+                <li onclick="seleccionarOpcion(this)" data-value="carrera">
+                  Carreras
+                </li>
+                <li onclick="seleccionarOpcion(this)" data-value="grupo">
+                  Grupos
+                </li>
+                <li onclick="seleccionarOpcion(this)" data-value="salon">
+                  Salones
+                </li>
+              </ul>
+            </div>
+          </div>
 
-<main>
+          <div class="filtros-container" style="display: none">
+            <div class="contenedor-select" data-type="salon">
+              <div class="boton-select">
+                <span>Seleccione un SALÓN</span>
+                <i class="uil uil-angle-down"></i>
+              </div>
+              <div class="contenido-select">
+                <div class="buscador">
+                  <i class="uil uil-search"></i>
+                  <input
+                    spellcheck="false"
+                    type="text"
+                    placeholder="Buscar salón..."
+                  />
+                </div>
+                <ul class="opciones"></ul>
+              </div>
+            </div>
 
-	<div class="alerta">
-				
-	</div>
+            <!-- Select para Grupo -->
+            <div class="contenedor-select" data-type="grupo">
+              <div class="boton-select">
+                <span>Seleccione un GRUPO</span>
+                <i class="uil uil-angle-down"></i>
+              </div>
+              <div class="contenido-select">
+                <div class="buscador">
+                  <i class="uil uil-search"></i>
+                  <input
+                    spellcheck="false"
+                    type="text"
+                    placeholder="Buscar grupo..."
+                  />
+                </div>
+                <ul class="opciones"></ul>
+              </div>
+            </div>
 
-    <h1 class="title">Prefect APP</h1>
-			<ul class="breadcrumbs">
-				<li><a href="#">P.A</a></li>
-				<li>/</li>
-				<li>Horarios / Gestion de Horarios</li>
+            <!-- Select para Profesor -->
+            <div class="contenedor-select" data-type="profesor">
+              <div class="boton-select">
+                <span>Seleccione un PROFESOR</span>
+                <i class="uil uil-angle-down"></i>
+              </div>
+              <div class="contenido-select">
+                <div class="buscador">
+                  <i class="uil uil-search"></i>
+                  <input
+                    spellcheck="false"
+                    type="text"
+                    placeholder="Buscar profesor..."
+                  />
+                </div>
+                <ul class="opciones"></ul>
+              </div>
+            </div>
 
-			</ul>
-    <!-- FILTRO DE HORARIOS -->
-    <section class="info-data">
-		<div class="form-group">
-			<h3>Buscar horarios</h3>
-			<label for="grupo">Grupo:</label>
-<select id="grupo" name="grupo">
-    <option selected disabled>Seleccione un grupo</option>
-</select>
+            <!-- Select para Materia -->
+            <div class="contenedor-select" data-type="materia">
+              <div class="boton-select">
+                <span>Seleccione una MATERIA</span>
+                <i class="uil uil-angle-down"></i>
+              </div>
+              <div class="contenido-select">
+                <div class="buscador">
+                  <i class="uil uil-search"></i>
+                  <input
+                    spellcheck="false"
+                    type="text"
+                    placeholder="Buscar materia..."
+                  />
+                </div>
+                <ul class="opciones"></ul>
+              </div>
+            </div>
 
-<label for="dia">Día:</label>
-<select id="dia" name="dia">
-    <option selected disabled>Seleccione un día</option>
-    <option value="Lunes">Lunes</option>
-    <option value="Martes">Martes</option>
-    <option value="Miércoles">Miércoles</option>
-    <option value="Jueves">Jueves</option>
-    <option value="Viernes">Viernes</option>
-</select>
+            <!-- Select para Hora Inicio -->
+            <div class="contenedor-select" data-type="horaInicio">
+              <div class="boton-select">
+                <span>Seleccione HORA INICIO</span>
+                <i class="uil uil-angle-down"></i>
+              </div>
+              <div class="contenido-select">
+                <div class="buscador">
+                  <i class="uil uil-search"></i>
+                  <input
+                    spellcheck="false"
+                    type="text"
+                    placeholder="Buscar hora..."
+                  />
+                </div>
+                <ul class="opciones"></ul>
+              </div>
+            </div>
 
-<button id="btnBuscar">Buscar</button>
-		</div>
-	</section>
+            <!-- Select para Hora Fin -->
+            <div class="contenedor-select" data-type="horaFin">
+              <div class="boton-select">
+                <span>Seleccione HORA FIN</span>
+                <i class="uil uil-angle-down"></i>
+              </div>
+              <div class="contenido-select">
+                <div class="buscador">
+                  <i class="uil uil-search"></i>
+                  <input
+                    spellcheck="false"
+                    type="text"
+                    placeholder="Buscar hora..."
+                  />
+                </div>
+                <ul class="opciones"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <!-- TABLA DE HORARIOS -->
-    <section class="table-data">
-		<h3>Horarios disponibles</h3>
-		<section class="contenedor-horario">
-			<div class="blur-overlay top"></div>
-			<div class="horarios-list" id="horario" style="display: none;">
-				<!-- Horario 1 -->
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Grupo</b></span>
-						<span><b>Profesor</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Hora</b></span>
-						<span><b>Dia</b></span>
-						<span><b>Fecha</b></span>
-						<span><b>Editar horario</b></span>
-					</div>
-					<div class="horario-content">
-						<span>XIV1</span>
-						<span>Ana María Olivares</span>
-						<span>Inglés IV</span>
-						<span>17:00 - 19:00</span>
-						<span>Viernes</span>
-						<span>22/03/2025</span>
-						<button class="btn-editar">Editar</button>
-					</div>
-				</div>
+        <!-- TABLA DE HORARIOS -->
+        <section class="table-data">
+          <h3>Horarios disponibles</h3>
+          <section class="contenedor-horario">
+            <div class="blur-overlay top"></div>
+            <div class="horarios-list" id="horario" style="display: none">
+              <!-- Horario 1 -->
+              <div class="horario-card">
+                <div class="horario-header">
+                  <span><b>Grupo</b></span>
+                  <span><b>Profesor</b></span>
+                  <span><b>Materia</b></span>
+                  <span><b>Hora</b></span>
+                  <span><b>Dia</b></span>
+                  <span><b>Fecha</b></span>
+                  <span><b>Editar horario</b></span>
+                </div>
+                <div class="horario-content">
+                  <span>XIV1</span>
+                  <span>Ana María Olivares</span>
+                  <span>Inglés IV</span>
+                  <span>17:00 - 19:00</span>
+                  <span>Viernes</span>
+                  <span>22/03/2025</span>
+                  <button class="btn-editar">Editar</button>
+                </div>
+              </div>
 
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Grupo</b></span>
-						<span><b>Profesor</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Hora</b></span>
-						<span><b>Dia</b></span>
-						<span><b>Fecha</b></span>
-						<span><b>Editar horario</b></span>
-					</div>
-					<div class="horario-content">
-						<span>XIV1</span>
-						<span>Ana María Olivares</span>
-						<span>Inglés IV</span>
-						<span>17:00 - 19:00</span>
-						<span>Viernes</span>
-						<span>22/03/2025</span>
-						<button class="btn-editar">Editar</button>
-					</div>
-				</div>
+              <div class="horario-card">
+                <div class="horario-header">
+                  <span><b>Grupo</b></span>
+                  <span><b>Profesor</b></span>
+                  <span><b>Materia</b></span>
+                  <span><b>Hora</b></span>
+                  <span><b>Dia</b></span>
+                  <span><b>Fecha</b></span>
+                  <span><b>Editar horario</b></span>
+                </div>
+                <div class="horario-content">
+                  <span>XIV1</span>
+                  <span>Ana María Olivares</span>
+                  <span>Inglés IV</span>
+                  <span>17:00 - 19:00</span>
+                  <span>Viernes</span>
+                  <span>22/03/2025</span>
+                  <button class="btn-editar">Editar</button>
+                </div>
+              </div>
 
-				<div class="horario-card">
-					<div class="horario-header">
-						<span><b>Grupo</b></span>
-						<span><b>Profesor</b></span>
-						<span><b>Materia</b></span>
-						<span><b>Hora</b></span>
-						<span><b>Dia</b></span>
-						<span><b>Fecha</b></span>
-						<span><b>Editar horario</b></span>
-					</div>
-					<div class="horario-content">
-						<span>XIV1</span>
-						<span>Ana María Olivares</span>
-						<span>Inglés IV</span>
-						<span>17:00 - 19:00</span>
-						<span>Viernes</span>
-						<span>22/03/2025</span>
-						<button class="btn-editar">Editar</button>
-					</div>
-				</div>
-			</div>
-			<div class="blur-overlay bottom"></div>
-		</section>
-	</section>
-		
+              <div class="horario-card">
+                <div class="horario-header">
+                  <span><b>Grupo</b></span>
+                  <span><b>Profesor</b></span>
+                  <span><b>Materia</b></span>
+                  <span><b>Hora</b></span>
+                  <span><b>Dia</b></span>
+                  <span><b>Fecha</b></span>
+                  <span><b>Editar horario</b></span>
+                </div>
+                <div class="horario-content">
+                  <span>XIV1</span>
+                  <span>Ana María Olivares</span>
+                  <span>Inglés IV</span>
+                  <span>17:00 - 19:00</span>
+                  <span>Viernes</span>
+                  <span>22/03/2025</span>
+                  <button class="btn-editar">Editar</button>
+                </div>
+              </div>
+            </div>
+            <div class="blur-overlay bottom"></div>
+          </section>
+        </section>
 
-    <!-- FORMULARIO DE EDICIÓN -->
-    <section id="formularioEdicion" class="hidden">
-  <div class="form-group">
-    <h3>Editar horario seleccionado</h3>
+        <!-- FORMULARIO DE EDICIÓN -->
+        <section id="formularioEdicion" class="hidden">
+          <div class="form-group">
+            <h3>Editar horario seleccionado</h3>
 
-	<p id="grupoTexto"><b>Grupo:</b> <span id="grupoLabel"></span></p>
-	<p id="diaTexto"><b>Día:</b> <span id="diaLabel"></span></p>
+            <p id="grupoTexto"><b>Grupo:</b> <span id="grupoLabel"></span></p>
+            <p id="diaTexto"><b>Día:</b> <span id="diaLabel"></span></p>
 
+            <label for="horaEdicion">Hora:</label>
+            <input
+              type="text"
+              id="horaEdicion"
+              disabled
+              class="input-disabled"
+              style="
+                background-color: #e9ecef;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                padding: 10px;
+              "
+            />
 
-    <label for="horaEdicion">Hora:</label>
-    <input type="text" id="horaEdicion" disabled class="input-disabled" style="background-color: #e9ecef; border-radius: 6px; border: 1px solid #ccc; padding: 10px;">
+            <label for="salon">Salón:</label>
+            <select id="salon" name="salon">
+              <option disabled selected>Seleccione un salón</option>
+            </select>
 
-    <label for="salon">Salón:</label>
-    <select id="salon" name="salon">
-      <option disabled selected>Seleccione un salón</option>
-    </select>
+            <label for="materia">Materia:</label>
+            <select id="materia" name="materia">
+              <option disabled selected>Seleccione una materia</option>
+            </select>
 
-    <label for="materia">Materia:</label>
-    <select id="materia" name="materia">
-      <option disabled selected>Seleccione una materia</option>
-    </select>
+            <label for="persona">Profesor:</label>
+            <select id="persona" name="persona">
+              <option disabled selected>Seleccione un profesor</option>
+            </select>
 
-    <label for="persona">Profesor:</label>
-    <select id="persona" name="persona">
-      <option disabled selected>Seleccione un profesor</option>
-    </select>
+            <input type="hidden" id="idHorario" />
+            <button id="btnGuardar">Guardar Cambios</button>
+          </div>
+        </section>
+      </main>
+    </section>
+    <!-- NAVBAR -->
 
-    <input type="hidden" id="idHorario">
-    <button id="btnGuardar">Guardar Cambios</button>
-  </div>
-</section>
-
-
-</main>
-	</section>
-	<!-- NAVBAR -->
-
-	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/ADM_EditarHorario.js"></script>
-	<script>
+    <script>
+      function cerrarSesion() {
+        // Envía una solicitud al servidor para cerrar la sesión
+        fetch("/logout", {
+          method: "POST",
+          credentials: "same-origin", // Incluye las cookies en la solicitud
+        })
+          .then((response) => {
+            // Si la solicitud fue exitosa, redirige al usuario a la página de inicio
+            if (response.ok) {
+              window.location.href = "/"; // Cambia esto según la ruta de tu página de inicio
+            } else {
+              console.error("Error al cerrar sesión:", response.statusText);
+            }
+          })
+          .catch((error) => {
+            console.error("Error al cerrar sesión:", error);
+          });
+      }
 
-		           
+      // SIDEBAR DROPDOWN
+      const allDropdown = document.querySelectorAll("#sidebar .side-dropdown");
+      const sidebar = document.getElementById("sidebar");
 
-		function cerrarSesion() {
-			// Envía una solicitud al servidor para cerrar la sesión
-			fetch('/logout', {
-				method: 'POST',
-				credentials: 'same-origin' // Incluye las cookies en la solicitud
-			})
-				.then(response => {
-					// Si la solicitud fue exitosa, redirige al usuario a la página de inicio
-					if (response.ok) {
-						window.location.href = '/'; // Cambia esto según la ruta de tu página de inicio
-					} else {
-						console.error('Error al cerrar sesión:', response.statusText);
-					}
-				})
-				.catch(error => {
-					console.error('Error al cerrar sesión:', error);
-				});
-		}
+      allDropdown.forEach((item) => {
+        const a = item.parentElement.querySelector("a:first-child");
+        a.addEventListener("click", function (e) {
+          e.preventDefault();
 
-		// SIDEBAR DROPDOWN
-		const allDropdown = document.querySelectorAll('#sidebar .side-dropdown');
-		const sidebar = document.getElementById('sidebar');
+          if (!this.classList.contains("active")) {
+            allDropdown.forEach((i) => {
+              const aLink = i.parentElement.querySelector("a:first-child");
 
-		allDropdown.forEach(item => {
-			const a = item.parentElement.querySelector('a:first-child');
-			a.addEventListener('click', function (e) {
-				e.preventDefault();
+              aLink.classList.remove("active");
+              i.classList.remove("show");
+            });
+          }
 
-				if (!this.classList.contains('active')) {
-					allDropdown.forEach(i => {
-						const aLink = i.parentElement.querySelector('a:first-child');
+          this.classList.toggle("active");
+          item.classList.toggle("show");
+        });
+      });
 
-						aLink.classList.remove('active');
-						i.classList.remove('show');
-					})
-				}
+      // SIDEBAR COLLAPSE
+      const toggleSidebar = document.querySelector("nav .toggle-sidebar");
+      const allSideDivider = document.querySelectorAll("#sidebar .divider");
 
-				this.classList.toggle('active');
-				item.classList.toggle('show');
-			})
-		})
+      if (sidebar.classList.contains("hide")) {
+        allSideDivider.forEach((item) => {
+          item.textContent = "-";
+        });
+        allDropdown.forEach((item) => {
+          const a = item.parentElement.querySelector("a:first-child");
+          a.classList.remove("active");
+          item.classList.remove("show");
+        });
+      } else {
+        allSideDivider.forEach((item) => {
+          item.textContent = item.dataset.text;
+        });
+      }
 
+      toggleSidebar.addEventListener("click", function () {
+        sidebar.classList.toggle("hide");
 
+        if (sidebar.classList.contains("hide")) {
+          allSideDivider.forEach((item) => {
+            item.textContent = "-";
+          });
 
+          allDropdown.forEach((item) => {
+            const a = item.parentElement.querySelector("a:first-child");
+            a.classList.remove("active");
+            item.classList.remove("show");
+          });
+        } else {
+          allSideDivider.forEach((item) => {
+            item.textContent = item.dataset.text;
+          });
+        }
+      });
 
+      sidebar.addEventListener("mouseleave", function () {
+        if (this.classList.contains("hide")) {
+          allDropdown.forEach((item) => {
+            const a = item.parentElement.querySelector("a:first-child");
+            a.classList.remove("active");
+            item.classList.remove("show");
+          });
+          allSideDivider.forEach((item) => {
+            item.textContent = "-";
+          });
+        }
+      });
 
-		// SIDEBAR COLLAPSE
-		const toggleSidebar = document.querySelector('nav .toggle-sidebar');
-		const allSideDivider = document.querySelectorAll('#sidebar .divider');
+      sidebar.addEventListener("mouseenter", function () {
+        if (this.classList.contains("hide")) {
+          allDropdown.forEach((item) => {
+            const a = item.parentElement.querySelector("a:first-child");
+            a.classList.remove("active");
+            item.classList.remove("show");
+          });
+          allSideDivider.forEach((item) => {
+            item.textContent = item.dataset.text;
+          });
+        }
+      });
 
-		if (sidebar.classList.contains('hide')) {
-			allSideDivider.forEach(item => {
-				item.textContent = '-'
-			})
-			allDropdown.forEach(item => {
-				const a = item.parentElement.querySelector('a:first-child');
-				a.classList.remove('active');
-				item.classList.remove('show');
-			})
-		} else {
-			allSideDivider.forEach(item => {
-				item.textContent = item.dataset.text;
-			})
-		}
+      // PROFILE DROPDOWN
+      const profile = document.querySelector("nav .profile");
+      const imgProfile = profile.querySelector("img");
+      const dropdownProfile = profile.querySelector(".profile-link");
 
-		toggleSidebar.addEventListener('click', function () {
-			sidebar.classList.toggle('hide');
+      imgProfile.addEventListener("click", function () {
+        dropdownProfile.classList.toggle("show");
+      });
 
-			if (sidebar.classList.contains('hide')) {
-				allSideDivider.forEach(item => {
-					item.textContent = '-'
-				})
+      // MENU
+      const allMenu = document.querySelectorAll(
+        "main .content-data .head .menu"
+      );
 
-				allDropdown.forEach(item => {
-					const a = item.parentElement.querySelector('a:first-child');
-					a.classList.remove('active');
-					item.classList.remove('show');
-				})
-			} else {
-				allSideDivider.forEach(item => {
-					item.textContent = item.dataset.text;
-				})
-			}
-		})
+      allMenu.forEach((item) => {
+        const icon = item.querySelector(".icon");
+        const menuLink = item.querySelector(".menu-link");
 
+        icon.addEventListener("click", function () {
+          menuLink.classList.toggle("show");
+        });
+      });
 
+      window.addEventListener("click", function (e) {
+        if (e.target !== imgProfile) {
+          if (e.target !== dropdownProfile) {
+            if (dropdownProfile.classList.contains("show")) {
+              dropdownProfile.classList.remove("show");
+            }
+          }
+        }
 
+        allMenu.forEach((item) => {
+          const icon = item.querySelector(".icon");
+          const menuLink = item.querySelector(".menu-link");
 
-		sidebar.addEventListener('mouseleave', function () {
-			if (this.classList.contains('hide')) {
-				allDropdown.forEach(item => {
-					const a = item.parentElement.querySelector('a:first-child');
-					a.classList.remove('active');
-					item.classList.remove('show');
-				})
-				allSideDivider.forEach(item => {
-					item.textContent = '-'
-				})
-			}
-		})
+          if (e.target !== icon) {
+            if (e.target !== menuLink) {
+              if (menuLink.classList.contains("show")) {
+                menuLink.classList.remove("show");
+              }
+            }
+          }
+        });
+      });
 
+      const switchMode = document.getElementById("switch-mode");
 
-
-		sidebar.addEventListener('mouseenter', function () {
-			if (this.classList.contains('hide')) {
-				allDropdown.forEach(item => {
-					const a = item.parentElement.querySelector('a:first-child');
-					a.classList.remove('active');
-					item.classList.remove('show');
-				})
-				allSideDivider.forEach(item => {
-					item.textContent = item.dataset.text;
-				})
-			}
-		})
-
-
-
-
-		// PROFILE DROPDOWN
-		const profile = document.querySelector('nav .profile');
-		const imgProfile = profile.querySelector('img');
-		const dropdownProfile = profile.querySelector('.profile-link');
-
-		imgProfile.addEventListener('click', function () {
-			dropdownProfile.classList.toggle('show');
-		})
-
-
-
-
-		// MENU
-		const allMenu = document.querySelectorAll('main .content-data .head .menu');
-
-		allMenu.forEach(item => {
-			const icon = item.querySelector('.icon');
-			const menuLink = item.querySelector('.menu-link');
-
-			icon.addEventListener('click', function () {
-				menuLink.classList.toggle('show');
-			})
-		})
-
-
-
-		window.addEventListener('click', function (e) {
-			if (e.target !== imgProfile) {
-				if (e.target !== dropdownProfile) {
-					if (dropdownProfile.classList.contains('show')) {
-						dropdownProfile.classList.remove('show');
-					}
-				}
-			}
-
-			allMenu.forEach(item => {
-				const icon = item.querySelector('.icon');
-				const menuLink = item.querySelector('.menu-link');
-
-				if (e.target !== icon) {
-					if (e.target !== menuLink) {
-						if (menuLink.classList.contains('show')) {
-							menuLink.classList.remove('show')
-						}
-					}
-				}
-			})
-		})
-
-		const switchMode = document.getElementById('switch-mode');
-
-		switchMode.addEventListener('change', function () {
-			if (this.checked) {
-				document.body.classList.add('dark');
-			} else {
-				document.body.classList.remove('dark');
-			}
-		})
-
-
-	</script>
-</body>
-
+      switchMode.addEventListener("change", function () {
+        if (this.checked) {
+          document.body.classList.add("dark");
+        } else {
+          document.body.classList.remove("dark");
+        }
+      });
+    </script>
+  </body>
 </html>
