@@ -10,10 +10,7 @@ registroAsistenciaSeleccionado = '';
 
 
 
-<<<<<<< Updated upstream
-=======
 // Función para mostrar/ocultar el spinner
->>>>>>> Stashed changes
 function showLoading(show) {
   if (show) {
     const overlay = document.createElement('div');

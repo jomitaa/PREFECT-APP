@@ -1256,6 +1256,8 @@ main .info-data {
   opacity: 1 !important;
 }
 
+
+/* No jala chido*/
 @media (max-width: 600px) {
   .horario-header, .horario-content {
     display: grid;
