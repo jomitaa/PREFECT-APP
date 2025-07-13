@@ -151,263 +151,186 @@
           <li>Horarios / Gestion de Horarios</li>
         </ul>
         <div class="filters">
-          <div class="contenedor-select turno">
+    <div class="contenedor-select" data-type="grupo">
+        <div class="boton-select">
+            <span>Seleccione un GRUPO</span>
+            <i class="uil uil-angle-down"></i>
+        </div>
+        <div class="contenido-select">
+            <div class="buscador">
+                <i class="uil uil-search"></i>
+                <input spellcheck="false" type="text" placeholder="Buscar grupo...">
+            </div>
+            <ul class="opciones"></ul>
+        </div>
+    </div>
+
+    <div class="contenedor-select" data-type="dia">
+        <div class="boton-select">
+            <span>Seleccione un DÍA</span>
+            <i class="uil uil-angle-down"></i>
+        </div>
+        <div class="contenido-select">
+            
+            <ul class="opciones"></ul>
+        </div>
+    </div>
+
+
+    
+</div>
+<div class="filtros-adicionales" style="display: none;">
+        <div class="contenedor-select" data-type="salon">
             <div class="boton-select">
-              <span>Seleccione lo que quiere consultar</span>
-              <i class="uil uil-angle-down"></i>
+                <span>Filtrar por Salón</span>
+                <i class="uil uil-angle-down"></i>
             </div>
             <div class="contenido-select">
-              <ul class="opciones">
-                <li onclick="seleccionarOpcion(this)" data-value="profesor">
-                  Profesores
-                </li>
-                <li onclick="seleccionarOpcion(this)" data-value="materia">
-                  Materias
-                </li>
-                <li onclick="seleccionarOpcion(this)" data-value="carrera">
-                  Carreras
-                </li>
-                <li onclick="seleccionarOpcion(this)" data-value="grupo">
-                  Grupos
-                </li>
-                <li onclick="seleccionarOpcion(this)" data-value="salon">
-                  Salones
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="filtros-container" style="display: none">
-            <div class="contenedor-select" data-type="salon">
-              <div class="boton-select">
-                <span>Seleccione un SALÓN</span>
-                <i class="uil uil-angle-down"></i>
-              </div>
-              <div class="contenido-select">
                 <div class="buscador">
-                  <i class="uil uil-search"></i>
-                  <input
-                    spellcheck="false"
-                    type="text"
-                    placeholder="Buscar salón..."
-                  />
+                    <i class="uil uil-search"></i>
+                    <input spellcheck="false" type="text" placeholder="Buscar salón...">
                 </div>
                 <ul class="opciones"></ul>
-              </div>
             </div>
+        </div>
 
-            <!-- Select para Grupo -->
-            <div class="contenedor-select" data-type="grupo">
-              <div class="boton-select">
-                <span>Seleccione un GRUPO</span>
+        <div class="contenedor-select" data-type="materia">
+            <div class="boton-select">
+                <span>Filtrar por Materia</span>
                 <i class="uil uil-angle-down"></i>
-              </div>
-              <div class="contenido-select">
+            </div>
+            <div class="contenido-select">
                 <div class="buscador">
-                  <i class="uil uil-search"></i>
-                  <input
-                    spellcheck="false"
-                    type="text"
-                    placeholder="Buscar grupo..."
-                  />
+                    <i class="uil uil-search"></i>
+                    <input spellcheck="false" type="text" placeholder="Buscar materia...">
                 </div>
                 <ul class="opciones"></ul>
-              </div>
             </div>
+        </div>
 
-            <!-- Select para Profesor -->
-            <div class="contenedor-select" data-type="profesor">
-              <div class="boton-select">
-                <span>Seleccione un PROFESOR</span>
+        <div class="contenedor-select" data-type="profesor">
+            <div class="boton-select">
+                <span>Filtrar por Profesor</span>
                 <i class="uil uil-angle-down"></i>
-              </div>
-              <div class="contenido-select">
+            </div>
+            <div class="contenido-select">
                 <div class="buscador">
-                  <i class="uil uil-search"></i>
-                  <input
-                    spellcheck="false"
-                    type="text"
-                    placeholder="Buscar profesor..."
-                  />
+                    <i class="uil uil-search"></i>
+                    <input spellcheck="false" type="text" placeholder="Buscar profesor...">
                 </div>
                 <ul class="opciones"></ul>
-              </div>
+            </div>
+        </div>
+    </div>
+<div class="contenedor-horario">
+				
+				<div class="horarios-list" id="horario" style="display: none;">
+				</div>
+</div>
+
+</div>
+<div class="modal" id="modal-editar-horario">
+    <div class="modal__container">
+        <h2 class="modal__title">Editar Horario</h2>
+        <form class="form form-register" id="formEditarHorario">
+            
+            <div class="contenedor-select" data-type="grupo-edicion">
+                <div class="boton-select">
+                    <span>Seleccione Grupo</span>
+                    <i class="uil uil-angle-down"></i>
+                </div>
+                <div class="contenido-select">
+                    <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input spellcheck="false" type="text" placeholder="Buscar salón...">
+                    </div>
+                    <ul class="opciones"></ul>
+                </div>
+            </div>
+
+			<div class="contenedor-select" data-type="dia-edicion">
+                <div class="boton-select">
+                    <span>Seleccione Dia</span>
+                    <i class="uil uil-angle-down"></i>
+                </div>
+                <div class="contenido-select">
+                    
+                    <ul class="opciones"></ul>
+                </div>
+            </div>
+
+            <!-- Select para Salón -->
+            <div class="contenedor-select" data-type="salon-edicion">
+                <div class="boton-select">
+                    <span>Seleccione salón</span>
+                    <i class="uil uil-angle-down"></i>
+                </div>
+                <div class="contenido-select">
+                    <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input spellcheck="false" type="text" placeholder="Buscar salón...">
+                    </div>
+                    <ul class="opciones"></ul>
+                </div>
             </div>
 
             <!-- Select para Materia -->
-            <div class="contenedor-select" data-type="materia">
-              <div class="boton-select">
-                <span>Seleccione una MATERIA</span>
-                <i class="uil uil-angle-down"></i>
-              </div>
-              <div class="contenido-select">
-                <div class="buscador">
-                  <i class="uil uil-search"></i>
-                  <input
-                    spellcheck="false"
-                    type="text"
-                    placeholder="Buscar materia..."
-                  />
+            <div class="contenedor-select" data-type="materia-edicion">
+                <div class="boton-select">
+                    <span>Seleccione materia</span>
+                    <i class="uil uil-angle-down"></i>
                 </div>
-                <ul class="opciones"></ul>
-              </div>
+                <div class="contenido-select">
+                    <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input spellcheck="false" type="text" placeholder="Buscar materia...">
+                    </div>
+                    <ul class="opciones"></ul>
+                </div>
             </div>
 
-            <!-- Select para Hora Inicio -->
-            <div class="contenedor-select" data-type="horaInicio">
-              <div class="boton-select">
-                <span>Seleccione HORA INICIO</span>
-                <i class="uil uil-angle-down"></i>
-              </div>
-              <div class="contenido-select">
-                <div class="buscador">
-                  <i class="uil uil-search"></i>
-                  <input
-                    spellcheck="false"
-                    type="text"
-                    placeholder="Buscar hora..."
-                  />
+            <!-- Select para Profesor -->
+            <div class="contenedor-select" data-type="profesor-edicion">
+                <div class="boton-select">
+                    <span>Seleccione profesor</span>
+                    <i class="uil uil-angle-down"></i>
                 </div>
-                <ul class="opciones"></ul>
-              </div>
+                <div class="contenido-select">
+                    <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input spellcheck="false" type="text" placeholder="Buscar profesor...">
+                    </div>
+                    <ul class="opciones"></ul>
+                </div>
             </div>
 
-            <!-- Select para Hora Fin -->
-            <div class="contenedor-select" data-type="horaFin">
-              <div class="boton-select">
-                <span>Seleccione HORA FIN</span>
-                <i class="uil uil-angle-down"></i>
-              </div>
-              <div class="contenido-select">
-                <div class="buscador">
-                  <i class="uil uil-search"></i>
-                  <input
-                    spellcheck="false"
-                    type="text"
-                    placeholder="Buscar hora..."
-                  />
+			<div class="contenedor-select" data-type="horaInicio-edicion">
+                <div class="boton-select">
+                    <span>Seleccione Hora Inicio</span>
+                    <i class="uil uil-angle-down"></i>
                 </div>
-                <ul class="opciones"></ul>
-              </div>
+                <div class="contenido-select">
+                    <div class="buscador">
+                        <i class="uil uil-search"></i>
+                        <input spellcheck="false" type="text" placeholder="Buscar Hora...">
+                    </div>
+                    <ul class="opciones"></ul>
+                </div>
             </div>
-          </div>
-        </div>
 
-        <!-- TABLA DE HORARIOS -->
-        <section class="table-data">
-          <h3>Horarios disponibles</h3>
-          <section class="contenedor-horario">
-            <div class="blur-overlay top"></div>
-            <div class="horarios-list" id="horario" style="display: none">
-              <!-- Horario 1 -->
-              <div class="horario-card">
-                <div class="horario-header">
-                  <span><b>Grupo</b></span>
-                  <span><b>Profesor</b></span>
-                  <span><b>Materia</b></span>
-                  <span><b>Hora</b></span>
-                  <span><b>Dia</b></span>
-                  <span><b>Fecha</b></span>
-                  <span><b>Editar horario</b></span>
-                </div>
-                <div class="horario-content">
-                  <span>XIV1</span>
-                  <span>Ana María Olivares</span>
-                  <span>Inglés IV</span>
-                  <span>17:00 - 19:00</span>
-                  <span>Viernes</span>
-                  <span>22/03/2025</span>
-                  <button class="btn-editar">Editar</button>
-                </div>
-              </div>
-
-              <div class="horario-card">
-                <div class="horario-header">
-                  <span><b>Grupo</b></span>
-                  <span><b>Profesor</b></span>
-                  <span><b>Materia</b></span>
-                  <span><b>Hora</b></span>
-                  <span><b>Dia</b></span>
-                  <span><b>Fecha</b></span>
-                  <span><b>Editar horario</b></span>
-                </div>
-                <div class="horario-content">
-                  <span>XIV1</span>
-                  <span>Ana María Olivares</span>
-                  <span>Inglés IV</span>
-                  <span>17:00 - 19:00</span>
-                  <span>Viernes</span>
-                  <span>22/03/2025</span>
-                  <button class="btn-editar">Editar</button>
-                </div>
-              </div>
-
-              <div class="horario-card">
-                <div class="horario-header">
-                  <span><b>Grupo</b></span>
-                  <span><b>Profesor</b></span>
-                  <span><b>Materia</b></span>
-                  <span><b>Hora</b></span>
-                  <span><b>Dia</b></span>
-                  <span><b>Fecha</b></span>
-                  <span><b>Editar horario</b></span>
-                </div>
-                <div class="horario-content">
-                  <span>XIV1</span>
-                  <span>Ana María Olivares</span>
-                  <span>Inglés IV</span>
-                  <span>17:00 - 19:00</span>
-                  <span>Viernes</span>
-                  <span>22/03/2025</span>
-                  <button class="btn-editar">Editar</button>
-                </div>
-              </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" id="btnCancelarEdicion">Cancelar</button>
+                <button type="button" class="btn-guardar" id="btnGuardarEdicion">Guardar Cambios</button>
             </div>
-            <div class="blur-overlay bottom"></div>
-          </section>
-        </section>
+            
+            <div class="alerta-error"></div>
+            <div class="alerta-exito"></div>
+        </form>
+    </div>
+</div>
 
-        <!-- FORMULARIO DE EDICIÓN -->
-        <section id="formularioEdicion" class="hidden">
-          <div class="form-group">
-            <h3>Editar horario seleccionado</h3>
 
-            <p id="grupoTexto"><b>Grupo:</b> <span id="grupoLabel"></span></p>
-            <p id="diaTexto"><b>Día:</b> <span id="diaLabel"></span></p>
 
-            <label for="horaEdicion">Hora:</label>
-            <input
-              type="text"
-              id="horaEdicion"
-              disabled
-              class="input-disabled"
-              style="
-                background-color: #e9ecef;
-                border-radius: 6px;
-                border: 1px solid #ccc;
-                padding: 10px;
-              "
-            />
-
-            <label for="salon">Salón:</label>
-            <select id="salon" name="salon">
-              <option disabled selected>Seleccione un salón</option>
-            </select>
-
-            <label for="materia">Materia:</label>
-            <select id="materia" name="materia">
-              <option disabled selected>Seleccione una materia</option>
-            </select>
-
-            <label for="persona">Profesor:</label>
-            <select id="persona" name="persona">
-              <option disabled selected>Seleccione un profesor</option>
-            </select>
-
-            <input type="hidden" id="idHorario" />
-            <button id="btnGuardar">Guardar Cambios</button>
-          </div>
-        </section>
       </main>
     </section>
     <!-- NAVBAR -->
