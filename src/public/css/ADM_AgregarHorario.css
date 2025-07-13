@@ -1255,3 +1255,31 @@ main .info-data {
   background: var(--blue) !important;
   opacity: 1 !important;
 }
+
+@media (max-width: 600px) {
+  .horario-header, .horario-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: left;
+    padding: 10px 0;
+  }
+  .horario-header span, .horario-content span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 15px;
+    padding: 6px 0;
+  }
+  .horario-header span b {
+    font-size: 15px;
+    color: #1775F1;
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
+  .horario-content span:nth-child(1)::before { content: "Hora inicio"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .horario-content span:nth-child(2)::before { content: "Hora final"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .horario-content span:nth-child(3)::before { content: "Salón"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .horario-content span:nth-child(4)::before { content: "Materia"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .horario-content span:nth-child(5)::before { content: "Profesor"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+}

@@ -1218,3 +1218,43 @@ input[type="file"]:focus::before {
 #sidebar.hide .brand span {
   display: none;
 }
+
+
+/* responsive celular*/
+
+@media (max-width: 600px) {
+  .container-form {
+    flex-direction: column;
+    max-width: 100%;
+    width: 100%;
+    margin: 20px auto;
+    box-shadow: none;
+    border-radius: 20px; /* Mantén esquinas redondeadas */
+    padding: 0;
+    overflow: visible;
+  }
+  .information {
+    width: 100%;
+    border-radius: 20px 20px 0 0; /* Esquinas arriba redondeadas */
+    padding: 30px 16px;
+    text-align: center;
+  }
+  .form-information {
+    width: 100%;
+    border-radius: 0 0 20px 20px; /* Esquinas abajo redondeadas */
+    padding: 30px 16px;
+  }
+  main {
+    padding-bottom: 40px; /* Espacio para el botón */
+  }
+  .form input[type="submit"] {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0;
+  }
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+}

@@ -1034,3 +1034,17 @@ main .breadcrumbs li.divider {
     width: 100%;
     gap: 10px;
 }
+
+
+
+@media (max-width: 600px) {
+  .select-custom {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .contenedor-select {
+    width: 100%;
+  }
+}
