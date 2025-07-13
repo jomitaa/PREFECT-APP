@@ -2045,6 +2045,73 @@ app.get('/obtener-datos-horarios', async (req, res) => {
     }
 });
 
+
+
+app.get('/obtener-datos-horarios-2', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
+
+    try {
+        const [grupos] = await conexion.promise().query(`
+            SELECT DISTINCT g.id_grupo, g.nom_grupo, g.id_turno 
+            FROM grupo g 
+            WHERE g.id_escuela = ?
+        `, [idEscuela]);
+
+        const [dias] = await conexion.promise().query(`
+            SELECT DISTINCT h.dia_horario as dia 
+            FROM horario h 
+            JOIN grupo g ON h.id_grupo = g.id_grupo
+            
+        `);
+
+        const [hora_inicio] = await conexion.promise().query(`
+            SELECT DISTINCT h.hora_inicio 
+            FROM horario h
+            JOIN grupo g ON h.id_grupo = g.id_grupo
+           
+        `);
+
+        const [hora_final] = await conexion.promise().query(`
+            SELECT DISTINCT h.hora_final 
+            FROM horario h
+            JOIN grupo g ON h.id_grupo = g.id_grupo
+           
+        `);
+
+        const [salones] = await conexion.promise().query(`
+            SELECT DISTINCT s.id_salon
+            FROM salon s
+            WHERE s.id_escuela = ?
+        `, [idEscuela]);
+
+        const [materias] = await conexion.promise().query(`
+            SELECT DISTINCT m.id_materia, m.nom_materia 
+            FROM materia m 
+            WHERE m.id_escuela = ?
+        `, [idEscuela]);
+
+        const [profesores] = await conexion.promise().query(`
+            SELECT DISTINCT p.id_persona, 
+                CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo
+            FROM persona p
+            WHERE p.id_escuela = ?
+        `, [idEscuela]);
+
+        res.json({
+            grupos,
+            dias,
+            hora_inicio,
+            hora_final,
+            salones,
+            materias,
+            profesores
+        });
+    } catch (error) {
+        console.error('Error al obtener los datos:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
 // -------------------------------- FIN RUTA DE AGREGAR HORARIO  --------------------------------
 
 
@@ -2205,8 +2272,7 @@ app.get('/obtener-horarios/:dia/:idGrupo/:idContenedor', async (req, res) => {
         const [horarios] = await conexion.promise().query(`
             SELECT h.id_horario, h.dia_horario, h.hora_inicio, h.hora_final,
                    h.id_salon, m.nom_materia, g.nom_grupo,
-                   CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo,
-                     h.id_persona, h.id_grupo, h.id_materia
+                   CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo
             FROM horario h
             INNER JOIN grupo g ON h.id_grupo = g.id_grupo
             JOIN materia m ON h.id_materia = m.id_materia
@@ -2225,6 +2291,8 @@ app.get('/obtener-horarios/:dia/:idGrupo/:idContenedor', async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
+
+
 
 app.post('/editar-horario', async (req, res) => {
     const { id_horario, dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona } = req.body;
@@ -2267,6 +2335,9 @@ app.post('/editar-horario', async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al editar horario' });
     }
 });
+
+
+
 
 // --------------------------------- FIN RUTA EDITAR HORARIO ------------------------------------
 

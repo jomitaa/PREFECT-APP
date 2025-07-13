@@ -303,7 +303,7 @@ function inicializarEventosGrupos() {
 
 async function cargarGruposPersonalizado() {
     try {
-        const res = await fetch("/obtener-datos-horarios");
+        const res = await fetch("/obtener-datos-horarios-2");
         if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
         
         const data = await res.json();
@@ -538,7 +538,7 @@ function inicializarEventosGruposJefe() {
 
 async function cargarGruposPersonalizadoJefe() {
     try {
-        const res = await fetch("/obtener-datos-horarios");
+        const res = await fetch("/obtener-datos-horarios-2");
         if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
         
         const data = await res.json();
