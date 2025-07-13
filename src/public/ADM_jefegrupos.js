@@ -138,6 +138,8 @@ function llenarSelect(tipo, datos, idValue, idText) {
             
             // Cerrar select
             cerrarSelect(contenedor);
+
+            filtrarJefes();
         }
 
         function limpiarFiltro(tipo, contenedor) {
@@ -167,6 +169,7 @@ function llenarSelect(tipo, datos, idValue, idText) {
     cerrarSelect(contenedor);
     
     // Volver a filtrar
+    filtrarJefes();
 }
 
 
@@ -362,9 +365,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await cargarGruposPersonalizado();
     inicializarEventosFiltros();
 
-        document.getElementById("filterBtn").replaceWith(document.getElementById("filterBtn").cloneNode(true));
-filterBtn.removeEventListener("click", filtrarJefes); 
-    document.getElementById("filterBtn").addEventListener("click", filtrarJefes);
+       
 
   const modal = document.querySelector('.modal');
   const modal2 = document.querySelector('.modal2');

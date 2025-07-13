@@ -19,6 +19,66 @@ function createToast(type, icon, title, text) {
     newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
 }
 
+
+ async function filtrarHorarios() {
+    
+     const fecha = document.getElementById("fecha_reporte").value;
+
+     try {
+         const response = await fetch("/obtenerReportes");
+         if (!response.ok) {
+             throw new Error(`Error en la solicitud: ${response.status}`);
+         }
+         const consulta = await response.json();
+         
+ 
+         const horariosFiltrados = consulta.filter(consulta => {
+
+             const fechaReporte = consulta.fecha_reporte; 
+
+             const [year, month, day] = fecha.split("-"); 
+             const fechaUsuario = `${day}/${month}/${year.slice(-2)}`;
+
+
+             console.log("Fecha de asistencia:", fechaReporte);
+             console.log("Fecha convertida:", fechaUsuario);
+
+             return (
+                (nomUsuarioSeleccionado === '' || consulta.nom_usuario === nomUsuarioSeleccionado) &&
+                (tipoSeleccionado === '' || consulta.tipo_reporte === tipoSeleccionado) &&
+                 (!fecha || fechaReporte === fechaUsuario) 
+
+             );
+         });
+ 
+         if (horariosFiltrados.length === 0) {
+             console.log("No se encontraron horarios que coincidan con los filtros.");
+             createToast(
+                 "advertencia",
+                 "fa-solid fa-triangle-exclamation",
+                 "Aviso",
+                 "No se encontraron horarios que coincidan con los filtros seleccionados."
+             );
+        ocultarLoader();
+             return; 
+         }
+ 
+         mostrar(horariosFiltrados);
+     } catch (error) {
+         console.error("Error al obtener los horarios:", error);
+         createToast(
+             "error",
+             "fa-solid fa-circle-exclamation",
+             "Error",
+             "Hubo un problema al cargar los horarios."
+         );
+        ocultarLoader();
+         document.getElementById("horario").innerHTML =
+             '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
+     }
+ }
+
+
 let tipoSeleccionado = '';
 let nomUsuarioSeleccionado = '';
 
@@ -120,6 +180,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // Cerrar select
             cerrarSelect(contenedor);
+
+            filtrarHorarios(); // Llamar a la función de filtrado
         }
 
          function limpiarFiltro(tipo, contenedor) {
@@ -148,9 +210,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     cerrarSelect(contenedor);
     
     // Opcional: volver a filtrar automáticamente
-    if (turnoSeleccionado) {
+    
         filtrarHorarios();
-    }
+    
 }
         // Función para inicializar eventos de los filtros
         function inicializarEventosFiltros() {
@@ -341,85 +403,22 @@ function cargarReportes() {
      contenedor.innerHTML = resultados;
 
 
-     document.getElementById("filterBtn").replaceWith(document.getElementById("filterBtn").cloneNode(true));
- document.getElementById("filterBtn").addEventListener("click", filtrarHorarios);
-
- 
- async function filtrarHorarios() {
-    
-     const fecha = document.getElementById("fecha_reporte").value;
-
-     try {
-         const response = await fetch("/obtenerReportes");
-         if (!response.ok) {
-             throw new Error(`Error en la solicitud: ${response.status}`);
-         }
-         const consulta = await response.json();
-         
- 
-         const horariosFiltrados = consulta.filter(consulta => {
-
-             const fechaReporte = consulta.fecha_reporte; 
-
-             const [year, month, day] = fecha.split("-"); 
-             const fechaUsuario = `${day}/${month}/${year.slice(-2)}`;
-
-
-             console.log("Fecha de asistencia:", fechaReporte);
-             console.log("Fecha convertida:", fechaUsuario);
-
-             return (
-                (nomUsuarioSeleccionado === '' || consulta.nom_usuario === nomUsuarioSeleccionado) &&
-                (tipoSeleccionado === '' || consulta.tipo_reporte === tipoSeleccionado) &&
-                 (!fecha || fechaReporte === fechaUsuario) 
-
-             );
-         });
- 
-         if (horariosFiltrados.length === 0) {
-             console.log("No se encontraron horarios que coincidan con los filtros.");
-             createToast(
-                 "advertencia",
-                 "fa-solid fa-triangle-exclamation",
-                 "Aviso",
-                 "No se encontraron horarios que coincidan con los filtros seleccionados."
-             );
-        ocultarLoader();
-             return; 
-         }
- 
-         mostrar(horariosFiltrados);
-     } catch (error) {
-         console.error("Error al obtener los horarios:", error);
-         createToast(
-             "error",
-             "fa-solid fa-circle-exclamation",
-             "Error",
-             "Hubo un problema al cargar los horarios."
-         );
-        ocultarLoader();
-         document.getElementById("horario").innerHTML =
-             '<tr><td colspan="6">Error al cargar los horarios</td></tr>';
-     }
- }
+     
 
  document.getElementById("resetFiltersButton").addEventListener("click", function() {
-   anioSeleccionado = '';
-    periodoSeleccionado = '';
-    grupoSeleccionado = '';
-    profesorSeleccionado = '';
-    materiaSeleccionada = '';
-    horaInicioSeleccionada = '';
-    horaFinSeleccionada = '';
-    diaSeleccionado = '';
-    registroAsistenciaSeleccionado = '';
+   
+    // Limpiar el input de fecha
+    document.getElementById("fecha_reporte").value = '';    
+    // Limpiar las variables de filtro
+    tipoSeleccionado = '';
+    nomUsuarioSeleccionado = '';
     
     // Limpiar UI de todos los filtros
     const tipos = ['tipo_reporte', 'nom_usuario'];
     tipos.forEach(tipo => {
         const contenedor = document.querySelector(`.contenedor-select[data-type="${tipo}"]`);
         if (contenedor) {
-            const defaultText = `Seleccione ${tipo === 'tipo_reporte' ? 'Tipo de Reporte' : 
+            const defaultText = `Filtre por ${tipo === 'tipo_reporte' ? 'Tipo de Reporte' : 
                                tipo === 'nom_usuario' ? 'Nombre de Usuario' : ''
                                
                                

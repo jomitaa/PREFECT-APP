@@ -23,6 +23,57 @@ function showLoading(show) {
   }
 }
 
+
+
+    
+   async function filtrarHorarios() {
+    showLoading(true);
+    
+    try {
+        // Verificar que tenemos datos en caché
+        if (!window.horariosCache) {
+            await fetchConsulta();
+            return;
+        }
+        
+        const fechaInput = document.getElementById("fecha")?.value;
+        
+        // Filtrar sobre los datos en caché
+        let horariosFiltrados = window.horariosCache.filter(item => {
+            if (fechaInput && item.fecha_asistencia !== fechaInput) return false;
+            if (grupoSeleccionado && item.grupo !== grupoSeleccionado) return false;
+            if (diaSeleccionado && item.dia_horario !== diaSeleccionado) return false;
+            if (profesorSeleccionado && item.persona !== profesorSeleccionado) return false;
+            if (materiaSeleccionada && item.materia !== materiaSeleccionada) return false;
+            if (horaInicioSeleccionada && item.hora_inicio !== horaInicioSeleccionada) return false;
+            if (horaFinSeleccionada && item.hora_final !== horaFinSeleccionada) return false;
+            if (anioSeleccionado && item.anio !== anioSeleccionado) return false;
+            if (periodoSeleccionado && item.periodo !== periodoSeleccionado) return false;
+            if (registroAsistenciaSeleccionado === "asis" && item.asistencia !== 1) return false;
+            if (registroAsistenciaSeleccionado === "ret" && item.retardo !== 1) return false;
+            if (registroAsistenciaSeleccionado === "falt" && item.falta !== 1) return false;
+            
+            return true;
+        });
+
+        // Ordenar y limitar
+        horariosFiltrados = horariosFiltrados
+            .sort((a, b) => new Date(b.fecha_asistencia) - new Date(a.fecha_asistencia))
+            .slice(0, 50);
+        
+        if (horariosFiltrados.length === 0) {
+            mostrarMensajeNoDatos();
+        } else {
+            mostrar(horariosFiltrados);
+        }
+    } catch (error) {
+        console.error("Error al filtrar:", error);
+        mostrarMensajeError(error);
+    } finally {
+        showLoading(false);
+    }
+}
+
 const contenedorAsistencia = document.querySelector('.contenedor-select[data-type="asistencia"]');
 const contenedorAnio = document.querySelector('.contenedor-select[data-type="anio"]');
 const contenedorPeriodo = document.querySelector('.contenedor-select[data-type="periodo"]');
@@ -159,6 +210,8 @@ function llenarSelect(tipo, datos) {
             
             // Cerrar select
             cerrarSelect(contenedor);
+
+            filtrarHorarios();
         }
 
         function limpiarFiltro(tipo, contenedor) {
@@ -178,7 +231,7 @@ function llenarSelect(tipo, datos) {
     }
     
     // Actualizar UI
-    const defaultText = `Seleccione ${tipo === 'anio' ? 'AÑO' : 
+    const defaultText = `Filtre por ${tipo === 'anio' ? 'AÑO' : 
                        tipo === 'periodo' ? 'PERIODO' :
                        tipo === 'dia' ? 'DÍA' :
                        tipo === 'grupo' ? 'GRUPO' :
@@ -505,58 +558,6 @@ async function fetchConsulta() {
         contenedor.innerHTML = resultados;
 
 
-        document.getElementById("filterBtn").replaceWith(document.getElementById("filterBtn").cloneNode(true));
-    document.getElementById("filterBtn").addEventListener("click", filtrarHorarios);
-
-    
-    
-   async function filtrarHorarios() {
-    showLoading(true);
-    
-    try {
-        // Verificar que tenemos datos en caché
-        if (!window.horariosCache) {
-            await fetchConsulta();
-            return;
-        }
-        
-        const fechaInput = document.getElementById("fecha")?.value;
-        
-        // Filtrar sobre los datos en caché
-        let horariosFiltrados = window.horariosCache.filter(item => {
-            if (fechaInput && item.fecha_asistencia !== fechaInput) return false;
-            if (grupoSeleccionado && item.grupo !== grupoSeleccionado) return false;
-            if (diaSeleccionado && item.dia_horario !== diaSeleccionado) return false;
-            if (profesorSeleccionado && item.persona !== profesorSeleccionado) return false;
-            if (materiaSeleccionada && item.materia !== materiaSeleccionada) return false;
-            if (horaInicioSeleccionada && item.hora_inicio !== horaInicioSeleccionada) return false;
-            if (horaFinSeleccionada && item.hora_final !== horaFinSeleccionada) return false;
-            if (anioSeleccionado && item.anio !== anioSeleccionado) return false;
-            if (periodoSeleccionado && item.periodo !== periodoSeleccionado) return false;
-            if (registroAsistenciaSeleccionado === "asis" && item.asistencia !== 1) return false;
-            if (registroAsistenciaSeleccionado === "ret" && item.retardo !== 1) return false;
-            if (registroAsistenciaSeleccionado === "falt" && item.falta !== 1) return false;
-            
-            return true;
-        });
-
-        // Ordenar y limitar
-        horariosFiltrados = horariosFiltrados
-            .sort((a, b) => new Date(b.fecha_asistencia) - new Date(a.fecha_asistencia))
-            .slice(0, 50);
-        
-        if (horariosFiltrados.length === 0) {
-            mostrarMensajeNoDatos();
-        } else {
-            mostrar(horariosFiltrados);
-        }
-    } catch (error) {
-        console.error("Error al filtrar:", error);
-        mostrarMensajeError(error);
-    } finally {
-        showLoading(false);
-    }
-}
 
    document.getElementById("resetFiltersButton").addEventListener("click", function() {
     // Limpiar variables
@@ -575,13 +576,16 @@ async function fetchConsulta() {
     tipos.forEach(tipo => {
         const contenedor = document.querySelector(`.contenedor-select[data-type="${tipo}"]`);
         if (contenedor) {
-            const defaultText = `Seleccione ${tipo === 'anio' ? 'AÑO' : 
+            const defaultText = `Filtre por ${tipo === 'anio' ? 'AÑO' : 
                                tipo === 'periodo' ? 'PERIODO' :
                                tipo === 'dia' ? 'DÍA' :
                                tipo === 'grupo' ? 'GRUPO' :
                                tipo === 'profesor' ? 'PROFESOR' :
                                tipo === 'materia' ? 'MATERIA' :
-                               tipo === 'horaInicio' ? 'HORA INICIO' : 'HORA FIN'}`;
+                               tipo === 'horaInicio' ? 'HORA INICIO' : 
+                                 tipo === 'horaFin' ? 'HORA FIN' :
+                                 tipo === 'asistencia' ? 'ASISTENCIA' : ''
+                               }`;
             
             const span = contenedor.querySelector('.boton-select span');
             if (span) span.textContent = defaultText;
