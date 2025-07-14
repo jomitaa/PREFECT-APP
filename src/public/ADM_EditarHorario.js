@@ -393,6 +393,25 @@ function mostrarHorarios(horarios) {
         contenedorHorarios.appendChild(card);
     });
     
+     // --- CÓDIGO A AÑADIR AQUÍ (al final de la función mostrarHorarios) ---
+        // Asignar data-label a cada campo dentro de horario-content para el CSS responsivo
+        const encabezadosCard = [
+            "Grupo", "Salón", "Profesor", "Materia", "Hora", "Día", "Acciones" // Estos deben coincidir con tus campos
+        ];
+
+        const cards = contenedorHorarios.querySelectorAll('.horario-card');
+        cards.forEach(card => {
+            const contentElements = card.querySelectorAll('.horario-content > span, .horario-content > div'); // Selecciona spans directos y el div de acciones
+
+            contentElements.forEach((element, index) => {
+                if (encabezadosCard[index]) { // Asegurarse de que el encabezado exista
+                    element.setAttribute('data-label', encabezadosCard[index]);
+                }
+            });
+        });
+        // --- FIN DEL CÓDIGO A AÑADIR ---
+
+
     contenedorHorarios.style.display = 'block';
 }
 

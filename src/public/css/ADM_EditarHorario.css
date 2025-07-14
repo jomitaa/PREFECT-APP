@@ -1191,6 +1191,10 @@ label {
 
 .contenedor-horario {
 	position: relative;
+	 max-height: 400px; /* Ajusta esta altura a tu preferencia (ej. 400px o 50vh) */
+    overflow-y: auto;  /* Habilita el scroll vertical cuando el contenido excede la altura máxima */
+    padding-right: 10px; /* Opcional: para que la barra de scroll no se pegue al contenido */
+
 }
 
 .horarios-list {
@@ -1199,7 +1203,7 @@ label {
 	gap: 15px;
 	max-height: 425px;
 	margin-top: 40px;
-	overflow-y: auto;
+	overflow-y: visible !important; /* Changed from auto to visible */
 	position: relative;
 }
 
@@ -1228,12 +1232,14 @@ label {
 
 .horario-card {
 	background: #FFFFFF;
-	padding: 15px;
+	padding: 20px;
 	border-radius: 15px;
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 	display: flex;
 	flex-direction: column;
+	margin-bottom: 15px;
 }
+
 
 .horario-header,
 .horario-content {
@@ -1319,13 +1325,22 @@ label {
 
 
 .filters {
-    display: grid;
-	grid-template-columns: repeat(3, 1fr);
+    display: grid !important; /* Revert back to grid for layout */
+    grid-template-columns: repeat(3, 1fr);
     width: 100%;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 10px;
     margin: 20px 0;
+    overflow: visible !important;
+    height: auto !important;
+    position: relative;
+    z-index: 1;
+}
+
+#content, main, section#content, body, html {
+    overflow: visible !important;
+    height: auto !important;
 }
 
 .filtros-adicionales {
@@ -2062,4 +2077,150 @@ label {
 
 .btn-guardar:hover {
     background-color: #0d8bf2;
+}
+
+.filters, .filtros-adicionales, .contenedor-select {
+    overflow: visible !important;
+    height: auto !important;
+    position: relative; /* Added to ensure absolute children position correctly */
+    
+}
+
+.contenido-select {
+    
+    /* max-height: 300px; Removed to prevent scroll */
+    /* overflow-y: auto; Removed to prevent scroll */
+    position: absolute;
+    top: 100%; /* Added to position below the button */
+    left: 0;
+    width: 100%;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: block;
+}
+
+.contenedor-select {
+    position: relative;
+    overflow: visible !important;
+    
+}
+
+.contenido-select {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 1050;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: block;
+}
+
+.contenedor-select.activo .contenido-select {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+#content,
+main,
+.filtros-adicionales,
+.contenedor-select {
+    overflow: visible !important;
+    height: auto !important;
+    position: relative; /* Added for stacking context */
+}
+
+
+.label-edicion{
+	color: var(--blue)
+}
+
+/* ADM_EditarHorario.css */
+
+/* --- Estilos para Tarjetas de Horario Responsivas (Versión Móvil) --- */
+
+@media screen and (max-width: 768px) {
+    /* Contenedor principal de la tarjeta */
+    .horario-card {
+        border: none; /* Quitamos el contorno gris */
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 1rem; /* Espacio entre tarjetas */
+        background-color: var(--light); /* Fondo blanco */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Mantenemos sombra sutil para definición */
+        display: block;
+    }
+
+    /* Ocultar los encabezados de la tarjeta en móvil */
+    .horario-card .horario-header {
+        display: none;
+    }
+
+    /* Contenedor de los campos de la tarjeta */
+    .horario-card .horario-content {
+        display: flex;
+        flex-direction: column; /* Apilar los elementos verticalmente */
+    }
+
+    /* Estilos para cada campo individual (span y div de acciones) */
+    .horario-card .horario-content > span,
+    .horario-card .horario-content > div {
+        display: block; /* Cada campo ocupa su propia línea */
+        text-align: left; /* Alinea el texto del VALOR a la izquierda */
+        border-bottom: 0; /* Aseguramos que no haya líneas de separación */
+        padding: 8px 10px; /* Padding interno para cada línea de campo/valor */
+        position: relative; /* Necesario para posicionar la etiqueta (::before) */
+        /* Ajusta este padding-left: debe ser mayor que el 'width' de la etiqueta + un margen */
+        padding-left: 120px; /* Deja espacio para la etiqueta + un pequeño margen */
+    }
+
+    /* Estilos para las etiquetas (el pseudo-elemento ::before) */
+    .horario-card .horario-content > span::before,
+    .horario-card .horario-content > div::before {
+        content: attr(data-label);
+        position: absolute; /* Posiciona la etiqueta absolutamente dentro de su padre */
+        left: 10px; /* Posición de la etiqueta desde el borde izquierdo del campo */
+        width: 100px; /* **Ancho fijo para todas las etiquetas** para que los valores se alineen */
+        font-weight: bold;
+        color: var(--blue);
+        text-align: left; /* Asegura que el texto de la etiqueta esté alineado a la izquierda */
+    }
+
+    /* Estilos específicos para la sección de acciones (botones) */
+    .horario-card .horario-content .acciones {
+        text-align: center; /* Centrar los botones de acción */
+        padding-left: 10px; /* Ajusta el padding para los botones */
+        padding-right: 10px;
+        /* Si la etiqueta "Acciones" no es útil, asegúrate de que esté oculta */
+    }
+
+    /* Ocultar la etiqueta "Acciones" si no es necesaria visualmente para los botones */
+    .horario-card .horario-content .acciones::before {
+        content: "";
+        display: none;
+    }
+
+    /* Estilos para los botones (Editar/Eliminar) para un mejor tamaño */
+    .horario-card .btn-editar,
+    .horario-card .btn-eliminar {
+        width: auto; /* Permitir que los botones se ajusten a su contenido */
+        min-width: 90px; /* Establecer un ancho mínimo para que no se vean muy pequeños */
+        display: inline-block; /* Permite que estén en la misma línea */
+        margin: 5px; /* Margen para espaciado entre botones y alrededor */
+        padding: 8px 15px; /* Aumenta el padding para un mejor tamaño y forma */
+        font-size: 14px; /* Ajusta el tamaño de fuente si es necesario */
+        height: auto; /* Asegura que la altura se ajuste al contenido */
+        line-height: normal; /* Reinicia el line-height para evitar que se aplasten */
+    }
 }

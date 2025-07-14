@@ -2272,7 +2272,8 @@ app.get('/obtener-horarios/:dia/:idGrupo/:idContenedor', async (req, res) => {
         const [horarios] = await conexion.promise().query(`
             SELECT h.id_horario, h.dia_horario, h.hora_inicio, h.hora_final,
                    h.id_salon, m.nom_materia, g.nom_grupo,
-                   CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo
+                   CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', p.apmat_persona) AS nombre_completo,
+                   h.id_grupo, h.id_materia, h.id_persona 
             FROM horario h
             INNER JOIN grupo g ON h.id_grupo = g.id_grupo
             JOIN materia m ON h.id_materia = m.id_materia
