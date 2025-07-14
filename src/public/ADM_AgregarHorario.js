@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const respuesta = await fetch('/obtener-datos-horarios');
+        const respuesta = await fetch('/obtener-datos-horarios-2');
         const datos = await respuesta.json();
 
         // Inicializar selects de filtros

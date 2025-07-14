@@ -743,12 +743,7 @@ main .info-data {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-    .grupo-header, 
-    .grupo-content {
-        grid-template-columns: 1fr;
-    }
-}
+
 
 /* Estilos para los botones de eliminar */
 .btnEliminar {
@@ -877,12 +872,7 @@ main .info-data {
 
 
 /* Responsive */
-@media (max-width: 768px) {
-    .salon-header, 
-    .salon-content {
-        grid-template-columns: 1fr;
-    }
-}
+
 
 
 /* Ocultar todos los contenedores inicialmente */
@@ -1178,3 +1168,189 @@ main {
   gap: 12px;
   margin-top: 16px;
 }
+
+
+@media (max-width: 600px) {
+  /* Profesores */
+  .profesor-header,
+  .profesor-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: left;
+    padding: 10px 0;
+  }
+  .profesor-header span,
+  .profesor-content span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 15px;
+    padding: 6px 0;
+  }
+  .profesor-header {
+display: none;
+  }
+
+  /* Materias */
+  .materia-header,
+  .materia-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: left;
+    padding: 10px 0;
+  }
+  .materia-header span,
+  .materia-content span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 15px;
+    padding: 6px 0;
+  }
+  .materia-header{
+   display: none;
+  }
+
+  /* Carreras */
+  .carrera-header,
+  .carrera-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: left;
+    padding: 10px 0;
+  }
+  .carrera-header span,
+  .carrera-content span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 15px;
+    padding: 6px 0;
+  }
+  .carrera-header{
+    display: none;
+  }
+
+  /* Grupos */
+  .grupo-header,
+  .grupo-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: left;
+    padding: 10px 0;
+  }
+  .grupo-header span,
+  .grupo-content span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 15px;
+    padding: 6px 0;
+  }
+  .grupo-header {
+    display: none;
+  }
+
+  /* Salones */
+  .salon-header,
+  .salon-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: left;
+    padding: 10px 0;
+  }
+  .salon-header span,
+  .salon-content span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 15px;
+    padding: 6px 0;
+  }
+  .salon-header{
+    display: none;
+  }
+
+  /* Pisos */
+  .piso-header,
+  .piso-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: left;
+    padding: 10px 0;
+  }
+  .piso-header span,
+  .piso-content span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 15px;
+    padding: 6px 0;
+  }
+  .piso-header {
+display: none;
+  }
+
+  .information {
+    display: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .profesor-content span:nth-child(1)::before { content: "Nombre"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .profesor-content span:nth-child(2)::before { content: "Apellido Paterno"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .profesor-content span:nth-child(3)::before { content: "Apellido Materno"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .profesor-content span:nth-child(4)::before { content: "Correo"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+}
+
+@media (max-width: 600px) {
+  .materia-content span:nth-child(1)::before { content: "Nombre de la materia"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .materia-content span:nth-child(2)::before { content: "Tipo de Materia"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  }
+
+@media (max-width: 600px) {
+  .carrera-content span:nth-child(1)::before { content: "Nombre de la carrera"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+}
+
+@media (max-width: 600px) {
+  .grupo-content span:nth-child(2)::before { content: "Nombre del grupo"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .grupo-content span:nth-child(3)::before { content: "Carrera"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .grupo-content span:nth-child(4)::before { content: "Turno"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .grupo-content span:nth-child(1)::before { content: "Semestre"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+}
+
+@media (max-width: 600px) {
+  .salon-content span:nth-child(1)::before { content: "Número/Nombre del salón"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+  .salon-content span:nth-child(2)::before { content: "Piso"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+}
+
+@media (max-width: 600px) {
+  .piso-content span:nth-child(1)::before { content: "No./ Número del piso"; font-weight: bold; color: #1775F1; margin-bottom: 2px; display: block; }
+}
+
+
+/* Responsive boton */
+@media (max-width: 600px) {
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  #selector-contenedor {
+    width: 100%;
+    min-width: 200px;
+    font-size: 1.1rem;
+    padding: 12px;
+    box-sizing: border-box;
+  }
+}
+
+
+

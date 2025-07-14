@@ -409,6 +409,8 @@ main .breadcrumbs li.divider {
     margin: 20px 0;
 }
 
+
+
 .filters button,
 .filters select {
   padding: 10px;
@@ -451,7 +453,7 @@ main .breadcrumbs li.divider {
     display: flex;
     flex-direction: column;
     gap: 15px;
-	height: 425px; 
+	height: 450px; 
 	margin-top: 40px;
     overflow-y: auto;
 	position: relative;
@@ -638,21 +640,7 @@ main .breadcrumbs li.divider {
     }
 
     /* Swap the order of horario-header and horario-content */
-    .horario-card {
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        grid-template-areas: "content header"; /* Change order for small screens */
-    }
-
-    .horario-header {
-        grid-area: header;
-        order: 2; /* Moves horario-header to the right */
-    }
-
-    .horario-content {
-        grid-area: content;
-        order: 1; /* Moves horario-content to the left */
-    }
+    
 }
 
 /* For screens smaller than 480px (mobile devices) */
@@ -991,3 +979,82 @@ main .breadcrumbs li.divider {
   .contenedor-select .opciones li.seleccionado {
     background-color: #f0f7ff;
   }
+
+  @media (max-width: 600px) {
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .filter-btn,
+  .contenedor-select.turno {
+    grid-column: 1 / -1; /* Ocupan toda la fila arriba */
+    width: 100%;
+  }
+  .contenedor-select {
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+  }
+  .boton-select {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0 10px;
+  }
+}
+
+
+@media (max-width: 550px) {
+  .horarios-list {
+    gap: 15px;
+  }
+  .horario-card {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .horario-header {
+    display: none; /* Oculta la cabecera en móvil */
+  }
+  .horario-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+  }
+  .horario-content span {
+    font-size: 15px;
+    padding: 2px 0;
+  }
+  .acciones {
+    flex-direction: row;
+    gap: 10px;
+    justify-content: flex-start;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 550px) {
+  .horario-content span:nth-child(1)::before { content: "Salón: "; font-weight: bold; color: #4285f4; }
+  .horario-content span:nth-child(2)::before { content: "Grupo: "; font-weight: bold; color: #4285f4; }
+  .horario-content span:nth-child(3)::before { content: "Profesor: "; font-weight: bold; color: #4285f4; }
+  .horario-content span:nth-child(4)::before { content: "Materia: "; font-weight: bold; color: #4285f4; }
+  .horario-content span:nth-child(5)::before { content: "Hora: "; font-weight: bold; color: #4285f4; }
+}
+
+@media (min-width: 551px) and (max-width: 900px) {
+  .horario-header,
+  .horario-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 2fr; /* Igual que escritorio */
+    gap: 6px;
+    font-size: 13px;
+    padding: 6px;
+    text-align: center;
+  }
+  .horario-card {
+    padding: 8px;
+  }
+}

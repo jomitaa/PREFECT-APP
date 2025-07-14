@@ -1016,7 +1016,6 @@ main .breadcrumbs li.divider {
     background-color: #f0f7ff;
   }
 
-  /* Corrección visual para el campo de fecha */
 input[type="date"] {
   padding: 10px;
   border-radius: 8px;
@@ -1104,3 +1103,4 @@ input[type="date"]:focus {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+  

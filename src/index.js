@@ -1236,7 +1236,7 @@ app.post('/actualizarDatosAdmin', async function (req, res) {
 
 async function actualizarAsistencia(validacion_asistencia, id_horario) {
     return new Promise((resolve, reject) => {
-        conexion.query('UPDATE asistencia SET validacion_asistencia = ?, fecha_asistencia = NOW() WHERE id_horario = ?',
+        conexion.query('UPDATE asistencia SET validacion_asistencia = ? WHERE id_horario = ?',
             [validacion_asistencia, id_horario],
             (error, results) => {
                 if (error) {
@@ -1252,7 +1252,7 @@ async function actualizarAsistencia(validacion_asistencia, id_horario) {
 
 async function actualizarRetardo(validacion_retardo, id_horario) {
     return new Promise((resolve, reject) => {
-        conexion.query('UPDATE retardo SET validacion_retardo = ?, fecha_retardo = NOW() WHERE id_horario = ?',
+        conexion.query('UPDATE retardo SET validacion_retardo = ?  WHERE id_horario = ?',
             [validacion_retardo, id_horario],
             (error, results) => {
                 if (error) {
@@ -1268,7 +1268,7 @@ async function actualizarRetardo(validacion_retardo, id_horario) {
 
 async function actualizarFalta(validacion_falta, id_horario) {
     return new Promise((resolve, reject) => {
-        conexion.query('UPDATE falta SET validacion_falta = ?, fecha_falta = NOW() WHERE id_horario = ?',
+        conexion.query('UPDATE falta SET validacion_falta = ? WHERE id_horario = ?',
             [validacion_falta, id_horario],
             (error, results) => {
                 if (error) {
@@ -1940,6 +1940,117 @@ app.get('/obtener-datos-horarios', async (req, res) => {
     let idEscuela = req.session.id_escuela;
 
     try {
+        // Obtener grupos
+        const [grupos] = await conexion.promise().query(`
+            SELECT g.id_grupo, g.nom_grupo 
+            FROM grupo g 
+            WHERE g.id_escuela = ?
+        `, [idEscuela]);
+
+        // Obtener días únicos
+        const [dias] = await conexion.promise().query(`
+            SELECT DISTINCT h.dia_horario as dia 
+            FROM horario h 
+           
+            WHERE h.id_escuela = ?
+        `, [idEscuela]);
+
+        // Obtener salones completos (con piso si es necesario)
+        const [salones] = await conexion.promise().query(`
+            SELECT s.id_salon, s.nom_salon, p.nom_piso 
+            FROM salon s
+            JOIN piso p ON s.piso_salon = p.piso_salon
+            WHERE s.id_escuela = ?
+        `, [idEscuela]);
+
+        // Obtener materias con tipo
+        const [materias] = await conexion.promise().query(`
+            SELECT m.id_materia, m.nom_materia, tm.nom_tipomateria 
+            FROM materia m
+            JOIN tipomateria tm ON m.id_tipomateria = tm.id_tipomateria
+            WHERE m.id_escuela = ?
+        `, [idEscuela]);
+
+        // Obtener profesores con todos los datos necesarios
+        const [profesores] = await conexion.promise().query(`
+            SELECT 
+                p.id_persona, 
+                p.nom_persona, 
+                p.appat_persona, 
+                p.apmat_persona,
+                p.correo,
+                CONCAT(p.nom_persona, ' ', p.appat_persona, ' ', IFNULL(p.apmat_persona, '')) AS nombre_completo
+            FROM persona p
+          
+            WHERE p.id_escuela = ? 
+        `, [idEscuela]);
+
+        // Obtener turnos (si son necesarios para la edición)
+        const [turnos] = await conexion.promise().query(`
+            SELECT id_turno, nom_turno 
+            FROM turno
+
+        `);
+        const [horas] = await conexion.promise().query(`
+            SELECT hora_inicio, hora_final 
+            FROM horario
+        `);
+
+        res.json({
+            grupos: grupos.map(g => ({
+                id_grupo: g.id_grupo,
+                nom_grupo: g.nom_grupo,
+                // Agrega más campos si son necesarios
+            })),
+            dias: dias.map(d => ({
+                dia_horario: d.dia
+        })),
+
+            salones: salones.map(s => ({
+                id_salon: s.id_salon,
+                nom_salon: s.nom_salon,
+                nom_piso: s.nom_piso,
+                texto: `${s.nom_salon} (${s.nom_piso})` // Para mostrar en el select
+            })),
+            materias: materias.map(m => ({
+                id_materia: m.id_materia,
+                nom_materia: m.nom_materia,
+                tipo: m.nom_tipomateria,
+                texto: `${m.nom_materia} (${m.nom_tipomateria})` // Para mostrar en el select
+            })),
+            profesores: profesores.map(p => ({
+                id_persona: p.id_persona,
+                nombre_completo: p.nombre_completo.trim(), // Eliminar espacios extras
+                correo: p.correo,
+                texto: p.nombre_completo.trim() // Para mostrar en el select
+            })),
+            turnos: turnos.map(t => ({
+                id_turno: t.id_turno,
+                nom_turno: t.nom_turno
+            }))
+            ,
+            horas: horas.map(h => ({
+               
+                hora_inicio: h.hora_inicio,
+                hora_final: h.hora_final,
+                texto: `${h.hora_inicio} - ${h.hora_final}` // Para mostrar en el select
+            }))
+        });
+    } catch (error) {
+        console.error('Error al obtener los datos:', error);
+        res.status(500).json({ 
+            error: 'Error interno del servidor',
+            detalles: error.message 
+        });
+    }
+});
+
+
+
+app.get('/obtener-datos-horarios-2', async (req, res) => {
+    let idEscuela = req.session.id_escuela;
+
+    try {
         const [grupos] = await conexion.promise().query(`
             SELECT DISTINCT g.id_grupo, g.nom_grupo, g.id_turno 
             FROM grupo g 
@@ -2182,34 +2293,51 @@ app.get('/obtener-horarios/:dia/:idGrupo/:idContenedor', async (req, res) => {
 });
 
 
-app.put('/editar-horario/:id', async (req, res) => {
-    const { id } = req.params;
-    const { id_salon, id_materia, id_persona } = req.body;
 
+app.post('/editar-horario', async (req, res) => {
+    const { id_horario, dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona } = req.body;
+    let idEscuela = req.session.id_escuela;
+    console.log('Datos recibidos en /editar-horario:', { id_horario, dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona });
     try {
+        // Verificar si el horario existe
         const [horarioExistente] = await conexion.promise().query(
-            'SELECT * FROM horario WHERE id_horario = ?',
-            [id]
+            'SELECT * FROM horario WHERE id_horario = ? AND id_escuela = ?',
+            [id_horario, idEscuela]
         );
-
         if (horarioExistente.length === 0) {
             return res.status(404).json({ success: false, message: 'Horario no encontrado.' });
         }
-
-        // Solo actualizar materia, profesor y salón
+        // Verificar si ya existe un horario con los mismos datos (excepto el id_horario)
+        const [horarioDuplicado] = await conexion.promise().query(
+            `SELECT * FROM horario 
+             WHERE hora_inicio = ? 
+             AND hora_final = ? 
+             AND id_salon = ? 
+             AND id_grupo = ? 
+             AND id_persona = ?
+             AND id_horario != ?
+            `,
+            [hora_inicio, hora_final, id_salon, id_grupo, id_persona, id_horario]
+        );
+        if (horarioDuplicado.length > 0) {
+            return res.status(400).json({ success: false, message: 'Ya existe un horario con estos datos.' });
+        }   
+        // Actualizar el horario
         await conexion.promise().query(
             `UPDATE horario 
-             SET id_salon = ?, id_materia = ?, id_persona = ?
-             WHERE id_horario = ?`,
-            [id_salon, id_materia, id_persona, id]
+             SET dia_horario = ?, hora_inicio = ?, hora_final = ?, id_salon = ?, id_grupo = ?, id_materia = ?, id_persona = ?
+             WHERE id_horario = ? AND id_escuela = ?`,
+            [dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona, id_horario, idEscuela]
         );
-
         res.json({ success: true, message: 'Horario actualizado correctamente.' });
     } catch (error) {
-        console.error('Error al actualizar horario:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        console.error('Error al editar horario:', error);
+        res.status(500).json({ success: false, error: 'Error al editar horario' });
     }
 });
+
+
+
 
 // --------------------------------- FIN RUTA EDITAR HORARIO ------------------------------------
 
