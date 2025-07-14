@@ -475,7 +475,8 @@ async function abrirModal(reporteId) {
         
         // Llenar los campos del modal
         document.getElementById('modal-id-reporte').value = reporte.id_reporte;
-        document.getElementById('modal-tipo-reporte').value = reporte.tipo_reporte.toString();
+        document.getElementById('modal-tipo-reporte').value = reporte.id_tiporeporte?.toString() || '';
+
 
 // Mostrar tipo de reporte visual arriba del select
 const tipoSelect = document.getElementById('modal-tipo-reporte');
@@ -485,11 +486,16 @@ const tipoVisual = document.createElement('div');
 tipoVisual.className = 'tipo-reporte-display';
 
 let tipoTexto = "";
-if (tipoSelect && tipoSelect.options.length > 0 && tipoSelect.selectedIndex >= 0) {
-    tipoTexto = tipoSelect.options[tipoSelect.selectedIndex].text;
+const selectedOption = tipoSelect?.options?.[tipoSelect.selectedIndex];
+if (selectedOption && selectedOption.text) {
+    tipoTexto = selectedOption.text;
+} else if (tipoSelect?.value) {
+    const matching = Array.from(tipoSelect.options).find(opt => opt.value === tipoSelect.value);
+    tipoTexto = matching ? matching.text : tipoSelect.value;
 } else {
     tipoTexto = "Sin tipo de reporte asignado";
 }
+
 
 tipoVisual.textContent = `Tipo de Reporte: ${tipoTexto}`;
 tipoSelect.parentElement.insertBefore(tipoVisual, tipoSelect);
@@ -532,6 +538,26 @@ tipoSelect.parentElement.insertBefore(tipoVisual, tipoSelect);
     imagenContainer.appendChild(actions);
 
         }
+    // Botones de acción (siempre visibles)
+const actions = document.createElement("div");
+actions.className = "modal-actions";
+
+const btnEliminar = document.createElement("button");
+btnEliminar.className = "btn-delete";
+btnEliminar.type = "button";
+btnEliminar.innerHTML = '<i class="fas fa-trash"></i> Eliminar';
+btnEliminar.onclick = () => confirmarEliminacion(reporte.id_reporte);
+actions.appendChild(btnEliminar);
+
+const btnGuardar = document.createElement("button");
+btnGuardar.className = "btn-save";
+btnGuardar.type = "submit";
+btnGuardar.form = "form-editar-reporte";
+btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar';
+actions.appendChild(btnGuardar);
+
+imagenContainer.appendChild(actions);
+
 
         // Mostrar modal
         modal.style.display = "flex";
@@ -608,6 +634,17 @@ document.getElementById('form-editar-reporte').addEventListener('submit', async 
     const id_reporte = document.getElementById('modal-id-reporte').value;
     const id_tiporeporte = document.getElementById('modal-tipo-reporte').value;
     const descripcion = document.getElementById('modal-descripcion').value;
+
+    if (!id_tiporeporte) {
+        createToast(
+            "advertencia",
+            "fa-solid fa-triangle-exclamation",
+            "Aviso",
+            "Debes seleccionar un tipo de reporte antes de guardar."
+        );
+        ocultarLoader();
+        return;
+    }
 
     console.log('Datos a actualizar:', { id_reporte, id_tiporeporte, descripcion });
 
