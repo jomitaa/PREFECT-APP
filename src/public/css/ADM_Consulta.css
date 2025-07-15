@@ -628,55 +628,6 @@ main .breadcrumbs li.divider {
 
 
 
-@media (max-width: 768px) {
-    .filters {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .horarios-list {
-        flex-direction: column;
-    }
-
-    .horario-header {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .horario-content {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .acciones {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .container {
-        font-size: 0.9rem; /* Slightly smaller font on mobile for better fit */
-    }
-
-    .checkmark {
-        height: 1em;
-        width: 1em;
-    }
-
-    /* Swap the order of horario-header and horario-content */
-    .horario-card {
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        grid-template-areas: "content header"; /* Change order for small screens */
-    }
-
-    .horario-header {
-        grid-area: header;
-        order: 2; /* Moves horario-header to the right */
-    }
-
-    .horario-content {
-        grid-area: content;
-        order: 1; /* Moves horario-content to the left */
-    }
-}
 
 /* For screens smaller than 480px (mobile devices) */
 @media (max-width: 480px) {
@@ -1103,4 +1054,193 @@ input[type="date"]:focus {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
-  
+
+/* ADM_Consulta.css */
+
+/* ... (código CSS anterior) ... */
+
+@media (max-width: 768px) {
+    /* Ajuste de filtros para 2 columnas */
+    .filters {
+        grid-template-columns: repeat(2, 1fr); /* Esto ahora se aplicará correctamente para 2 columnas */
+        gap: 10px; /* Mantén o ajusta el espacio según sea necesario */
+        /* Elimina o comenta cualquier 'flex-direction: column;' o 'align-items: stretch;'
+           que pueda estar aquí para .filters, ya que entran en conflicto con el diseño de cuadrícula. */
+    }
+
+    .filter-btn {
+	grid-column: span 2;
+	transition: all .3s ease;
+	background: var(--blue);
+	color: var(--dark);
+	padding: 10px;
+	border-radius: 8px;
+	border: none;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+
+    /* Ajuste original de .horarios-list */
+    .horarios-list {
+        flex-direction: column;
+    }
+
+    /* Ajuste original de .horario-header */
+    .horario-header {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Ajuste original de .horario-content */
+    .horario-content {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Ajuste original de .acciones */
+    .acciones {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Ajuste original del tamaño de fuente de .container */
+    .container {
+        font-size: 0.9rem; /* Fuente ligeramente más pequeña en el móvil para un mejor ajuste */
+    }
+
+    /* Ajuste original del tamaño de .checkmark */
+    .checkmark {
+        height: 1em;
+        width: 1em;
+    }
+
+    /* Intercambiar el orden de horario-header y horario-content */
+    .horario-card {
+        display: grid; /* Mantén esto como cuadrícula para usar grid-template-areas */
+        grid-template-columns: 1fr 2fr;
+        grid-template-areas: "content header"; /* Cambiar el orden para pantallas pequeñas */
+    }
+
+    .horario-header {
+        grid-area: header;
+        order: 2; /* Mueve horario-header a la derecha */
+    }
+
+    .horario-content {
+        grid-area: content;
+        order: 1; /* Mueve horario-content a la izquierda */
+    }
+
+    /* Tus estilos existentes para el contenido principal y la navegación en esta consulta de medios */
+    #content {
+        position: relative;
+        width: calc(100% - 60px);
+        transition: all .3s ease;
+    }
+    nav .nav-link,
+    nav .divider {
+        display: none;
+    }
+    /* --- HORARIO CARD: Transformación a tarjeta --- */
+    /* Asegúrate de que esta sección esté como estaba, ya que apunta a los detalles de .horario-card */
+    .horario-card {
+        display: block; /* Anula la cuadrícula de arriba para la visualización de la tarjeta */
+        margin-bottom: 20px;
+        border: 1px solid var(--grey);
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        background-color: var(--light);
+        box-sizing: border-box;
+    }
+
+    .horario-card .horario-header {
+        display: none;
+    }
+
+    .horario-card .horario-content {
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-sizing;
+    }
+
+    .horario-card .horario-content > span {
+        display: block;
+        position: relative;
+        padding-left: 120px;
+        margin-bottom: 8px;
+        text-align: left;
+        color: var(--dark);
+        box-sizing: border-box;
+    }
+
+    .horario-card .horario-content > span::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 110px;
+        font-weight: bold;
+        color: var(--blue);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
+    }
+
+    .horario-card .horario-content > span[data-label="Estado"] {
+        text-align: center;
+        padding-left: 0;
+    }
+
+    .horario-card .horario-content > span[data-label="Estado"]::before {
+        display: none;
+    }
+
+    .horario-card .horario-content .asis,
+    .horario-card .horario-content .falta,
+    .horario-card .horario-content .ret {
+        margin-bottom: 5px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        display: inline-block;
+        min-width: 80px;
+        box-sizing: border-box;
+    }
+
+    /* Esta regla es crucial para el diseño de 2 botones en pantallas pequeñas */
+    .horario-card .horario-content .acciones {
+        padding-left: 0;
+        margin-top: 15px;
+        display: flex;
+        justify-content: center; /* Centra el grupo de 2 botones */
+        gap: 15px; /* Espacio entre los botones */
+        flex-wrap: wrap; /* Permite que los botones se envuelvan */
+        width: 100%; /* Asegura que el contenedor ocupe todo el ancho */
+        box-sizing: border-box;
+    }
+}
+
+/* Para pantallas más pequeñas de 480px (dispositivos móviles) */
+@media (max-width: 480px) {
+    main .title {
+        font-size: 22px;
+    }
+
+    .breadcrumbs li,
+    .breadcrumbs li a {
+        font-size: 14px;
+    }
+
+    .filters button, .filters select {
+        width: 100%;
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+
+    .horario-header {
+        grid-template-columns: 1fr;
+    }
+
+    .horario-content {
+        grid-template-columns: 1fr;
+    }
+}

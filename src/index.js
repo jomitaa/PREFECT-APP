@@ -1517,18 +1517,51 @@ app.put('/api/editarsur/:id', async (req, res) => {
 
     console.log('Datos recibidos en el servidor:', { userName, userEmail, userCargo, userPassword, confirmar_contrasena });
 
-    if (!userName || !userCargo || !userPassword || !confirmar_contrasena) {
-        return res.status(400).json({ error: 'Faltan datos del usuario' });
+    // Validar que al menos un campo fue proporcionado
+    if (!userName && !userEmail && !userCargo && !userPassword && !confirmar_contrasena) {
+        return res.status(400).json({ error: 'Debe proporcionar al menos un campo para actualizar' });
     }
 
-    if (userPassword !== confirmar_contrasena) {
+    // Validar que si se envía contraseña, también venga confirmación
+    if ((userPassword && !confirmar_contrasena) || (!userPassword && confirmar_contrasena)) {
+        return res.status(400).json({ error: 'Debe proporcionar ambas contraseñas para actualizar' });
+    }
+
+    // Validar coincidencia de contraseñas si se proporcionaron
+    if (userPassword && confirmar_contrasena && userPassword !== confirmar_contrasena) {
         return res.status(400).json({ error: 'Las contraseñas no coinciden' });
     }
 
-    const query = `UPDATE usuario SET nom_usuario = ?, cargo = ?, contraseña = ? WHERE ID_usuario = ?`;
+    // Construir la consulta dinámicamente
+    let query = 'UPDATE usuario SET ';
+    const params = [];
+    let updates = [];
+
+    if (userName) {
+        updates.push('nom_usuario = ?');
+        params.push(userName);
+    }
+
+    if (userEmail) {
+        updates.push('correo = ?');
+        params.push(userEmail);
+    }
+
+    if (userCargo) {
+        updates.push('cargo = ?');
+        params.push(userCargo);
+    }
+
+    if (userPassword) {
+        updates.push('contraseña = ?');
+        params.push(userPassword);
+    }
+
+    query += updates.join(', ') + ' WHERE ID_usuario = ?';
+    params.push(id);
 
     try {
-        const [results] = await conexion.promise().query(query, [userName, userCargo, userPassword, id]);
+        const [results] = await conexion.promise().query(query, params);
 
         if (results.affectedRows === 0) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -1540,7 +1573,6 @@ app.put('/api/editarsur/:id', async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
-
 
 // ------------------------------- FIN RUTA DE EDITAR USUARIO --------------------------------
 

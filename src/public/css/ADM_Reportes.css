@@ -1107,3 +1107,33 @@ input[type="date"]:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--light-blue);
 }
+
+
+@media (max-width: 768px) {
+    /* Ajuste de filtros para 2 columnas */
+    .filters {
+        grid-template-columns: repeat(2, 1fr); /* Esto ahora se aplicará correctamente para 2 columnas */
+        gap: 10px; /* Mantén o ajusta el espacio según sea necesario */
+        /* Elimina o comenta cualquier 'flex-direction: column;' o 'align-items: stretch;'
+           que pueda estar aquí para .filters, ya que entran en conflicto con el diseño de cuadrícula. */
+    }
+
+    .filter-btn{
+        grid-column: span 2; /* Asegúrate de que el botón de filtro ocupe todo el ancho */
+    }
+}
+
+
+@media (max-width: 440px) {
+    /* Ajuste de filtros para 2 columnas */
+    .filters {
+        grid-template-columns: repeat(1, 1fr); /* Esto ahora se aplicará correctamente para 2 columnas */
+        gap: 10px; /* Mantén o ajusta el espacio según sea necesario */
+        /* Elimina o comenta cualquier 'flex-direction: column;' o 'align-items: stretch;'
+           que pueda estar aquí para .filters, ya que entran en conflicto con el diseño de cuadrícula. */
+    }
+
+    .filter-btn{
+        grid-column: span 1; /* Asegúrate de que el botón de filtro ocupe todo el ancho */
+    }
+}
