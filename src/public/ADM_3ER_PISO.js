@@ -639,10 +639,7 @@ function mostrar(horarios) {
   const checkboxes = document.querySelectorAll(".checkbox");
   checkboxes.forEach((checkbox, index) => {
     const id_horario = checkbox.dataset.id;
-    if (localStorage.getItem(`checkbox_${id_horario}`) === "true") {
-      checkbox.checked = true;
-      checkbox.disabled = true;
-    }
+    
 
     checkbox.addEventListener("change", checkboxesHandler);
   });
