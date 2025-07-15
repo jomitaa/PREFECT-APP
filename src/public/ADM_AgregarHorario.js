@@ -506,7 +506,7 @@ document.getElementById('btnEnviar').addEventListener('click', async (e) => {
     }
 });
 
-// VARIABLE GLOBAL
+// CSV
 let todosLosGrupos = [];
 document.getElementById("btnCargarHorariosNombresCSV").addEventListener("click", async () => {
   const input = document.getElementById("csvHorariosNombres");
@@ -548,36 +548,28 @@ document.getElementById("btnCargarHorariosNombresCSV").addEventListener("click",
       "Error",
       result.message
     );
+
+    if (result.detalles && result.detalles.length > 0) {
+      mostrarModalErrores(result.detalles);
+    }
   }
 });
-function createToast(tipo, icono, titulo, mensaje) {
-  const alerta = document.querySelector('.alerta');
-  const toast = document.createElement('div');
-  toast.classList.add('toast');
-  if (tipo) toast.classList.add(tipo);
-
-  toast.innerHTML = `
-    <div class="icono">
-      <i class="${icono}"></i>
-    </div>
-    <div class="content">
-      <span class="title">${titulo}</span>
-      <span>${mensaje}</span>
-    </div>
-    <div class="close">
-      <i class="fa-solid fa-xmark"></i>
+function mostrarModalErrores(errores) {
+  const fondo = document.createElement('div');
+  fondo.classList.add('modal-error-csv-fondo');
+  fondo.innerHTML = `
+    <div class="modal-error-csv">
+      <h2>Errores al cargar el archivo</h2>
+      <p>Corrige las siguientes filas antes de volver a intentarlo:</p>
+      <ul>
+        ${errores.map(e => `<li>${e}</li>`).join('')}
+      </ul>
+      <button class="btnCerrarModalError">Cerrar</button>
     </div>
   `;
+  document.body.appendChild(fondo);
 
-  alerta.appendChild(toast);
-
-  setTimeout(() => {
-    toast.remove();
-  }, 5000); // duración del toast
+  fondo.querySelector('.btnCerrarModalError').addEventListener('click', () => {
+    fondo.remove();
+  });
 }
-// Mostrar nombre del archivo CSV seleccionado
-document.getElementById('csvHorariosNombres').addEventListener('change', function () {
-  const archivo = this.files[0];
-  const nombre = archivo ? archivo.name : 'Ningún archivo seleccionado';
-  document.getElementById('nombreArchivoCSV').textContent = `Archivo seleccionado: ${nombre}`;
-});

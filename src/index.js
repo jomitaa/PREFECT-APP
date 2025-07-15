@@ -4192,10 +4192,11 @@ app.post('/csv/horarios-nombres', async (req, res) => {
     const body = bodyBuffer.toString('utf8');
 
     const lines = body.split('\n').filter(line => line.trim() !== '');
-    const rows = lines.slice(1).map(line => {
+    const rows = lines.slice(1).map((line, index) => {
       const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g, ''));
       if (parts.length < 7) return null;
       return {
+        fila: index + 2,
         dia_horario: parts[0],
         grupo: parts[1],
         materia: parts[2],
@@ -4207,86 +4208,89 @@ app.post('/csv/horarios-nombres', async (req, res) => {
     }).filter(Boolean);
 
     let registrosInsertados = 0;
+    let errores = [];
 
     for (const r of rows) {
-      // === Buscar grupo ===
+      let errorFila = [];
+
       const [[grupo]] = await conexion.promise().query(
         'SELECT id_grupo FROM grupo WHERE TRIM(nom_grupo) LIKE ? AND id_escuela = ?',
-        [`%${r.grupo.trim()}%`, idEscuela]
+        [`%${r.grupo}%`, idEscuela]
       );
-      if (grupo) {
-        console.log(`✅ Grupo encontrado: ${r.grupo} → id_grupo=${grupo.id_grupo}`);
-      } else {
-        console.log(`❌ Grupo NO encontrado: ${r.grupo}`);
-      }
+      if (!grupo) errorFila.push("grupo no encontrado");
 
-      // === Buscar materia ===
       const [[materia]] = await conexion.promise().query(
         'SELECT id_materia FROM materia WHERE TRIM(nom_materia) LIKE ? AND id_escuela = ?',
-        [`%${r.materia.trim()}%`, idEscuela]
+        [`%${r.materia}%`, idEscuela]
       );
-      if (materia) {
-        console.log(`✅ Materia encontrada: ${r.materia} → id_materia=${materia.id_materia}`);
-      } else {
-        console.log(`❌ Materia NO encontrada: ${r.materia}`);
-      }
+      if (!materia) errorFila.push("materia no encontrada");
 
-      // === Buscar persona ===
       const [[persona]] = await conexion.promise().query(
         `SELECT id_persona FROM persona 
          WHERE TRIM(CONCAT(nom_persona, ' ', appat_persona, ' ', apmat_persona)) LIKE ?
          AND id_escuela = ?`,
-        [`%${r.profesor.trim()}%`, idEscuela]
+        [`%${r.profesor}%`, idEscuela]
       );
-      if (persona) {
-        console.log(`✅ Profesor encontrado: ${r.profesor} → id_persona=${persona.id_persona}`);
-      } else {
-        console.log(`❌ Profesor NO encontrado: ${r.profesor}`);
-      }
+      if (!persona) errorFila.push("profesor no encontrado");
 
-      const idSalon = parseInt(r.salon.trim());
-      if (!grupo || !materia || !persona || !idSalon) {
-        console.log(`⚠️ Datos incompletos para insertar:`, r);
+      const [[salon]] = await conexion.promise().query(
+        'SELECT id_salon FROM salon WHERE TRIM(nom_salon) LIKE ? AND id_escuela = ?',
+        [`%${r.salon}%`, idEscuela]
+      );
+      if (!salon) errorFila.push("salón no encontrado");
+
+      if (errorFila.length > 0) {
+        errores.push(`Fila ${r.fila}: ${errorFila.join(', ')}`);
         continue;
       }
 
-      // === Insertar horario ===
-try {
-  const [result] = await conexion.promise().query(
-    `INSERT INTO horario 
-     (dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona, id_contenedor, id_escuela)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 2, ?)`,
-    [
-      r.dia_horario,
-      r.hora_inicio,
-      r.hora_final,
-      idSalon,
-      grupo.id_grupo,
-      materia.id_materia,
-      persona.id_persona,
-      idEscuela
-    ]
-  );
+      try {
+        const [result] = await conexion.promise().query(
+          `INSERT INTO horario 
+           (dia_horario, hora_inicio, hora_final, id_salon, id_grupo, id_materia, id_persona, id_contenedor, id_escuela)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 2, ?)`,
+          [
+            r.dia_horario,
+            r.hora_inicio,
+            r.hora_final,
+            salon.id_salon,
+            grupo.id_grupo,
+            materia.id_materia,
+            persona.id_persona,
+            idEscuela
+          ]
+        );
 
-  if (result.affectedRows > 0) {
-    console.log(`✅ Horario insertado para ${r.dia_horario} ${r.hora_inicio}-${r.hora_final}`);
-    registrosInsertados++;
-  } else {
-    console.warn(`⚠️ INSERT ejecutado pero no afectó filas para horario ${r.dia_horario} ${r.hora_inicio}-${r.hora_final}`);
-  }
+        if (result.affectedRows > 0) {
+          registrosInsertados++;
+        } else {
+          errores.push(`Fila ${r.fila}: no se insertó por motivo desconocido`);
+        }
 
-} catch (error) {
-  console.error(`❌ Error al insertar horario:`, error.message);
-}
+      } catch (error) {
+        errores.push(`Fila ${r.fila}: error de inserción (${error.message})`);
+      }
+    }
 
-}
+    if (registrosInsertados === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No se insertó ningún horario.",
+        detalles: errores
+      });
+    }
 
+    return res.json({
+      success: true,
+      message: `Carga completa. Se insertaron ${registrosInsertados} horario(s).`,
+      errores: errores
+    });
 
-  } catch (err) {
-    console.error('❌ Error al insertar horarios desde CSV:', err);
-    res.status(500).json({
+  } catch (error) {
+    console.error('❌ Error general al procesar CSV:', error);
+    return res.status(500).json({
       success: false,
-      message: 'Error interno al procesar el CSV.'
+      message: 'Error interno al procesar el archivo CSV.'
     });
   }
 });
