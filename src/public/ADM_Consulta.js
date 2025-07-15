@@ -519,17 +519,17 @@ async function fetchConsulta() {
 							<span><b>Profesor</b></span>
 							<span><b>Materia</b></span>
 							<span><b>Hora</b></span>
-                            <span><b>Fecha</b></span>
+                            <span><b>Día</b></span>
 							<span><b>Fecha</b></span>
 							<span><b>Estado</b></span>
 						</div>
 						<div class="horario-content">
-							<span>${item.grupo}</span>
-							<span>${item.persona}</span>
-							<span>${item.materia}</span>
-							<span>${item.hora_inicio} - ${item.hora_final}</span>
-                            <span>${item.dia_horario}</span>
-							<span>${item.fecha_asistencia}</span>
+							<span data-label="Grupo">${item.grupo}</span>
+							<span data-label="Profesor">${item.persona}</span>
+							<span data-label="Materia">${item.materia}</span>
+							<span data-label="Hora">${item.hora_inicio} - ${item.hora_final}</span>
+                            <span data-label="Día">${item.dia_horario}</span>
+							<span data-label="Fecha">${item.fecha_asistencia}</span>
 						
                 
             `;
