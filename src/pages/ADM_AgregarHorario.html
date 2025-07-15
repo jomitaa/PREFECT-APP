@@ -169,6 +169,35 @@
             </label>
             <button id="btnCargarHorariosNombresCSV" class="btn">Cargar CSV</button>
             <p id="nombreArchivoCSV" style="margin-top: 10px; font-weight: bold;"></p>
+            <div class="instrucciones-csv">
+              <p><strong>📝 Instrucciones para cargar horarios desde archivo CSV:</strong></p>
+
+              <p>El archivo debe tener una fila de encabezado y las siguientes <strong>7 columnas</strong> separadas por <strong>tabulaciones (↹)</strong> o <strong>comas (,)</strong>:</p>
+
+              <pre>
+            dia_horario	grupo	materia	profesor	salon	hora_inicio	hora_final
+              </pre>
+
+              <p><strong>Ejemplo:</strong></p>
+
+              <pre>
+            Lunes	2IM1	Matemáticas	Juan Pérez	Aula 1	07:00	08:00
+            Martes	3IM2	Física	Ana Gómez	Aula 2	08:00	09:00
+              </pre>
+
+              <ul>
+                <li>✔️ <strong>grupo</strong>: debe existir en el sistema (ej. "2IM1").</li>
+                <li>✔️ <strong>materia</strong>: debe existir (ej. "Matemáticas").</li>
+                <li>✔️ <strong>profesor</strong>: nombre completo (ej. "Juan Pérez Ramírez").</li>
+                <li>✔️ <strong>salon</strong>: nombre del salón (ej. "Aula 1").</li>
+                <li>🕐 <strong>hora_inicio y hora_final</strong>: en formato <code>HH:MM</code>.</li>
+                <li>📁 Guarda el archivo como <strong>CSV delimitado por tabulaciones o comas</strong>.</li>
+              </ul>
+
+              <p style="margin-top: 10px;"><strong>❗ Recomendación:</strong> Si editas el archivo en Excel, guárdalo como <code>CSV UTF-8 (delimitado por comas)</code> o usa un editor de texto como VS Code y asegúrate del tipo de separador.</p>
+            </div>
+
+
           </div>
        <div class="filters">
   <!-- Select de Turno -->

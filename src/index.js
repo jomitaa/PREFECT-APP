@@ -4224,20 +4224,39 @@ app.post('/csv/horarios-nombres', async (req, res) => {
     const body = bodyBuffer.toString('utf8');
 
     const lines = body.split('\n').filter(line => line.trim() !== '');
-    const rows = lines.slice(1).map((line, index) => {
-      const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g, ''));
-      if (parts.length < 7) return null;
-      return {
-        fila: index + 2,
-        dia_horario: parts[0],
-        grupo: parts[1],
-        materia: parts[2],
-        profesor: parts[3],
-        salon: parts[4],
-        hora_inicio: parts[5],
-        hora_final: parts[6]
-      };
-    }).filter(Boolean);
+    let erroresFormato = [];
+const rows = [];
+
+lines.slice(1).forEach((line, index) => {
+  const filaNum = index + 2;
+  const parts = line.split('\t').map(p => p.trim().replace(/^"|"$/g, ''));
+
+  if (parts.length < 7) {
+    erroresFormato.push(`Fila ${filaNum}: columnas encontradas = ${parts.length}`);
+    return;
+  }
+
+  rows.push({
+    fila: filaNum,
+    dia_horario: parts[0],
+    grupo: parts[1],
+    materia: parts[2],
+    profesor: parts[3],
+    salon: parts[4],
+    hora_inicio: parts[5],
+    hora_final: parts[6]
+  });
+});
+
+// Si hay errores de formato, detener inmediatamente
+if (erroresFormato.length > 0) {
+  return res.status(400).json({
+    success: false,
+    message: "El archivo CSV no tiene el formato correcto. Asegúrate de usar comas (,) como separadores y que tenga 7 columnas por fila.",
+    detalles: erroresFormato
+  });
+}
+
 
     let registrosInsertados = 0;
     let errores = [];

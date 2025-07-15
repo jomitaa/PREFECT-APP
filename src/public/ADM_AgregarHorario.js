@@ -522,6 +522,8 @@ document.getElementById("btnCargarHorariosNombresCSV").addEventListener("click",
   }
 
   const text = await file.text();
+  console.log("Archivo seleccionado:", file);
+console.log("Contenido leído:", text);
 
   const res = await fetch("/csv/horarios-nombres", {
     method: "POST",
@@ -542,12 +544,17 @@ document.getElementById("btnCargarHorariosNombresCSV").addEventListener("click",
     );
     setTimeout(() => location.reload(), 1500);
   } else {
+    let mensaje = result.message || "Error inesperado durante la carga.";
+    if (result.detalles?.length) {
+    mensaje += ` Se detectaron ${result.detalles.length} fila(s) con errores.`;
+    }
     createToast(
-      "error",
-      "fa-solid fa-circle-exclamation",
-      "Error",
-      result.message
+    "error",
+    "fa-solid fa-circle-exclamation",
+    "Error al cargar CSV",
+    mensaje
     );
+
 
     if (result.detalles && result.detalles.length > 0) {
       mostrarModalErrores(result.detalles);
