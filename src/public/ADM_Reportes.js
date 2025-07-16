@@ -466,105 +466,82 @@ async function abrirModal(reporteId) {
         mostrarLoader();
         const response = await fetch(`/obtenerReporte/${reporteId}`);
         const reporte = await response.json();
-        
+
         if (!reporte) {
             throw new Error("Reporte no encontrado");
         }
 
         const modal = document.getElementById('modal-reporte');
-        
+
         // Llenar los campos del modal
         document.getElementById('modal-id-reporte').value = reporte.id_reporte;
         document.getElementById('modal-tipo-reporte').value = reporte.id_tiporeporte?.toString() || '';
 
+        // Mostrar tipo de reporte visual arriba del select
+        const tipoSelect = document.getElementById('modal-tipo-reporte');
+        const oldTipo = document.querySelector('.tipo-reporte-display');
+        if (oldTipo) oldTipo.remove();
+        const tipoVisual = document.createElement('div');
+        tipoVisual.className = 'tipo-reporte-display';
 
-// Mostrar tipo de reporte visual arriba del select
-const tipoSelect = document.getElementById('modal-tipo-reporte');
-const oldTipo = document.querySelector('.tipo-reporte-display');
-if (oldTipo) oldTipo.remove();
-const tipoVisual = document.createElement('div');
-tipoVisual.className = 'tipo-reporte-display';
+        let tipoTexto = "";
+        const selectedOption = tipoSelect?.options?.[tipoSelect.selectedIndex];
+        if (selectedOption && selectedOption.text) {
+            tipoTexto = selectedOption.text;
+        } else if (tipoSelect?.value) {
+            const matching = Array.from(tipoSelect.options).find(opt => opt.value === tipoSelect.value);
+            tipoTexto = matching ? matching.text : tipoSelect.value;
+        } else {
+            tipoTexto = "Sin tipo de reporte asignado";
+        }
 
-let tipoTexto = "";
-const selectedOption = tipoSelect?.options?.[tipoSelect.selectedIndex];
-if (selectedOption && selectedOption.text) {
-    tipoTexto = selectedOption.text;
-} else if (tipoSelect?.value) {
-    const matching = Array.from(tipoSelect.options).find(opt => opt.value === tipoSelect.value);
-    tipoTexto = matching ? matching.text : tipoSelect.value;
-} else {
-    tipoTexto = "Sin tipo de reporte asignado";
-}
-
-
-tipoVisual.textContent = `Tipo de Reporte: ${tipoTexto}`;
-tipoSelect.parentElement.insertBefore(tipoVisual, tipoSelect);
+        tipoVisual.textContent = `Tipo de Reporte: ${tipoTexto}`;
+        tipoSelect.parentElement.insertBefore(tipoVisual, tipoSelect);
 
         document.getElementById('modal-nom-usuario').value = reporte.nom_usuario;
         document.getElementById('modal-descripcion').value = reporte.descripcion;
 
-        // Manejar imagen
+        // Manejar imagen y contenedor de botones
         const imagenContainer = document.getElementById('modal-imagen-container');
         imagenContainer.innerHTML = '';
-        
+
         if (reporte.ruta_imagen) {
             const imgDiv = document.createElement('div');
             imgDiv.className = 'imagen-modal-container';
-            
+
             const imgElement = document.createElement('img');
             imgElement.src = reporte.ruta_imagen;
             imgElement.alt = `Evidencia del reporte ${reporte.id_reporte}`;
             imgDiv.appendChild(imgElement);
             imagenContainer.appendChild(imgDiv);
-
-    // Agregar botones dentro del modal justo debajo de la imagen
-    const actions = document.createElement("div");
-    actions.className = "modal-actions";
-
-    const btnEliminar = document.createElement("button");
-    btnEliminar.className = "btn-delete";
-    btnEliminar.type = "button";
-    btnEliminar.innerHTML = '<i class="fas fa-trash"></i> Eliminar';
-    btnEliminar.onclick = () => confirmarEliminacion(reporte.id_reporte);
-    actions.appendChild(btnEliminar);
-
-    const btnGuardar = document.createElement("button");
-    btnGuardar.className = "btn-save";
-    btnGuardar.type = "submit";
-    btnGuardar.form = "form-editar-reporte";
-    btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar';
-    actions.appendChild(btnGuardar);
-
-    imagenContainer.appendChild(actions);
-
         }
-    // Botones de acción (siempre visibles)
-const actions = document.createElement("div");
-actions.className = "modal-actions";
 
-const btnEliminar = document.createElement("button");
-btnEliminar.className = "btn-delete";
-btnEliminar.type = "button";
-btnEliminar.innerHTML = '<i class="fas fa-trash"></i> Eliminar';
-btnEliminar.onclick = () => confirmarEliminacion(reporte.id_reporte);
-actions.appendChild(btnEliminar);
+        // Agregar botones solo una vez (fuera del if)
+        const actions = document.createElement("div");
+        actions.className = "modal-actions";
 
-const btnGuardar = document.createElement("button");
-btnGuardar.className = "btn-save";
-btnGuardar.type = "submit";
-btnGuardar.form = "form-editar-reporte";
-btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar';
-actions.appendChild(btnGuardar);
+        const btnEliminar = document.createElement("button");
+        btnEliminar.className = "btn-delete";
+        btnEliminar.type = "button";
+        btnEliminar.innerHTML = '<i class="fas fa-trash"></i> Eliminar';
+        btnEliminar.onclick = () => confirmarEliminacion(reporte.id_reporte);
+        actions.appendChild(btnEliminar);
 
-imagenContainer.appendChild(actions);
+        const btnGuardar = document.createElement("button");
+        btnGuardar.className = "btn-save";
+        btnGuardar.type = "submit";
+        btnGuardar.form = "form-editar-reporte";
+        btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar';
+        actions.appendChild(btnGuardar);
 
+        imagenContainer.appendChild(actions);
 
         // Mostrar modal
         modal.style.display = "flex";
         setTimeout(() => {
             modal.classList.add('show');
         }, 10);
-        
+
         ocultarLoader();
     } catch (error) {
         console.error('Error:', error);
@@ -577,6 +554,7 @@ imagenContainer.appendChild(actions);
         ocultarLoader();
     }
 }
+
 
 // Función para confirmar eliminación
 function confirmarEliminacion(reporteId, publicId) {

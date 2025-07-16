@@ -53,13 +53,7 @@ document.getElementById('form-reporte').addEventListener('submit', async functio
       setTimeout(() => { alertaExito.style.display = 'none'; }, 4000);
       document.getElementById('form-reporte').reset();
       document.getElementById('imagen-preview').innerHTML = '';
-
-      
-      // Opcional: Mostrar vista previa de la imagen subida
-      if (resultData.imageUrl) {
-        const previewDiv = document.getElementById('imagen-preview');
-        previewDiv.innerHTML = `<img src="${resultData.imageUrl}" alt="Evidencia del reporte" style="max-width: 200px; margin-top: 10px;">`;
-      }
+        document.getElementById('evidencia').value = '';
     } else {
       alert('Hubo un error al agregar el reporte: ' + (resultData.message || 'Error desconocido'));
     }

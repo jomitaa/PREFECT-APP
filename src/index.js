@@ -4205,8 +4205,8 @@ app.post('/csv/salones', async (req, res) => {
             }
 
             await conexion.promise().query(
-                'INSERT INTO salon (nom_salon, capacidad, id_escuela) VALUES (?, ?, ?)',
-                [salon.nom_salon, salon.capacidad, idEscuela]
+                'INSERT INTO salon (nom_salon, id_escuela) VALUES (?, ?, ?)',
+                [salon.nom_salon, idEscuela]
             );
         }
 
@@ -4225,28 +4225,58 @@ app.post('/csv/horarios-nombres', async (req, res) => {
 
     const lines = body.split('\n').filter(line => line.trim() !== '');
     let erroresFormato = [];
-const rows = [];
+    const rows = [];
 
-lines.slice(1).forEach((line, index) => {
-  const filaNum = index + 2;
-  const parts = line.split('\t').map(p => p.trim().replace(/^"|"$/g, ''));
+    // Detectar separador
+    const separadorDetectado = body.includes('\t') ? '\t' : body.includes(',') ? ',' : null;
 
-  if (parts.length < 7) {
-    erroresFormato.push(`Fila ${filaNum}: columnas encontradas = ${parts.length}`);
-    return;
-  }
+    if (!separadorDetectado) {
+    return res.status(400).json({
+        success: false,
+        message: "El archivo no tiene un formato válido. No se detectaron separadores (comas o tabulaciones).",
+        detalles: []
+    });
+    }
 
-  rows.push({
-    fila: filaNum,
-    dia_horario: parts[0],
-    grupo: parts[1],
-    materia: parts[2],
-    profesor: parts[3],
-    salon: parts[4],
-    hora_inicio: parts[5],
-    hora_final: parts[6]
-  });
-});
+    lines.slice(1).forEach((line, index) => {
+    const filaNum = index + 2;
+    const parts = line.split(separadorDetectado).map(p => p.trim().replace(/^"|"$/g, ''));
+
+    if (parts.length === 0 || parts.every(p => p === '')) {
+        erroresFormato.push(`Fila ${filaNum}: fila vacía.`);
+        return;
+    }
+
+    if (parts.length < 7) {
+        erroresFormato.push(`Fila ${filaNum}: se esperaban 7 columnas, pero se encontraron solo ${parts.length}.`);
+        return;
+    }
+
+    if (parts.length > 7) {
+        erroresFormato.push(`Fila ${filaNum}: se esperaban 7 columnas, pero se encontraron ${parts.length}.`);
+        return;
+    }
+
+    rows.push({
+        fila: filaNum,
+        dia_horario: parts[0],
+        grupo: parts[1],
+        materia: parts[2],
+        profesor: parts[3],
+        salon: parts[4],
+        hora_inicio: parts[5],
+        hora_final: parts[6]
+    });
+    });
+
+    if (erroresFormato.length > 0) {
+    return res.status(400).json({
+        success: false,
+        message: "El archivo tiene errores de formato. Revisa los detalles para corregirlos.",
+        detalles: erroresFormato
+    });
+    }
+
 
 // Si hay errores de formato, detener inmediatamente
 if (erroresFormato.length > 0) {

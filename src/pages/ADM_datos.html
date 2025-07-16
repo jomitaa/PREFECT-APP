@@ -397,6 +397,75 @@
 
 		
 <div class="contenedor-csv">
+	<p><strong>✎ Instrucciones para cargar datos desde archivos:</strong></p>
+
+					<p>Cada archivo debe tener los datos organizados en <strong>columnas específicas</strong> con los siguientes formatos:</p>
+
+					<!-- PROFESORES -->
+					<div class="formato-csv">
+						<h4>1. Profesores</h4>
+						<pre>
+				nombre          apellido_paterno  apellido_materno  correo
+				Juan            Pérez             García            juan.perez@escuela.edu
+				María           López                                maria.lopez@escuela.edu
+						</pre>
+					</div>
+
+					<!-- MATERIAS -->
+					<div class="formato-csv">
+						<h4>2. Materias</h4>
+						<pre>
+				nombre_materia  id_tipomateria
+				Matemáticas     1
+				Programación    2
+						</pre>
+						<ul>
+							<li>✦ <strong>id_tipomateria</strong>: debe existir en el sistema</li>
+						</ul>
+					</div>
+
+					<!-- CARRERAS -->
+					<div class="formato-csv">
+						<h4>3. Carreras</h4>
+						<pre>
+				nom_carrera 
+				Ing. Software
+				Derecho       
+						</pre>
+					</div>
+
+					<!-- GRUPOS -->
+					<div class="formato-csv">
+						<h4>4. Grupos</h4>
+						<pre>
+				nom_grupo  id_carrera  sem_grupo
+				2IM1       1           2          
+				3LDV       2           3          
+						</pre>
+						<ul>
+							<li>✦ <strong>id_carrera</strong> y <strong>id_turno</strong>: deben existir previamente</li>
+						</ul>
+					</div>
+
+					<!-- SALONES -->
+					<div class="formato-csv">
+						<h4>5. Salones</h4>
+						<pre>
+				nom_salon    piso_salon
+				Aula 101     1
+				Lab. 3       2
+						</pre>
+					</div>
+					<div class="notas-importantes">
+						<p><strong>📌 Notas importantes:</strong></p>
+						<ul>
+							<li>✦ La primera línea debe contener <strong>siempre</strong> los encabezados mostrados</li>
+							<li>✦ Los datos deben estar alineados por <strong>columnas</strong> </li>
+							<li>✦ Guardar como archivo CSV</li>
+							<li>✦ Verificar que no haya espacios extras en los datos</li>
+						</ul>
+					</div>
+				</div>
   <h2 class="titulo-csv">Carga desde archivo CSV</h2>
 
   <input type="file" id="csv-profesores" accept=".csv" onchange="procesarCSV(event, 'profesores')" class="input-oculto">
