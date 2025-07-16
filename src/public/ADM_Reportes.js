@@ -19,6 +19,15 @@ function createToast(type, icon, title, text) {
     newToast.timeOut = setTimeout(() => newToast.remove(), 5000);
 }
 
+const fechaInput = document.getElementById("fecha_reporte");
+if (fechaInput) {
+    fechaInput.addEventListener('change', function() {
+        console.log("Fecha seleccionada:", this.value);
+        filtrarHorarios();
+    });
+}
+
+
 
  async function filtrarHorarios() {
     
@@ -34,19 +43,18 @@ function createToast(type, icon, title, text) {
  
          const horariosFiltrados = consulta.filter(consulta => {
 
-             const fechaReporte = consulta.fecha_reporte; 
+             const fechaReporte = new Date(consulta.fecha_reporte).toISOString().split('T')[0];
+            const fechaFiltro = fecha; // Ya está en formato YYYY-MM-DD
 
-             const [year, month, day] = fecha.split("-"); 
-             const fechaUsuario = `${day}/${month}/${year.slice(-2)}`;
+             
 
 
              console.log("Fecha de asistencia:", fechaReporte);
-             console.log("Fecha convertida:", fechaUsuario);
 
              return (
                 (nomUsuarioSeleccionado === '' || consulta.nom_usuario === nomUsuarioSeleccionado) &&
                 (tipoSeleccionado === '' || consulta.tipo_reporte === tipoSeleccionado) &&
-                 (!fecha || fechaReporte === fechaUsuario) 
+                 (!fecha || fechaReporte === fechaFiltro) 
 
              );
          });
