@@ -1010,7 +1010,10 @@ app.post('/confirm-registration', async (req, res) => {
 app.get('/api/horarios', async (req, res) => {
     const diaActual = new Date().toLocaleDateString('es-MX', { weekday: 'long' });
     const diaCapitalizado = diaActual.charAt(0).toUpperCase() + diaActual.slice(1);
-    const diaPrueba = 'Viernes';
+    const horaDia = new Date().getHours() + ':' + String(new Date().getMinutes()).padStart(2, '0');
+    const diaPrueba = diaCapitalizado;
+
+    console.log('Día actual:', diaPrueba, 'Hora actual:', horaDia);
 
       const turno = req.query.turno;
     const fechaActual = new Date();
@@ -2379,34 +2382,47 @@ app.post('/editar-horario', async (req, res) => {
 
 app.get('/api/filtros', async (req, res) => {
     let idEscuela = req.session.id_escuela;
-    try {
-        const [horarios] = await conexion.promise().query(`
-             SELECT DISTINCT
-    h.id_horario,
-    h.dia_horario,
-    h.hora_inicio,
-    h.hora_final,
-    m.nom_materia,
-    CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
-    g.sem_grupo,
-    g.nom_grupo,
-    s.id_salon,
-   
-    per.anio,
-    per.periodo
-FROM
-    horario h
-    INNER JOIN grupo g ON h.id_grupo = g.id_grupo
-    INNER JOIN salon s ON h.id_salon = s.id_salon
-    JOIN materia m ON h.id_materia = m.id_materia
-    JOIN persona p ON h.id_persona = p.id_persona
-   
-    JOIN contenedor c ON h.id_contenedor = c.id_contenedor
-    JOIN periodos per ON c.id_periodo = per.id_periodo
-WHERE h.id_escuela = ?
+     try {
+        // Consulta específica solo para los periodos
+        const [periodos] = await conexion.promise().query(`
+            SELECT DISTINCT 
+                per.periodo AS valor,
+                CASE 
+                    WHEN per.periodo = 1 THEN 'Agosto-Enero'
+                    WHEN per.periodo = 2 THEN 'Febrero-Julio'
+                    ELSE 'Desconocido'
+                END AS texto
+            FROM periodos per
+            JOIN contenedor c ON per.id_periodo = c.id_periodo
+            JOIN horario h ON c.id_contenedor = h.id_contenedor
+            WHERE h.id_escuela = ?
+            ORDER BY per.periodo
         `, [idEscuela]);
 
-        
+        // Consulta para los demás filtros (como estaba)
+        const [horarios] = await conexion.promise().query(`
+            SELECT DISTINCT
+                h.id_horario,
+                h.dia_horario,
+                h.hora_inicio,
+                h.hora_final,
+                m.nom_materia,
+                CONCAT(p.nom_persona, ' ', p.appat_persona) AS nombre_persona,
+                g.sem_grupo,
+                g.nom_grupo,
+                s.id_salon,
+                per.anio
+            FROM horario h
+            INNER JOIN grupo g ON h.id_grupo = g.id_grupo
+            INNER JOIN salon s ON h.id_salon = s.id_salon
+            JOIN materia m ON h.id_materia = m.id_materia
+            JOIN persona p ON h.id_persona = p.id_persona
+            JOIN contenedor c ON h.id_contenedor = c.id_contenedor
+            JOIN periodos per ON c.id_periodo = per.id_periodo
+            WHERE h.id_escuela = ?
+        `, [idEscuela]);
+
+        // Procesar los demás filtros como antes
         const salones = [...new Set(horarios.map(h => h.id_salon))];
         const dias = [...new Set(horarios.map(h => h.dia_horario))];
         const grupos = [...new Set(horarios.map(h => `${h.nom_grupo}`))];
@@ -2415,11 +2431,18 @@ WHERE h.id_escuela = ?
         const horasInicio = [...new Set(horarios.map(h => h.hora_inicio))].sort();
         const horasFin = [...new Set(horarios.map(h => h.hora_final))].sort();
         const anios = [...new Set(horarios.map(h => h.anio))];
-        const periodos = [...new Set(horarios.map(h => h.periodo))];
 
-
-        res.json({ salones, dias, grupos, profesores, materias, horasInicio, horasFin, anios, periodos });
-
+        res.json({ 
+            salones, 
+            dias, 
+            grupos, 
+            profesores, 
+            materias, 
+            horasInicio, 
+            horasFin, 
+            anios, 
+            periodos: periodos // Usamos los periodos de la consulta específica
+        });
     } catch (error) {
         console.error('Error al obtener filtros:', error);
         res.status(500).json({ error: error.message });

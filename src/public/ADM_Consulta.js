@@ -24,6 +24,14 @@ function showLoading(show) {
 }
 
 
+// Agregar evento para el input de fecha
+const fechaInput = document.getElementById("fecha");
+if (fechaInput) {
+    fechaInput.addEventListener('change', function() {
+        console.log("Fecha seleccionada:", this.value);
+        filtrarHorarios();
+    });
+}
 
     
    async function filtrarHorarios() {
@@ -47,8 +55,8 @@ function showLoading(show) {
             if (materiaSeleccionada && item.materia !== materiaSeleccionada) return false;
             if (horaInicioSeleccionada && item.hora_inicio !== horaInicioSeleccionada) return false;
             if (horaFinSeleccionada && item.hora_final !== horaFinSeleccionada) return false;
-            if (anioSeleccionado && item.anio !== anioSeleccionado) return false;
-            if (periodoSeleccionado && item.periodo !== periodoSeleccionado) return false;
+            if (anioSeleccionado && String(item.anio) !== anioSeleccionado) return false;
+            if (periodoSeleccionado && (item.periodo) !== periodoSeleccionado) return false;
             if (registroAsistenciaSeleccionado === "asis" && item.asistencia !== 1) return false;
             if (registroAsistenciaSeleccionado === "ret" && item.retardo !== 1) return false;
             if (registroAsistenciaSeleccionado === "falt" && item.falta !== 1) return false;
@@ -147,8 +155,17 @@ function llenarSelect(tipo, datos) {
             limpiarFiltro(tipo, contenedor);
         };
         opciones.appendChild(limpiarLi);
-    
-        
+        if (tipo === 'periodo') {
+        datos.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item.texto; // Mostrar el texto descriptivo
+            li.setAttribute('data-value', item.valor); // Guardar el valor numérico
+            li.onclick = function() {
+                seleccionarOpcionFiltro(this, tipo);
+            };
+            opciones.appendChild(li);
+        });
+    } else {
             datos.forEach(item => {
                 const li = document.createElement('li');
                 li.textContent = item;
@@ -158,6 +175,7 @@ function llenarSelect(tipo, datos) {
                 };
                 opciones.appendChild(li);
             });
+        }
         }
 
          function seleccionarAsistencia(opcion) {
@@ -210,6 +228,8 @@ function llenarSelect(tipo, datos) {
             
             // Cerrar select
             cerrarSelect(contenedor);
+
+            console.log(`Filtro ${tipo} seleccionado:`, opcion.dataset.value);
 
             filtrarHorarios();
         }

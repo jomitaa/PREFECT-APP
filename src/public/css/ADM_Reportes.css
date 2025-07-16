@@ -523,9 +523,7 @@ main .breadcrumbs li.divider {
     font-weight: 600;
 }
 
-.reporte-content {
-    margin-bottom: 12px;
-}
+
 
 .reporte-content p {
     margin: 0 0 8px 0;
@@ -538,7 +536,7 @@ main .breadcrumbs li.divider {
     border-radius: 4px;
     margin-top: 8px;
     height: auto;
-    max-height: 120px;
+    max-height: 100px;
     object-fit: cover;
 }
 
@@ -547,7 +545,7 @@ main .breadcrumbs li.divider {
     justify-content: space-between;
     font-size: 12px;
     color: var(--dark-grey);
-    padding-top: 8px;
+    padding-top: 1px;
     border-top: 1px solid #eceff1;
 }
 
