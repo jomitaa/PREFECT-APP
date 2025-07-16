@@ -341,7 +341,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btnPDF = document.getElementById("btnDescargarPDF");
   const CambiarGrafica = document.getElementById("btnCambiarGrafica");
 
-  CambiarGrafica.value = "barras"; // Valor por defecto
+  CambiarGrafica.value = "barras";
 
  CambiarGrafica.addEventListener("click", () => {
     if (CambiarGrafica.value === "lineas") {
@@ -351,7 +351,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       CambiarGrafica.value = "lineas";
       CambiarGrafica.textContent = "Cambiar a Gráfica de Barras";
     }
-    obtenerDatos(); // Actualizar los datos al cambiar el tipo de gráfica
+    obtenerDatos(); 
   });
 
 
@@ -949,7 +949,7 @@ function crearTablaOculta() {
     div.innerHTML = `
         <table border="0" style="width:100%; border-collapse: collapse; margin-top: 20px; font-family: Arial, sans-serif; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
             <thead>
-                <tr style="background-color: #4a6baf; color: white;">
+                <tr style="background-color: #4a6baf;">
                     <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Fecha</th>
                     <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Materia</th>
                     <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Horas</th>
