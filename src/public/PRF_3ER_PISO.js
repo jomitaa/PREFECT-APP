@@ -129,6 +129,53 @@ async function filtrarHorarios() {
                 console.error("Error:", error);
             }
         });
+
+
+
+
+        function filtrarGruposDisponibles(turnoSeleccionado) {
+   
+    // Obtener todos los horarios del semestre actual y turno seleccionado
+    const horariosFiltrados = todosLosHorarios.filter(horario => 
+        horario.sem_grupo === semestre && 
+        horario.id_turno == turnoSeleccionado
+    );
+    
+    // Extraer grupos únicos
+    const gruposDisponibles = [...new Set(horariosFiltrados.map(h => h.nom_grupo))];
+    
+    // Actualizar el select de grupos
+    const contenedorGrupo = document.querySelector('.contenedor-select[data-type="grupo"]');
+    if (contenedorGrupo) {
+        const opciones = contenedorGrupo.querySelector('.opciones');
+        opciones.innerHTML = '';
+        
+        // Agregar opción "Limpiar selección"
+        const limpiarLi = document.createElement('li');
+        limpiarLi.className = 'limpiar-seleccion';
+        limpiarLi.innerHTML = '<i class="fas fa-times-circle"></i> Limpiar selección';
+        limpiarLi.onclick = function() {
+            limpiarFiltro('grupo', contenedorGrupo);
+        };
+        opciones.appendChild(limpiarLi);
+        
+        // Agregar grupos disponibles
+        gruposDisponibles.forEach(grupo => {
+            const li = document.createElement('li');
+            li.textContent = grupo;
+            li.setAttribute('data-value', grupo);
+            li.onclick = function() {
+                seleccionarOpcionFiltro(this, 'grupo');
+            };
+            opciones.appendChild(li);
+        });
+        
+        // Resetear selección
+        grupoSeleccionado = 'todas';
+        contenedorGrupo.querySelector('.boton-select span').textContent = 'Seleccione un GRUPO';
+    }
+}
+
         
         // Función para llenar selects
         function llenarSelect(tipo, datos) {
@@ -179,6 +226,10 @@ async function filtrarHorarios() {
             
             // Cerrar select
             cerrarSelect(contenedorTurno);
+
+            if (turnoSeleccionado) {
+                filtrarGruposDisponibles(turnoSeleccionado);
+            }
 
             document.querySelectorAll('.contenedor-select:not([data-type="turno"])').forEach(select => {
         select.style.display = 'block';

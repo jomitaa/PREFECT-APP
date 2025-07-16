@@ -44,7 +44,7 @@ if (fechaInput) {
          const horariosFiltrados = consulta.filter(consulta => {
 
              const fechaReporte = new Date(consulta.fecha_reporte).toISOString().split('T')[0];
-            const fechaFiltro = fecha; // Ya está en formato YYYY-MM-DD
+            const fechaFiltro = fecha; 
 
              
 
